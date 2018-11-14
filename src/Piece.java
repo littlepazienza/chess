@@ -1,10 +1,12 @@
+import java.awt.Image;
+
 public abstract class Piece
 {
 			protected char file; //vertical coordinate of piece
 			protected int row; //horizontal coordinate of piece
 			protected boolean captured;
 
-			public Piece(String file, int r)
+			public Piece(char file, int r)
 			{
 				this.file = file;
 				this.row = row;
@@ -13,15 +15,15 @@ public abstract class Piece
 
 			public void capture(){captured = true;}
 
-			public void move(String file, int row)
+			public void move(char file, int row)
 			{
 				this.file = file;
 				this.row = row;
 			}
 
 			//true if this piece can move to (f, r)
-			public boolean validMove(String f, int r);
+			public abstract boolean validMove(char f, int r);
 
-			public Image getImage();
+			public abstract Image getImage();
 
 }
