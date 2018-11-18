@@ -4,14 +4,13 @@ public class GameBoard
 {
 
 	protected Piece[][] board = new Piece[8][8];
-	protected ArrayList<Piece> white, black;
+	protected ArrayList<Piece> captured;
+	
 	
 	public GameBoard()
 	{
 		board = new Piece[8][8];
-		white = new ArrayList<>();
-		black = new ArrayList<>();
-
+		captured = new ArrayList<>();
 	}
 	
 	public void GameFill()
@@ -78,6 +77,7 @@ public class GameBoard
 				}
 				else
 				{
+					captured.add(board[fromR][fromF]);
 					board[toR][toF] = board[fromR][fromF];
 					board[fromR][fromF] = null;
 					return true;
@@ -91,6 +91,7 @@ public class GameBoard
 				return false;
 			else
 			{
+				captured.add(board[fromR][fromF]);
 				board[toR][toF] = board[fromR][fromF];
 				board[fromR][fromF] = null;
 				return true;
@@ -100,32 +101,61 @@ public class GameBoard
 
 	private boolean inCheckIfMoveMade(int fromR, int fromF, int toR, int toF)
 	{
+		Piece[][] temp = new Piece[8][8];
+		for(int i = 0; i < 8; i++)
+			for(int j = 0; j < 8; j++)
+				temp[i][j] = board[i][j];
+
+		temp[toR][toF] = temp[fromR][fromF];
+		temp[fromR][fromF] = null;
+
 		for(int i = 0; i < 8; i++)
 			for(int j = 0; j < 8;j++)
-				if(board[i][j].attacking(rowOfKing(board[i][j].color), fileOfKing(board[i][j].color), board))			
+				if(temp[i][j].attacking(rowOfKing(board[i][j].color, temp),
+																fileOfKing(temp[i][j].color, temp), temp))			
 					return true;
 
 		return false;
 	}
 	
-	private int rowOfKing(Piece.Side c)
+	private int rowOfKing(Piece.Side c, Piece[][] A)
 	{
 		for(int i = 0; i < 8;i++)
 			for(int j = 0; j < 8;j++)
-				if(board[i][j] instanceof King && board[i][j].color == c)
+				if(A[i][j] instanceof King && A[i][j].color == c)
 					return i;
 		
 		return -1;
 	}
 
-	private int fileOfKing(Piece.Side c)
+	private int fileOfKing(Piece.Side c, Piece[][] A)
 	{
 		for(int i = 0; i < 8; i++)
 			for(int j = 0; j < 8;j++)
-				if(board[i][j] instanceof King && board[i][j].color == c)
+				if(A[i][j] instanceof King && A[i][j].color == c)
 					return j;
 
 		return -1;
 	}
+	
+	public int update()
+	{
+		pawnPromotion();
+		checkMate();
+		return advantage();
+	}
+
+	private void pawnPromotion()
+	{
+		for(int i = 0;  i < 8;i++)
+		{
+			if(board[7][i] instanceof Pawn)
+				board[7][i] = new Queen(7, i, board[7][i].color);
+			if(board[0][i] instanceof Pawn)
+				board[0][i] = new Queen(0, i, board[0][i].color);
+		}		
+	}
+
+	private void checkMate
 
 }

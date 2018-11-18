@@ -6,7 +6,7 @@ public class King extends Piece
 		super(f, r, c);
 	}
 
-	public boolean validMove(int r, int f, Piece[][] P)
+	public boolean validMove(int r, int f, Piece[][] A)
 	{
 		boolean valid = false;
 		if(r == row + 1 && f == file + 1)
@@ -31,7 +31,7 @@ public class King extends Piece
 
 	public boolean attacking(int r, int f, Piece[][] A)
 	{
-		return false;
+		return validMove(r, f, A) && A[r][f].color != color;
 	}
 
 
