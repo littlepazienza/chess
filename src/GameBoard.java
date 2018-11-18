@@ -59,10 +59,7 @@ public class GameBoard
 		if(board[fromR][fromF] == null)
 			return false;
 
-		if(!board[fromR][fromF].validMove(toR, toF))
-			return false;
-		
-		if(kingInCheck(fromR, fromF, toR, toF))
+		if(!board[fromR][fromF].validMove(toR, toF, board))
 			return false;
 		
 		return true;		

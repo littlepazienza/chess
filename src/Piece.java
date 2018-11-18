@@ -10,7 +10,7 @@ public abstract class Piece
 		this.color = c;
 	}
 
-	public abstract boolean validMove(int f, int r);
+	public abstract boolean validMove(int f, int r, Piece[][] P);
 
 
 	public enum Side

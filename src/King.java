@@ -6,9 +6,27 @@ public class King extends Piece
 		super(f, r, c);
 	}
 
-	public boolean validMove(int r, int f)
+	public boolean validMove(int r, int f, Piece[][] P)
 	{
-		return false;
+		boolean valid = false;
+		if(r == row + 1 && f == file + 1)
+			valid = true;
+		if(r == row -1 && f == file - 1)
+			valid = true;
+		if(r == row + 1 && f == file - 1)
+			valid = true;
+		if(r == row -1 && f == file + 1)
+			valid = true;
+		if(r == row && f == file + 1)
+			valid = true;
+		if(r == row && f == file - 1)
+			valid = true;
+		if(r == row + 1 && f == file)
+			valid = true;
+		if(r == row - 1 && f == file)
+			valid = true;
+
+
 	}
 
 

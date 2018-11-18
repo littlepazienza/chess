@@ -5,7 +5,7 @@ public class Queen extends Piece
 		super(f, r, c);
 	}
 
-	public boolean validMove(int r, int f)
+	public boolean validMove(int r, int f, Piece[][] P)
 	{
 		return false;
 	}
