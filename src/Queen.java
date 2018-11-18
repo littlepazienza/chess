@@ -1,11 +1,11 @@
 public class Queen extends Piece
 {
-	public Queen(int f, int r)
+	public Queen(int r, int f, Side c)
 	{
-		super(f, r);
+		super(f, r, c);
 	}
 
-	public boolean validMove(int f, int r)
+	public boolean validMove(int r, int f)
 	{
 		return false;
 	}

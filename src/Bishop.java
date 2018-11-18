@@ -1,11 +1,11 @@
 public class Bishop extends Piece
 {
-	public Bishop(int f, int r)
+	public Bishop(int r, int f, Side c)
 	{
-		super(f, r);
+		super(f, r, c);
 	}
 
-	public boolean validMove(int f, int r)
+	public boolean validMove(int r, int f)
 	{
 		return false;
 	}
