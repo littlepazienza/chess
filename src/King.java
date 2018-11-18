@@ -26,7 +26,12 @@ public class King extends Piece
 		if(r == row - 1 && f == file)
 			valid = true;
 
+		return valid;
+	}
 
+	public boolean attacking(int r, int f, Piece[][] A)
+	{
+		return false;
 	}
 
 

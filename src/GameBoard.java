@@ -62,13 +62,70 @@ public class GameBoard
 		if(!board[fromR][fromF].validMove(toR, toF, board))
 			return false;
 		
-		return true;		
+		if(board[toR][toF] != null)
+		{
+
+			if(board[toR][toF].color == board[fromR][fromF].color)
+			{
+				return false;
+			}
+			else
+			{
+
+				if(inCheckIfMoveMade(fromR, fromF, toR, toF))
+				{
+					return false;
+				}
+				else
+				{
+					board[toR][toF] = board[fromR][fromF];
+					board[fromR][fromF] = null;
+					return true;
+				}
+
+			}
+		}
+		else
+		{
+			if(inCheckIfMoveMade(fromR, fromF, toR, toF))
+				return false;
+			else
+			{
+				board[toR][toF] = board[fromR][fromF];
+				board[fromR][fromF] = null;
+				return true;
+			}
+		}		
 	}
 
-	private boolean kingInCheck(int fromR, int fromF, int toR, int toF)
+	private boolean inCheckIfMoveMade(int fromR, int fromF, int toR, int toF)
 	{
-		return false;	
+		for(int i = 0; i < 8; i++)
+			for(int j = 0; j < 8;j++)
+				if(board[i][j].attacking(rowOfKing(board[i][j].color), fileOfKing(board[i][j].color), board))			
+					return true;
+
+		return false;
 	}
 	
+	private int rowOfKing(Piece.Side c)
+	{
+		for(int i = 0; i < 8;i++)
+			for(int j = 0; j < 8;j++)
+				if(board[i][j] instanceof King && board[i][j].color == c)
+					return i;
+		
+		return -1;
+	}
+
+	private int fileOfKing(Piece.Side c)
+	{
+		for(int i = 0; i < 8; i++)
+			for(int j = 0; j < 8;j++)
+				if(board[i][j] instanceof King && board[i][j].color == c)
+					return j;
+
+		return -1;
+	}
 
 }

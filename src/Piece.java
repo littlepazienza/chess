@@ -12,6 +12,7 @@ public abstract class Piece
 
 	public abstract boolean validMove(int f, int r, Piece[][] P);
 
+	public abstract boolean attacking(int r, int f, Piece[][] A);
 
 	public enum Side
 	{

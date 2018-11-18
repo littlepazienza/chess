@@ -9,4 +9,11 @@ public class Pawn extends Piece
 	{
 		return false;
 	}
+
+	public boolean attacking(int r, int f, Piece[][] A)
+	{
+		return false;
+	}
 }
+
+

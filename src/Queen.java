@@ -9,4 +9,9 @@ public class Queen extends Piece
 	{
 		return false;
 	}
+
+	public boolean attacking(int r, int f, Piece[][] P)
+	{
+		return false;
+	}
 }
