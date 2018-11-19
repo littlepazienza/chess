@@ -1,3 +1,5 @@
+import javax.swing.ImageIcon;
+
 public abstract class Piece
 {
 	protected int file, row;
@@ -13,6 +15,8 @@ public abstract class Piece
 	public abstract boolean validMove(int r, int f, Piece[][] A);
 
 	public abstract boolean attacking(int r, int f, Piece[][] A);
+	
+	public abstract ImageIcon getImage(boolean onWhite);
 
 	public void setCoord(int r, int f)
 	{

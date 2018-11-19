@@ -1,3 +1,5 @@
+import javax.swing.ImageIcon;
+
 public class Pawn extends Piece
 {
 	public Pawn(int r, int f, Side c)
@@ -58,6 +60,18 @@ public class Pawn extends Piece
 	public boolean attacking(int r, int f, Piece[][] A)
 	{
 		return validMove(r, f, A) && A[r][f].color != color;
+	}
+
+	@Override
+	public ImageIcon getImage(boolean onWhite) {
+		if(this.color == Piece.Side.WHITE && onWhite)
+			return new ImageIcon("res/white_pawn_on_white.png");
+		if(this.color == Piece.Side.WHITE && !onWhite)
+			return new ImageIcon("res/white_pawn_on_black.png");
+		if(this.color == Piece.Side.BLACK && onWhite)
+			return new ImageIcon("res/black_pawn_on_white.png");
+		else
+			return new ImageIcon("res/black_pawn_on_black.png");
 	}
 }
 

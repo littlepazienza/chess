@@ -1,8 +1,12 @@
 import java.awt.BorderLayout;
+import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 import BreezySwing.*;
+
+import javax.swing.Icon;
+import javax.swing.ImageIcon;
 import javax.swing.JButton;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
@@ -15,6 +19,8 @@ public class Play extends JFrame implements ActionListener
 	protected GameBoard g;
 	boolean whiteTurn;
 	protected int selectedR, selectedF;
+	JPanel frame = new JPanel();
+	
 	public Play()
 	{
 		g = new GameBoard();
@@ -24,18 +30,9 @@ public class Play extends JFrame implements ActionListener
 		selectedF = -1;
 		buttons = new tileButton[8][8];
 		
-		JPanel frame = new JPanel();
+		update();
+		
 		frame.setLayout(null);
-	
-		for(int i = 1 ; i <= 8;i++)
-			for(int j = 0; j < 8;j++)
-			{
-				JButton button = new tileButton("" + files[j] + i, i-1, j);
-				button.addActionListener(this);
-				button.setBounds((40 + 50*j), (440 - 50*i), 50, 50);
-				frame.add(button);		
-				buttons[i-1][j] = button;
-			}
 		
 		getContentPane().add(frame, 0);
 		frame.setSize(600, 600);
@@ -47,7 +44,7 @@ public class Play extends JFrame implements ActionListener
 	{
 		Play p = new Play();
 		p.setVisible(true);
-		p.setSize(505, 530);
+		p.setSize(800, 800);
 	}
 
 	public void actionPerformed(ActionEvent e) {
@@ -62,7 +59,6 @@ public class Play extends JFrame implements ActionListener
 		{
 			if(g.makeMove(selectedR, selectedF, b.row, b.file))
 			{
-				update();
 				selectedR = -1;
 			}
 			else
@@ -72,26 +68,63 @@ public class Play extends JFrame implements ActionListener
 			}
 			
 		}
-			
+		update();
 	}
 	
 	private void update()
 	{
-		for(int i = 0; i < 8; i++)
+		frame.removeAll();
+		boolean white = true;
+		for(int i = 0 ; i < 8;i++)
+		{	
+			if(white)
+				white = false;
+			else
+				white = true;
+			
 			for(int j = 0; j < 8;j++)
-			{
+			{				
+				JButton button;
+				if(g.board[i][j] != null)
+					button = new tileButton(g.board[i][j].getImage(white), i, j);
+				else
+				{
+					if(white)
+						button = new tileButton(new ImageIcon("res/white.png"), i, j);
+					else
+						button = new tileButton(new ImageIcon("res/black.png"), i, j);
+				}
+				button.setBounds((40 + 75*j), (600 - 75*i), 75, 75);
+				button.setIcon(resizeIcon(button.getIcon(), button.getWidth(), button.getHeight()));
+				button.addActionListener(this);
+				frame.add(button);	
 				
+				buttons[i][j] = button;
+				
+				if(white)
+					white =false;
+				else
+					white = true;
 			}
+			frame.repaint();
+		}
+	}
+	
+	private static Icon resizeIcon(Icon icon, int resizedWidth, int resizedHeight) {
+	    Image img = ((ImageIcon) icon).getImage();  
+	    Image resizedImage = img.getScaledInstance(resizedWidth, resizedHeight,  java.awt.Image.SCALE_SMOOTH);  
+	    return new ImageIcon(resizedImage);
 	}
 	
 	class tileButton extends JButton
 	{
 		protected int file, row;
-		public tileButton(String txt, int r, int f) 
+		public tileButton(ImageIcon txt, int r, int f) 
 		{
 			super(txt);
 			this.row = r;
 			this.file = f;
 		}
+		
 	}
 }

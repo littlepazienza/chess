@@ -1,3 +1,5 @@
+import javax.swing.ImageIcon;
+
 public class Knight extends Piece
 {
 	public Knight(int r, int f, Side c)
@@ -31,5 +33,16 @@ public class Knight extends Piece
 	{
 		return validMove(r, f, A) && A[r][f].color != color;
 	}
+	
+	public ImageIcon getImage(boolean onWhite) {
+		if(this.color == Piece.Side.WHITE && onWhite)
+			return new ImageIcon("res/white_knight_on_white.png");
+		if(this.color == Piece.Side.WHITE && !onWhite)
+			return new ImageIcon("res/white_knight_on_black.png");
+		if(this.color == Piece.Side.BLACK && onWhite)
+			return new ImageIcon("res/black_knight_on_white.png");
+		else
+			return new ImageIcon("res/black_knight_on_black.png");
+	}		
 
 }

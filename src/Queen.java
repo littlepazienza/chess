@@ -1,3 +1,5 @@
+import javax.swing.ImageIcon;
+
 public class Queen extends Piece
 {
 	public Queen(int r, int f, Side c)
@@ -86,5 +88,16 @@ public class Queen extends Piece
 	public boolean attacking(int r, int f, Piece[][] P)
 	{
 		return false;
+	}
+	
+	public ImageIcon getImage(boolean onWhite) {
+		if(this.color == Piece.Side.WHITE && onWhite)
+			return new ImageIcon("res/white_queen_on_white.png");
+		if(this.color == Piece.Side.WHITE && !onWhite)
+			return new ImageIcon("res/white_queen_on_black.png");
+		if(this.color == Piece.Side.BLACK && onWhite)
+			return new ImageIcon("res/black_queen_on_white.png");
+		else
+			return new ImageIcon("res/black_queen_on_black.png");
 	}
 }
