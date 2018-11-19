@@ -51,6 +51,9 @@ public class GameBoard
 		board[6][1] = new Pawn(6, 1, Piece.Side.BLACK);
 		board[6][0] = new Pawn(6, 0, Piece.Side.BLACK);
 
+		for(int i = 2; i < 6;i++)
+			for(int j = 0; j < 8;j++)
+				board[i][j] = null;
 	}
 
 	public boolean makeMove(int fromR, int fromF, int toR, int toF)
@@ -79,6 +82,7 @@ public class GameBoard
 				{
 					captured.add(board[fromR][fromF]);
 					board[toR][toF] = board[fromR][fromF];
+					board[toR][toF].setCoord(toR, toF);
 					board[fromR][fromF] = null;
 					return true;
 				}
@@ -93,6 +97,7 @@ public class GameBoard
 			{
 				captured.add(board[fromR][fromF]);
 				board[toR][toF] = board[fromR][fromF];
+				board[toR][toF].setCoord(toR, toF);
 				board[fromR][fromF] = null;
 				return true;
 			}
@@ -107,11 +112,12 @@ public class GameBoard
 				temp[i][j] = board[i][j];
 
 		temp[toR][toF] = temp[fromR][fromF];
+		temp[toR][toF].setCoord(toR, toF);
 		temp[fromR][fromF] = null;
 
 		for(int i = 0; i < 8; i++)
 			for(int j = 0; j < 8;j++)
-				if(temp[i][j].attacking(rowOfKing(board[i][j].color, temp),
+				if(temp[i][j] != null && temp[i][j].attacking(rowOfKing(temp[i][j].color, temp),
 																fileOfKing(temp[i][j].color, temp), temp))			
 					return true;
 
@@ -137,15 +143,8 @@ public class GameBoard
 
 		return -1;
 	}
-	
-	public int update()
-	{
-		pawnPromotion();
-		checkMate();
-		return advantage();
-	}
 
-	private void pawnPromotion()
+	public void pawnPromotion()
 	{
 		for(int i = 0;  i < 8;i++)
 		{
@@ -156,6 +155,14 @@ public class GameBoard
 		}		
 	}
 
-	private void checkMate
+	public int advantage()
+	{
+		return -1;
+	}
+	
+	public boolean checkMate()
+	{
+		return false;
+	}
 
 }

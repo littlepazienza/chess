@@ -14,6 +14,12 @@ public abstract class Piece
 
 	public abstract boolean attacking(int r, int f, Piece[][] A);
 
+	public void setCoord(int r, int f)
+	{
+		this.row = r;
+		this.file = f;
+	}
+	
 	public enum Side
 	{
 		WHITE, BLACK
