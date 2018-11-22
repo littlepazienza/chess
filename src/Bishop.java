@@ -11,36 +11,36 @@ public class Bishop extends Piece
 	{
 		if(Math.abs(r -row) == Math.abs(f - file) && r > row && f > file)
 		{
-			for(int i = row; i < r;i++)
+			for(int i = 1; i < r -row;i++)
 		 	{
-		    if(P[i][i] != null)
+		    if(P[row + i][file + i] != null)
 				  return false;
 			}
 			return true;
 		}
 		else if(Math.abs(r - row) == Math.abs(f - file) && r < row && f < file)
 		{
-			for(int i = row; i > r;i--)
+			for(int i = 1; i < f - file;i++)
 		  {
-		    if(P[i][i] != null)
+		    if(P[row - i][file - i] != null)
 		      return false;
 		  }
 		  return true;
 		}
 		else if(Math.abs(r - row) == Math.abs(f - file) && r < row && f > file)
 		{
-		  for(int i = file; i < f;i++)
+		  for(int i = 1; i < f - file;i++)
 		  {
-		    if(P[1-i][i] != null)
+		    if(P[row - i][file + i] != null)
 		       return false;
 		  }
 		  return true;
 		}
 		else if(Math.abs(r - row) == Math.abs(f - file) && r > row && f < file)
 		{
-		  for(int i = row; i < r;i++)
+		  for(int i = 1; i < r-row;i++)
 		  {
-			  if(P[i][1-i] != null)
+			  if(P[row + i][file - i] != null)
 			    return false;
 		  }
 			return true;
@@ -64,4 +64,6 @@ public class Bishop extends Piece
 		else
 			return new ImageIcon("res/black_bishop_on_black.png");
 	}
+	
+	public int value() {return 3;}
 }

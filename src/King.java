@@ -47,5 +47,6 @@ public class King extends Piece
 			return new ImageIcon("res/black_king_on_black.png");
 	}
 
+	public int value() {return 0;}
 
 }

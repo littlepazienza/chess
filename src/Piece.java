@@ -24,6 +24,8 @@ public abstract class Piece
 		this.file = f;
 	}
 	
+	public abstract int value();
+	
 	public enum Side
 	{
 		WHITE, BLACK

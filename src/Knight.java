@@ -45,4 +45,5 @@ public class Knight extends Piece
 			return new ImageIcon("res/black_knight_on_black.png");
 	}		
 
+	public int value() {return 3;}
 }

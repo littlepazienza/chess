@@ -1,11 +1,22 @@
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import java.util.ArrayList;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JFrame;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 
 public class GameBoard
 {
 
 	protected Piece[][] board = new Piece[8][8];
 	protected ArrayList<Piece> captured;
-	
+	protected final int BLACK_WIN = 0;
+	protected final int WHITE_WIN = 1;
+	protected final int CONTINUE = 2;
 	
 	public GameBoard()
 	{
@@ -55,6 +66,17 @@ public class GameBoard
 			for(int j = 0; j < 8;j++)
 				board[i][j] = null;
 	}
+	
+	public int endGameStatus()
+	{
+		if(whiteInCheck())
+			if(whiteCheckMate())
+				return BLACK_WIN;
+		else if (blackInCheck())
+			if(blackCheckMate())
+				return WHITE_WIN;
+		return CONTINUE;
+	}
 
 	public boolean makeMove(int fromR, int fromF, int toR, int toF)
 	{
@@ -80,7 +102,7 @@ public class GameBoard
 				}
 				else
 				{
-					captured.add(board[fromR][fromF]);
+					captured.add(board[toR][toF]);
 					board[toR][toF] = board[fromR][fromF];
 					board[toR][toF].setCoord(toR, toF);
 					board[fromR][fromF] = null;
@@ -95,7 +117,6 @@ public class GameBoard
 				return false;
 			else
 			{
-				captured.add(board[fromR][fromF]);
 				board[toR][toF] = board[fromR][fromF];
 				board[toR][toF].setCoord(toR, toF);
 				board[fromR][fromF] = null;
@@ -124,6 +145,30 @@ public class GameBoard
 		return false;
 	}
 	
+	private boolean whiteInCheck()
+	{
+		int r = rowOfKing(Piece.Side.WHITE, board);
+		int f = fileOfKing(Piece.Side.WHITE, board);
+		
+		for(int i = 0; i < 8;i++)
+			for(int j = 0; j < 8;j++)
+				if(board[i][j] != null && board[i][j].attacking(r, f, board))
+					return true;
+		return false;
+	}
+	
+	private boolean blackInCheck()
+	{
+		int r = rowOfKing(Piece.Side.BLACK, board);
+		int f = fileOfKing(Piece.Side.BLACK, board);
+		
+		for(int i = 0; i < 8;i++)
+			for(int j = 0; j < 8;j++)
+				if(board[i][j] != null && board[i][j].attacking(r, f, board))
+					return true;
+		return false;
+	}
+	
 	private int rowOfKing(Piece.Side c, Piece[][] A)
 	{
 		for(int i = 0; i < 8;i++)
@@ -144,25 +189,72 @@ public class GameBoard
 		return -1;
 	}
 
-	public void pawnPromotion()
+	public Pawn pawnPromotion()
 	{
 		for(int i = 0;  i < 8;i++)
 		{
 			if(board[7][i] instanceof Pawn)
-				board[7][i] = new Queen(7, i, board[7][i].color);
-			if(board[0][i] instanceof Pawn)
-				board[0][i] = new Queen(0, i, board[0][i].color);
-		}		
-	}
-
-	public int advantage()
-	{
-		return -1;
+				return (Pawn) board[7][i];
+			else if(board[0][i] instanceof Pawn)
+				return (Pawn) board[0][i];
+		}
+		return null;
 	}
 	
-	public boolean checkMate()
+	public boolean whiteCheckMate()
 	{
-		return false;
+		int r = rowOfKing(Piece.Side.WHITE, board);
+		int f = fileOfKing(Piece.Side.WHITE, board);
+		
+		for(int i=0;i<8;i++)
+			for(int j=0;j<8;j++)
+				if(makeMove(r, f, i, j) && !inCheckIfMoveMade(r, f, i, j))
+					return false;
+		
+		return true;		
 	}
-
+	
+	public boolean blackCheckMate()
+	{	
+		int r = rowOfKing(Piece.Side.BLACK, board);
+		int f = fileOfKing(Piece.Side.BLACK, board);
+		
+		Piece[][] temp = new Piece[8][8];
+		for(int i = 0; i < 8; i++)
+			for(int j = 0; j < 8; j++)
+				temp[i][j] = board[i][j];
+		
+		for(int i=0;i<8;i++)
+			for(int j=0;j<8;j++)
+				if(makeMove(r, f, i, j) && !inCheckIfMoveMade(r, f, i, j))
+					return false;
+		
+		return true;		
+	}
+	
+	public int whiteSum()
+	{
+		int sum = 0;
+		for(int i = 0; i < 8;i++)
+			for(int j = 0; j < 8;j++)
+			{
+				if(board[i][j] != null && board[i][j].color == Piece.Side.WHITE)
+					sum+= board[i][j].value();
+			}
+		
+		return sum;
+	}
+	
+	public int blackSum()
+	{
+		int sum = 0;
+		for(int i = 0; i < 8;i++)
+			for(int j = 0; j < 8;j++)
+			{
+				if(board[i][j] != null && board[i][j].color == Piece.Side.BLACK)
+					sum+= board[i][j].value();
+			}
+		
+		return sum;
+	}
 }

@@ -11,18 +11,36 @@ public class Rook extends Piece
 	{
 		if(r == row && f != file && f > file)
 		{
-			for(int i = file; i < f ;i++)
+			for(int i = 1; i < f-file ;i++)
 			{
-				if(P[r][i] != null)
-					 return false;
+				if(P[r][file+i] != null)
+					return false;
 			}
 			return true;
 		}
 		else if(r == row && f != file && f < file)
 		{
-			for(int i = file; i > f;i--)
+			for(int i = 1; i < file - f;i++)
 			{
-				if(P[r][i] != null)
+				if(P[r][file-i] != null)
+					return false;
+			}
+			return true;
+		}	
+		else if(r != row && f == file && r > row)
+		{
+			for(int i = 1; i < r-row;i++)
+			{
+				if(P[row + i][f] != null)
+					return false;
+			}
+			return true;
+		}
+		else if(r != row && f == file && r < row)
+		{
+			for(int i = 1; i < row - r;i++)
+			{
+				if(P[row - i][f] != null)
 					return false;
 			}
 			return true;
@@ -46,4 +64,6 @@ public class Rook extends Piece
 		else
 			return new ImageIcon("res/black_rook_on_black.png");
 	}
+	
+	public int value() {return 5;}
 }
