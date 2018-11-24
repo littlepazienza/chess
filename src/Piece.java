@@ -14,7 +14,10 @@ public abstract class Piece
 
 	public abstract boolean validMove(int r, int f, Piece[][] A);
 
-	public abstract boolean attacking(int r, int f, Piece[][] A);
+	public boolean attacking(int r, int f, Piece[][] A)
+	{
+		return validMove(r, f, A) && A[r][f] != null && A[r][f].color != color;
+	}
 	
 	public abstract ImageIcon getImage(boolean onWhite);
 

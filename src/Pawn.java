@@ -76,10 +76,6 @@ public class Pawn extends Piece
 		}
 	}
 
-	public boolean attacking(int r, int f, Piece[][] A)
-	{
-		return validMove(r, f, A) && A[r][f].color != color;
-	}
 
 	@Override
 	public ImageIcon getImage(boolean onWhite) {

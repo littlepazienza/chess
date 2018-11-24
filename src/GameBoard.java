@@ -70,11 +70,19 @@ public class GameBoard
 	public int endGameStatus()
 	{
 		if(whiteInCheck())
+		{
 			if(whiteCheckMate())
+			{
 				return BLACK_WIN;
+			}
+		}
 		else if (blackInCheck())
-			if(blackCheckMate())
+		{
+			if(blackCheckMate())	
+			{
 				return WHITE_WIN;
+			}
+		}
 		return CONTINUE;
 	}
 
@@ -96,7 +104,7 @@ public class GameBoard
 			else
 			{
 
-				if(inCheckIfMoveMade(fromR, fromF, toR, toF))
+				if(inCheckIfMoveMade(fromR, fromF, toR, toF, board[fromR][fromF].color))
 				{
 					return false;
 				}
@@ -113,7 +121,7 @@ public class GameBoard
 		}
 		else
 		{
-			if(inCheckIfMoveMade(fromR, fromF, toR, toF))
+			if(inCheckIfMoveMade(fromR, fromF, toR, toF, board[fromR][fromF].color))
 				return false;
 			else
 			{
@@ -124,49 +132,109 @@ public class GameBoard
 			}
 		}		
 	}
+	
+	public boolean fakeMove(int fromR, int fromF, int toR, int toF, Piece[][] P)
+	{
+		if(P[fromR][fromF] == null)
+			return false;
 
-	private boolean inCheckIfMoveMade(int fromR, int fromF, int toR, int toF)
+		if(!P[fromR][fromF].validMove(toR, toF, P))
+			return false;
+		
+		if(P[toR][toF] != null)
+		{
+
+			if(P[toR][toF].color == P[fromR][fromF].color)
+			{
+				return false;
+			}
+			else
+			{
+
+				if(inCheckIfMoveMade(fromR, fromF, toR, toF, P[fromR][fromF].color))
+				{
+					return false;
+				}
+				else
+				{
+					captured.add(P[toR][toF]);
+					P[toR][toF] = P[fromR][fromF];
+					P[toR][toF].setCoord(toR, toF);
+					P[fromR][fromF] = null;
+					return true;
+				}
+
+			}
+		}
+		else
+		{
+			if(inCheckIfMoveMade(fromR, fromF, toR, toF, P[fromR][fromF].color))
+				return false;
+			else
+			{
+				P[toR][toF] = P[fromR][fromF];
+				P[toR][toF].setCoord(toR, toF);
+				P[fromR][fromF] = null;
+				return true;
+			}
+		}		
+	}
+	
+	private Piece[][] getTempOfBoard()
 	{
 		Piece[][] temp = new Piece[8][8];
 		for(int i = 0; i < 8; i++)
 			for(int j = 0; j < 8; j++)
-				temp[i][j] = board[i][j];
+			{
+				if(board[i][j] == null)
+					temp[i][j] = board[i][j];
+				if(board[i][j] instanceof Pawn)
+					temp[i][j] = new Pawn(board[i][j].row, board[i][j].file, board[i][j].color);
+				if(board[i][j] instanceof Bishop)
+					temp[i][j] = new Bishop(board[i][j].row, board[i][j].file, board[i][j].color);
+				if(board[i][j] instanceof Knight)
+					temp[i][j] = new Knight(board[i][j].row, board[i][j].file, board[i][j].color);
+				if(board[i][j] instanceof Rook)
+					temp[i][j] = new Rook(board[i][j].row, board[i][j].file, board[i][j].color);
+				if(board[i][j] instanceof Queen)
+					temp[i][j] = new Queen(board[i][j].row, board[i][j].file, board[i][j].color);
+				if(board[i][j] instanceof King)
+					temp[i][j] = new King(board[i][j].row, board[i][j].file, board[i][j].color);
+			}
+				
+		return temp;
+	}
 
-		temp[toR][toF] = temp[fromR][fromF];
-		temp[toR][toF].setCoord(toR, toF);
-		temp[fromR][fromF] = null;
+	private boolean inCheckIfMoveMade(int fromR, int fromF, int toR, int toF, Piece.Side s)
+	{
+		Piece[][] P = getTempOfBoard();
+		P[toR][toF] = P[fromR][fromF];
+		P[toR][toF].setCoord(toR, toF);
+		P[fromR][fromF] = null;
 
-		for(int i = 0; i < 8; i++)
-			for(int j = 0; j < 8;j++)
-				if(temp[i][j] != null && temp[i][j].attacking(rowOfKing(temp[i][j].color, temp),
-																fileOfKing(temp[i][j].color, temp), temp))			
+		return attackingKing(P, s);
+	}
+	
+	private boolean attackingKing(Piece[][] A, Piece.Side s)
+	{
+		int r = rowOfKing(s, A);
+		int f = fileOfKing(s, A);
+		
+		for(int i = 0; i < 8;i++)
+			for(int j =0;j<8;j++)
+				if(A[i][j]!= null && A[i][j].attacking(r, f, A))
 					return true;
-
 		return false;
 	}
 	
 	private boolean whiteInCheck()
 	{
-		int r = rowOfKing(Piece.Side.WHITE, board);
-		int f = fileOfKing(Piece.Side.WHITE, board);
-		
-		for(int i = 0; i < 8;i++)
-			for(int j = 0; j < 8;j++)
-				if(board[i][j] != null && board[i][j].attacking(r, f, board))
-					return true;
-		return false;
+		return attackingKing(board, Piece.Side.WHITE);
 	}
 	
 	private boolean blackInCheck()
 	{
-		int r = rowOfKing(Piece.Side.BLACK, board);
-		int f = fileOfKing(Piece.Side.BLACK, board);
-		
-		for(int i = 0; i < 8;i++)
-			for(int j = 0; j < 8;j++)
-				if(board[i][j] != null && board[i][j].attacking(r, f, board))
-					return true;
-		return false;
+		return attackingKing(board, Piece.Side.BLACK);
 	}
 	
 	private int rowOfKing(Piece.Side c, Piece[][] A)
@@ -208,7 +276,9 @@ public class GameBoard
 		
 		for(int i=0;i<8;i++)
 			for(int j=0;j<8;j++)
-				if(makeMove(r, f, i, j) && !inCheckIfMoveMade(r, f, i, j))
+				for(int k =0; k < 8;k++)
+					for(int z =0;z<8;z++)
+						if(fakeMove(k, z, i, j, getTempOfBoard()) && !inCheckIfMoveMade(r, f, i, j, Piece.Side.WHITE))
 					return false;
 		
 		return true;		
@@ -219,14 +289,9 @@ public class GameBoard
 		int r = rowOfKing(Piece.Side.BLACK, board);
 		int f = fileOfKing(Piece.Side.BLACK, board);
 		
-		Piece[][] temp = new Piece[8][8];
-		for(int i = 0; i < 8; i++)
-			for(int j = 0; j < 8; j++)
-				temp[i][j] = board[i][j];
-		
 		for(int i=0;i<8;i++)
 			for(int j=0;j<8;j++)
-				if(makeMove(r, f, i, j) && !inCheckIfMoveMade(r, f, i, j))
+				if(fakeMove(r, f, i, j, getTempOfBoard()) && !inCheckIfMoveMade(r, f, i, j, Piece.Side.BLACK))
 					return false;
 		
 		return true;		

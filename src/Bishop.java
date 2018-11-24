@@ -49,11 +49,6 @@ public class Bishop extends Piece
 			return false;
 	}
 	
-	public boolean attacking(int r, int f, Piece[][] A)
-	{
-		return validMove(r, f, A) && A[r][f].color != color;
-	}
-	
 	public ImageIcon getImage(boolean onWhite) {
 		if(this.color == Piece.Side.WHITE && onWhite)
 			return new ImageIcon("res/white_bishop_on_white.png");

@@ -78,6 +78,7 @@ public class Play extends JFrame implements ActionListener
 		{
 			if(g.makeMove(selectedR, selectedF, b.row, b.file))
 			{
+				System.out.println("Moved" + selectedR + ", " + selectedF + " to " + g.board[b.row][b.file].row + ", " + g.board[b.row][b.file].file);
 				selectedR = -1;
 				if(whiteTurn)
 					whiteTurn = false;
@@ -97,6 +98,7 @@ public class Play extends JFrame implements ActionListener
 	private void update(String p, String q)
 	{
 		frame.removeAll();
+			
 		Pawn pwn = g.pawnPromotion();
 		if(pwn != null)
 		{
@@ -219,6 +221,37 @@ public class Play extends JFrame implements ActionListener
 		
 		frame.add(turn);
 		frame.repaint();
+		
+		
+		//check for check mate
+		String[] winnerBox = {"Play Again!", "Nah, I'm Good. Thanks though, I really appreciate the offer."};
+		int endgm = g.endGameStatus();
+		if(endgm == g.BLACK_WIN)
+		{
+			endgm = JOptionPane.showOptionDialog(this, "Black Wins!!!", "Winner is...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, winnerBox, winnerBox[0]);
+			if(endgm == 0)
+			{
+				Menu.main(null);
+				dispose();
+			}
+			else
+			{
+				dispose();
+			}
+		}
+		else if(endgm == g.WHITE_WIN)
+		{
+			endgm = JOptionPane.showOptionDialog(this, "White Wins!!!", "Winner is...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, winnerBox, winnerBox[0]);
+			if(endgm == 0)
+			{
+				Menu.main(null);
+				dispose();
+			}
+			else
+			{
+				dispose();
+			}
+		}
 	}
 	
 	private static Icon resizeIcon(Icon icon, int resizedWidth, int resizedHeight) {

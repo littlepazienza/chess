@@ -85,10 +85,7 @@ public class Queen extends Piece
 			return false;
 	}
 
-	public boolean attacking(int r, int f, Piece[][] P)
-	{
-		return false;
-	}
+
 	
 	public ImageIcon getImage(boolean onWhite) {
 		if(this.color == Piece.Side.WHITE && onWhite)
