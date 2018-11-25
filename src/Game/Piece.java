@@ -1,5 +1,4 @@
 package Game;
-import javax.swing.ImageIcon;
 
 public abstract class Piece
 {

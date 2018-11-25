@@ -26,14 +26,15 @@ import Player.Player;
 import sun.applet.Main;
 
 public class Menu extends JFrame{
-	
+
 	JButton play, exit;
 	JTextField p1, p2;
 	static ArrayList<Player> playerList;
 	
 	public Menu() throws FileNotFoundException
 	{
-		playerList = readFile();
+		playerList = new ArrayList<Player>();
+		readFile();
 		JPanel pnl = new JPanel();
 		pnl.setLayout(null);
 		pnl.setVisible(true);
@@ -121,9 +122,8 @@ public class Menu extends JFrame{
 	    return new ImageIcon(resizedImage);
 	}
 	
-	public ArrayList<Player> readFile() throws FileNotFoundException
+	public void readFile() throws FileNotFoundException
 	{
-		ArrayList<Player> plr = new ArrayList<Player>();
 		Scanner scan = new Scanner(new File("data"));
 		while(scan.hasNextLine())
 		{
@@ -134,16 +134,17 @@ public class Menu extends JFrame{
 			{
 				String[] theGm = gm.split(";");
 				p.add(new Game(Integer.parseInt(theGm[0]), theGm[1].charAt(0)));
-				plr.add(p);
 				gm = scan.nextLine();
 			}
+			playerList.add(p);
 		}
-		return plr;
+		scan.close();
 	}
 	
 	public static void writeFile() throws IOException
 	{
 		BufferedWriter buffy = new BufferedWriter(new FileWriter(new File("data")));
+		buffy.flush();
 		for(Player p:playerList)
 		{
 			buffy.write(p.print());
@@ -169,10 +170,7 @@ public class Menu extends JFrame{
 						options[0]);
 				if(n == 0)
 				{
-					removeFromList(str);
-					Player newPlr = new Player(str);
-					playerList.add(newPlr);
-					return newPlr;
+					playerList.remove(p);
 				}
 				else
 				{
@@ -183,15 +181,6 @@ public class Menu extends JFrame{
 		Player newPlr = new Player(str);
 		playerList.add(newPlr);
 		return newPlr;
-	}
-	
-	public void removeFromList(String str)
-	{
-		for(Player p:playerList)
-		{
-			if(p.name.equals(str))
-				playerList.remove(p);
-		}
 	}
 
 }

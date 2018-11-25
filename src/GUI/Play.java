@@ -1,5 +1,4 @@
 package GUI;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
@@ -7,7 +6,6 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.net.URL;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -18,8 +16,6 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
-import javax.swing.border.LineBorder;
-
 import Game.Bishop;
 import Game.GameBoard;
 import Game.Knight;
@@ -239,6 +235,7 @@ public class Play extends JFrame implements ActionListener
 		//text area for moves
 		JTextArea moveList = new JTextArea(moves);
 		moveList.setBackground(Color.WHITE);
+		moveList.setEditable(false);
 		moveList.setFont(new Font(moveList.getName(), 0, 16));
 		moveList.setBounds(900, 200, 500, 500);
 		frame.add(moveList);

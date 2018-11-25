@@ -1,16 +1,5 @@
 package Game;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.ArrayList;
-
-import javax.swing.ImageIcon;
-import javax.swing.JButton;
-import javax.swing.JDialog;
-import javax.swing.JFrame;
-import javax.swing.JOptionPane;
-import javax.swing.JPanel;
-
-import Game.Piece.Side;
 
 public class GameBoard
 {
@@ -52,8 +41,8 @@ public class GameBoard
 		board[7][7] = new Rook(7, 7, Piece.Side.BLACK);
 		board[7][6] = new Knight(7, 6, Piece.Side.BLACK);
 		board[7][5] = new Bishop(7, 5, Piece.Side.BLACK);
-		board[7][4] = new Queen(7, 4, Piece.Side.BLACK);
-		board[7][3] = new King(7, 3, Piece.Side.BLACK);
+		board[7][3] = new Queen(7, 4, Piece.Side.BLACK);
+		board[7][4] = new King(7, 3, Piece.Side.BLACK);
 		board[7][2] = new Bishop(7, 2, Piece.Side.BLACK);
 		board[7][1] = new Knight(7, 1, Piece.Side.BLACK);
 		board[7][0] = new Rook(7, 0, Piece.Side.BLACK);
@@ -276,10 +265,7 @@ public class GameBoard
 	}
 	
 	public boolean whiteCheckMate()
-	{
-		int r = rowOfKing(Piece.Side.WHITE, board);
-		int f = fileOfKing(Piece.Side.WHITE, board);
-		
+	{	
 		for(int i=1;i<8;i++)
 			for(int j=0;j<8;j++)
 				for(int k =0; k < 8;k++)
@@ -290,15 +276,12 @@ public class GameBoard
 	}
 	
 	public boolean blackCheckMate()
-	{	
-		int r = rowOfKing(Piece.Side.BLACK, board);
-		int f = fileOfKing(Piece.Side.BLACK, board);
-		
+	{			
 		for(int i=0;i<8;i++)
 			for(int j=0;j<8;j++)
 				for(int k=0;k<8;k++)
 					for(int z=0;z<8;z++)
-						if(board[k][z] != null && board[k][z].color == Piece.Side.BLACK && fakeMove(r, f, i, j, getTempOfBoard()))
+						if(board[k][z] != null && board[k][z].color == Piece.Side.BLACK && fakeMove(k, z, i, j, getTempOfBoard()))
 							return false;
 		return true;		
 	}
