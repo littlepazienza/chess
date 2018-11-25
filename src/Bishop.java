@@ -49,15 +49,15 @@ public class Bishop extends Piece
 			return false;
 	}
 	
-	public ImageIcon getImage(boolean onWhite) {
+	public String getImage(boolean onWhite) {
 		if(this.color == Piece.Side.WHITE && onWhite)
-			return new ImageIcon("res/white_bishop_on_white.png");
+			return  ("/white_bishop_on_white.png");
 		if(this.color == Piece.Side.WHITE && !onWhite)
-			return new ImageIcon("res/white_bishop_on_black.png");
+			return  ("/white_bishop_on_black.png");
 		if(this.color == Piece.Side.BLACK && onWhite)
-			return new ImageIcon("res/black_bishop_on_white.png");
+			return  ("/black_bishop_on_white.png");
 		else
-			return new ImageIcon("res/black_bishop_on_black.png");
+			return  ("/black_bishop_on_black.png");
 	}
 	
 	public int value() {return 3;}

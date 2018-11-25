@@ -19,7 +19,7 @@ public abstract class Piece
 		return validMove(r, f, A) && A[r][f] != null && A[r][f].color != color;
 	}
 	
-	public abstract ImageIcon getImage(boolean onWhite);
+	public abstract String getImage(boolean onWhite);
 
 	public void setCoord(int r, int f)
 	{

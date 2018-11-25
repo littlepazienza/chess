@@ -78,15 +78,15 @@ public class Pawn extends Piece
 
 
 	@Override
-	public ImageIcon getImage(boolean onWhite) {
+	public String getImage(boolean onWhite) {
 		if(this.color == Piece.Side.WHITE && onWhite)
-			return new ImageIcon("res/white_pawn_on_white.png");
+			return ("/white_pawn_on_white.png");
 		if(this.color == Piece.Side.WHITE && !onWhite)
-			return new ImageIcon("res/white_pawn_on_black.png");
+			return  ("/white_pawn_on_black.png");
 		if(this.color == Piece.Side.BLACK && onWhite)
-			return new ImageIcon("res/black_pawn_on_white.png");
+			return ("/black_pawn_on_white.png");
 		else
-			return new ImageIcon("res/black_pawn_on_black.png");
+			return ("/black_pawn_on_black.png");
 	}
 	
 	public int value() {return 1;}

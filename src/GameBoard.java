@@ -12,6 +12,7 @@ import javax.swing.JPanel;
 public class GameBoard
 {
 
+	protected char[] files = {'a', 'b', 'c', 'd', 'e','f', 'g','h'};
 	protected Piece[][] board = new Piece[8][8];
 	protected ArrayList<Piece> captured;
 	protected final int BLACK_WIN = 0;
@@ -321,5 +322,44 @@ public class GameBoard
 			}
 		
 		return sum;
+	}
+	
+	public String moveNotation(int fromR, int fromF, int toR, int toF)
+	{
+		Piece from = board[fromR][fromF];
+		Piece to = board[fromR][fromF];
+		
+		if(from instanceof Pawn)
+			if(to != null)
+				return files[fromF] + "x" + files[toF] + toR;
+			else
+				return "" + files[toF] + toR;
+		if(from instanceof Bishop)
+			if(to != null)
+				return "Bx" + files[toF] + toR;
+			else
+				return "B" + files[toF] + toR;
+		if(from instanceof Rook)
+			if(to != null)
+				return "Rx" + files[toF] + toR;
+			else
+				return "R" + files[toF] + toR;
+		if(from instanceof Queen)
+			if(to != null)
+				return "Qx" + files[toF] + toR;
+			else
+				return "Q" + files[toF] + toR;
+		if(from instanceof King)
+			if(to != null)
+				return "Kx" + files[toF] + toR;
+			else
+				return "K" + files[toF] + toR;
+		if(from instanceof Knight)
+			if(to != null)
+				return "Nx" + files[toF] + toR;
+			else
+				return "N" + files[toF] + toR;
+		else
+			return "";
 	}
 }
