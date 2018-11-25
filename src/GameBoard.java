@@ -158,7 +158,6 @@ public class GameBoard
 				}
 				else
 				{
-					captured.add(P[toR][toF]);
 					P[toR][toF] = P[fromR][fromF];
 					P[toR][toF].setCoord(toR, toF);
 					P[fromR][fromF] = null;
@@ -181,7 +180,7 @@ public class GameBoard
 		}		
 	}
 	
-	private Piece[][] getTempOfBoard()
+	public Piece[][] getTempOfBoard()
 	{
 		Piece[][] temp = new Piece[8][8];
 		for(int i = 0; i < 8; i++)
@@ -208,6 +207,9 @@ public class GameBoard
 
 	private boolean inCheckIfMoveMade(int fromR, int fromF, int toR, int toF, Piece.Side s)
 	{
+		if(fromR == toR && fromF == toF)
+			return false;
+		
 		Piece[][] P = getTempOfBoard();
 		P[toR][toF] = P[fromR][fromF];
 		P[toR][toF].setCoord(toR, toF);
@@ -275,13 +277,12 @@ public class GameBoard
 		int r = rowOfKing(Piece.Side.WHITE, board);
 		int f = fileOfKing(Piece.Side.WHITE, board);
 		
-		for(int i=0;i<8;i++)
+		for(int i=1;i<8;i++)
 			for(int j=0;j<8;j++)
 				for(int k =0; k < 8;k++)
 					for(int z =0;z<8;z++)
-						if(fakeMove(k, z, i, j, getTempOfBoard()) && !inCheckIfMoveMade(r, f, i, j, Piece.Side.WHITE))
-					return false;
-		
+						if(board[k][z] != null && board[k][z].color == Piece.Side.WHITE && fakeMove(k, z, i, j, getTempOfBoard()))
+							return false;
 		return true;		
 	}
 	
@@ -292,9 +293,10 @@ public class GameBoard
 		
 		for(int i=0;i<8;i++)
 			for(int j=0;j<8;j++)
-				if(fakeMove(r, f, i, j, getTempOfBoard()) && !inCheckIfMoveMade(r, f, i, j, Piece.Side.BLACK))
-					return false;
-		
+				for(int k=0;k<8;k++)
+					for(int z=0;z<8;z++)
+						if(board[k][z] != null && board[k][z].color == Piece.Side.BLACK && fakeMove(r, f, i, j, getTempOfBoard()))
+							return false;
 		return true;		
 	}
 	
@@ -324,41 +326,40 @@ public class GameBoard
 		return sum;
 	}
 	
-	public String moveNotation(int fromR, int fromF, int toR, int toF)
+	public String moveNotation(int fromR, int fromF, int toR, int toF, Piece[][] P)
 	{
-		Piece from = board[fromR][fromF];
-		Piece to = board[fromR][fromF];
+		Piece from = P[fromR][fromF];
 		
 		if(from instanceof Pawn)
-			if(to != null)
+			if(P[toR][toF] != null)
 				return files[fromF] + "x" + files[toF] + toR;
 			else
-				return "" + files[toF] + toR;
+				return "" + files[toF] +  (toR + 1);
 		if(from instanceof Bishop)
-			if(to != null)
-				return "Bx" + files[toF] + toR;
+			if(P[toR][toF] != null)
+				return "Bx" + files[toF] +  (toR + 1);
 			else
-				return "B" + files[toF] + toR;
+				return "B" + files[toF] +  (toR + 1);
 		if(from instanceof Rook)
-			if(to != null)
-				return "Rx" + files[toF] + toR;
+			if(P[toR][toF] != null)
+				return "Rx" + files[toF] +  (toR + 1);
 			else
-				return "R" + files[toF] + toR;
+				return "R" + files[toF] +  (toR + 1);
 		if(from instanceof Queen)
-			if(to != null)
-				return "Qx" + files[toF] + toR;
+			if(P[toR][toF] != null)
+				return "Qx" + files[toF] + (toR + 1);
 			else
-				return "Q" + files[toF] + toR;
+				return "Q" + files[toF] + (toR + 1);
 		if(from instanceof King)
-			if(to != null)
-				return "Kx" + files[toF] + toR;
+			if(P[toR][toF] != null)
+				return "Kx" + files[toF] +  (toR + 1);
 			else
-				return "K" + files[toF] + toR;
+				return "K" + files[toF] +  (toR + 1);
 		if(from instanceof Knight)
-			if(to != null)
-				return "Nx" + files[toF] + toR;
+			if(P[toR][toF] != null)
+				return "Nx" + files[toF] + (toR + 1);
 			else
-				return "N" + files[toF] + toR;
+				return "N" + files[toF] + (toR + 1);
 		else
 			return "";
 	}

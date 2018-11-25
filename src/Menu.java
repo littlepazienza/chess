@@ -26,7 +26,7 @@ public class Menu extends JFrame{
 	
 	JButton play, exit;
 	JTextField p1, p2;
-	ArrayList<Player> playerList;
+	static ArrayList<Player> playerList;
 	
 	public Menu() throws FileNotFoundException
 	{
@@ -55,6 +55,8 @@ public class Menu extends JFrame{
 				try {
 					new Play(plr1, plr2);
 				} catch (FileNotFoundException e1) {
+					e1.printStackTrace();
+				} catch (IOException e1) {
 					e1.printStackTrace();
 				}
 				dispose();
@@ -136,9 +138,14 @@ public class Menu extends JFrame{
 		return plr;
 	}
 	
-	public void writeFile() throws IOException
+	public static void writeFile() throws IOException
 	{
 		BufferedWriter buffy = new BufferedWriter(new FileWriter(new File("data")));
+		for(Player p:playerList)
+		{
+			buffy.write(p.print());
+		}
+		buffy.close();
 	}
 	
 	public Player matchPlayer(String str)

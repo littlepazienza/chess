@@ -5,6 +5,7 @@ import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.FileNotFoundException;
+import java.io.IOException;
 import java.net.URL;
 
 import javax.swing.BorderFactory;
@@ -38,13 +39,15 @@ public class Play extends JFrame implements ActionListener
 	protected int selectedR, selectedF;
 	JPanel frame = new JPanel();
 	protected Player p1, p2;
-	protected JTextArea moveList;
+	protected String moves;
 	
 	
-	public Play(Player p, Player q) throws FileNotFoundException
+	public Play(Player p, Player q) throws IOException
 	{	
+		p1 = p;
+		p2 = q;
 		setVisible(true);
-		setSize(1000, 1000);
+		setSize(1500, 1000);
 		
 		g = new GameBoard();
 		g.GameFill();
@@ -53,6 +56,7 @@ public class Play extends JFrame implements ActionListener
 		selectedF = -1;
 		buttons = new tileButton[8][8];
 		turnNum = 1;
+		moves = "";
 		
 		update(p, q);
 		
@@ -66,14 +70,14 @@ public class Play extends JFrame implements ActionListener
 
 	public void actionPerformed(ActionEvent e) {
 		tileButton b = (tileButton) e.getSource();
-		
+		Piece[][] temp = g.getTempOfBoard();
 		if(selectedR == -1)
 		{
-			if(whiteTurn && g.board[b.row][b.file].color != Piece.Side.WHITE)
+			if(whiteTurn && g.board[b.row][b.file] != null && g.board[b.row][b.file].color != Piece.Side.WHITE)
 			{
 				JOptionPane.showMessageDialog(null, "White's turn");
 			}
-			else if(!whiteTurn && g.board[b.row][b.file].color != Piece.Side.BLACK)
+			else if(!whiteTurn && g.board[b.row][b.file] != null && g.board[b.row][b.file].color != Piece.Side.BLACK)
 			{
 				JOptionPane.showMessageDialog(null, "Black's turn");
 			}else
@@ -86,15 +90,19 @@ public class Play extends JFrame implements ActionListener
 		{
 			if(g.makeMove(selectedR, selectedF, b.row, b.file))
 			{
+				int selectedRTemp = selectedR;
 				selectedR = -1;
 				if(whiteTurn)
+				{	moves += turnNum + ". ";
 					whiteTurn = false;
+				}
 				else
 				{
+					moves += " ";
 					whiteTurn = true;
 					turnNum++;
 				}
-				
+				moves += g.moveNotation(selectedRTemp, selectedF, b.row, b.file, temp);
 			}
 			else
 			{
@@ -107,10 +115,12 @@ public class Play extends JFrame implements ActionListener
 			update(p1, p2);
 		} catch (FileNotFoundException e1) {
 			e1.printStackTrace();
+		} catch (IOException e1) {
+			e1.printStackTrace();
 		}
 	}
 	
-	private void update(Player p, Player q) throws FileNotFoundException
+	private void update(Player p, Player q) throws IOException
 	{
 		frame.removeAll();
 			
@@ -167,7 +177,7 @@ public class Play extends JFrame implements ActionListener
 		}
 		
 		//whose turn is it
-		JLabel turn = new JLabel((whiteTurn?p + "'s Turn":q + "'s Turn"));
+		JLabel turn = new JLabel((whiteTurn?p.name + "'s Turn":q.name + "'s Turn"));
 		turn.setBounds(40, 400, 200, 100);
 		turn.setFont(new Font(turn.getName(), Font.PLAIN, 18));
 		turn.setForeground(Color.WHITE);
@@ -218,7 +228,10 @@ public class Play extends JFrame implements ActionListener
 		}
 		
 		//text area for moves
-		moveList = new JTextArea("");
+		JTextArea moveList = new JTextArea(moves);
+		moveList.setBackground(Color.WHITE);
+		moveList.setBounds(900, 200, 500, 500);
+		frame.add(moveList);
 		
 		//teams
 		JButton whiteBtn = new JButton(p.name);
@@ -230,6 +243,13 @@ public class Play extends JFrame implements ActionListener
 		whiteBtn.setEnabled(false);
 		frame.add(whiteBtn);
 		
+		JLabel whiteRating = new JLabel("" + p.rating());
+		whiteRating.setOpaque(false);
+		whiteRating.setBounds(75, 750, 30, 30);
+		whiteRating.setFont(new Font(whiteRating.getName(), 0, 12));
+		whiteRating.setForeground(Color.WHITE);
+		frame.add(whiteRating);
+		
 		JButton blackBtn = new JButton(q.name);
 		blackBtn.setBackground(new Color(135, 67, 67));
 		blackBtn.setBounds(75, 30, 100, 100);
@@ -238,6 +258,13 @@ public class Play extends JFrame implements ActionListener
 		blackBtn.setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 		blackBtn.setEnabled(false);
 		frame.add(blackBtn);
+		
+		JLabel blackRating = new JLabel("" + q.rating());
+		blackRating.setOpaque(false);
+		blackRating.setBounds(75, 5, 30, 30);
+		blackRating.setFont(new Font(blackRating.getName(), 0, 12));
+		blackRating.setForeground(Color.WHITE);
+		frame.add(blackRating);
 		
 		frame.add(turn);
 		frame.repaint();
@@ -251,11 +278,17 @@ public class Play extends JFrame implements ActionListener
 			endgm = JOptionPane.showOptionDialog(this, "Black Wins!!!", "Winner is...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, winnerBox, winnerBox[0]);
 			if(endgm == 0)
 			{
+				p1.add(new Game(p2.rating(), 'L'));
+				p2.add(new Game(p1.ratingOneGameBack(), 'W'));
+				Menu.writeFile();
 				Menu.main(null);
 				dispose();
 			}
 			else
 			{
+				p1.add(new Game(p2.rating(), 'L'));
+				p2.add(new Game(p1.ratingOneGameBack(), 'W'));
+				Menu.writeFile();
 				dispose();
 			}
 		}
@@ -264,11 +297,17 @@ public class Play extends JFrame implements ActionListener
 			endgm = JOptionPane.showOptionDialog(this, "White Wins!!!", "Winner is...", JOptionPane.OK_CANCEL_OPTION, JOptionPane.INFORMATION_MESSAGE, null, winnerBox, winnerBox[0]);
 			if(endgm == 0)
 			{
+				p1.add(new Game(p2.rating(), 'W'));
+				p2.add(new Game(p1.ratingOneGameBack(), 'L'));
+				Menu.writeFile();
 				Menu.main(null);
 				dispose();
 			}
 			else
 			{
+				p1.add(new Game(p2.rating(), 'W'));
+				p2.add(new Game(p1.ratingOneGameBack(), 'L'));
+				Menu.writeFile();
 				dispose();
 			}
 		}

@@ -23,6 +23,13 @@ public class Player {
 		return (opponentRatingSum() + 400 * (totalWins() -totalLosses()))/games.size();
 	}
 	
+	public int ratingOneGameBack()
+	{
+		if(games.size() == 1)
+			return 1200;
+		return (opponentRatingSumOneGameBack() + 400 * (totalWinsOneGameBack() - totalLossesOneGameBack())) /(games.size()-1);
+	}
+	
 	private int opponentRatingSum()
 	{
 		int sum=0;
@@ -33,12 +40,33 @@ public class Player {
 		return sum;
 	}
 	
+	private int opponentRatingSumOneGameBack()
+	{
+		int sum=0;
+		for(int i = 0; i < games.size()-1;i++)
+		{
+			sum+= games.get(i).opponentRating;
+		}
+		return sum;
+	}
+	
 	private int totalWins()
 	{
 		int count=0;
 		for(Game g:games)
 		{
 			if(g.result == 'W')
+				count++;
+		}
+		return count;
+	}
+	
+	private int totalWinsOneGameBack()
+	{
+		int count = 0;
+		for(int i = 0;i < games.size()-1;i++)
+		{
+			if(games.get(i).result == 'W')
 				count++;
 		}
 		return count;
@@ -55,6 +83,17 @@ public class Player {
 		return count;
 	}
 	
+	private int totalLossesOneGameBack()
+	{
+		int count = 0;
+		for(int i =0;i<games.size()-1;i++)
+		{
+			if(games.get(i).result == 'L')
+				count++;
+		}
+		return count;
+	}
+	
 	public String print()
 	{
 		String O = name + "\n";
@@ -62,6 +101,6 @@ public class Player {
 		{
 			O += g.print() + "\n";
 		}
-		return O + "\n--\n";
+		return O + "--\n";
 	}
 }
