@@ -1,3 +1,4 @@
+package Player;
 public class Game 
 {
 	protected int opponentRating;

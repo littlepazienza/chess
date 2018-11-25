@@ -1,3 +1,4 @@
+package Game;
 import javax.swing.ImageIcon;
 
 public class King extends Piece

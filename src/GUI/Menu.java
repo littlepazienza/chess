@@ -1,3 +1,4 @@
+package GUI;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
@@ -20,6 +21,8 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextField;
 
+import Player.Game;
+import Player.Player;
 import sun.applet.Main;
 
 public class Menu extends JFrame{

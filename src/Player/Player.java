@@ -1,8 +1,9 @@
+package Player;
 import java.util.ArrayList;
 
 public class Player {
 
-	protected String name;
+	public String name;
 	protected ArrayList<Game> games;
 	
 	public Player(String nm)

@@ -1,3 +1,4 @@
+package GUI;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
@@ -19,6 +20,15 @@ import javax.swing.JPanel;
 import javax.swing.JTextArea;
 import javax.swing.border.LineBorder;
 
+import Game.Bishop;
+import Game.GameBoard;
+import Game.Knight;
+import Game.Pawn;
+import Game.Piece;
+import Game.Queen;
+import Game.Rook;
+import Player.Game;
+import Player.Player;
 import sun.applet.Main;
 
 public class Play extends JFrame implements ActionListener
@@ -98,11 +108,10 @@ public class Play extends JFrame implements ActionListener
 				}
 				else
 				{
-					moves += " ";
 					whiteTurn = true;
 					turnNum++;
 				}
-				moves += g.moveNotation(selectedRTemp, selectedF, b.row, b.file, temp);
+				moves += g.moveNotation(selectedRTemp, selectedF, b.row, b.file, temp) + " ";
 			}
 			else
 			{
@@ -230,6 +239,7 @@ public class Play extends JFrame implements ActionListener
 		//text area for moves
 		JTextArea moveList = new JTextArea(moves);
 		moveList.setBackground(Color.WHITE);
+		moveList.setFont(new Font(moveList.getName(), 0, 16));
 		moveList.setBounds(900, 200, 500, 500);
 		frame.add(moveList);
 		

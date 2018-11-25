@@ -1,9 +1,11 @@
+package Game;
 import javax.swing.ImageIcon;
 
 public abstract class Piece
 {
-	protected int file, row;
-	protected Side color;
+	public int file;
+	public int row;
+	public Side color;
 	
 	public Piece(int f, int r, Side c)
 	{

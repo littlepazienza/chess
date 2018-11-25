@@ -1,3 +1,4 @@
+package Game;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.ArrayList;
@@ -9,14 +10,16 @@ import javax.swing.JFrame;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import Game.Piece.Side;
+
 public class GameBoard
 {
 
 	protected char[] files = {'a', 'b', 'c', 'd', 'e','f', 'g','h'};
-	protected Piece[][] board = new Piece[8][8];
-	protected ArrayList<Piece> captured;
-	protected final int BLACK_WIN = 0;
-	protected final int WHITE_WIN = 1;
+	public Piece[][] board = new Piece[8][8];
+	public ArrayList<Piece> captured;
+	public final int BLACK_WIN = 0;
+	public final int WHITE_WIN = 1;
 	protected final int CONTINUE = 2;
 	
 	public GameBoard()
@@ -329,38 +332,55 @@ public class GameBoard
 	public String moveNotation(int fromR, int fromF, int toR, int toF, Piece[][] P)
 	{
 		Piece from = P[fromR][fromF];
+		String O = "";
 		
 		if(from instanceof Pawn)
 			if(P[toR][toF] != null)
-				return files[fromF] + "x" + files[toF] + toR;
+				O+= files[fromF] + "x" + files[toF] + toR;
 			else
-				return "" + files[toF] +  (toR + 1);
+				O+= "" + files[toF] +  (toR + 1);
 		if(from instanceof Bishop)
 			if(P[toR][toF] != null)
-				return "Bx" + files[toF] +  (toR + 1);
+				O+= "Bx" + files[toF] +  (toR + 1);
 			else
-				return "B" + files[toF] +  (toR + 1);
+				O+= "B" + files[toF] +  (toR + 1);
 		if(from instanceof Rook)
 			if(P[toR][toF] != null)
-				return "Rx" + files[toF] +  (toR + 1);
+				O+= "Rx" + files[toF] +  (toR + 1);
 			else
-				return "R" + files[toF] +  (toR + 1);
+				O+= "R" + files[toF] +  (toR + 1);
 		if(from instanceof Queen)
 			if(P[toR][toF] != null)
-				return "Qx" + files[toF] + (toR + 1);
+				O+= "Qx" + files[toF] + (toR + 1);
 			else
-				return "Q" + files[toF] + (toR + 1);
+				O+= "Q" + files[toF] + (toR + 1);
 		if(from instanceof King)
 			if(P[toR][toF] != null)
-				return "Kx" + files[toF] +  (toR + 1);
+				O+= "Kx" + files[toF] +  (toR + 1);
 			else
-				return "K" + files[toF] +  (toR + 1);
+				O+= "K" + files[toF] +  (toR + 1);
 		if(from instanceof Knight)
 			if(P[toR][toF] != null)
-				return "Nx" + files[toF] + (toR + 1);
+				O+= "Nx" + files[toF] + (toR + 1);
 			else
-				return "N" + files[toF] + (toR + 1);
+				O+= "N" + files[toF] + (toR + 1);
 		else
-			return "";
+			O+= "";
+		
+		
+		if(whiteCheckMate())
+			return O + "#";
+		else
+		{
+			
+			P[toR][toF] = P[fromR][fromF];
+			P[fromR][fromF] = null;
+			
+			if(attackingKing(P, (P[toR][toF].color == Piece.Side.WHITE ? Piece.Side.BLACK:Piece.Side.WHITE)))
+				return O + "+";
+			else
+				return O;
+		}
+		
 	}
 }
