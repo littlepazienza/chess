@@ -34,15 +34,26 @@ public class King extends Piece
 
 
 	public String getImage(boolean onWhite) {
-		if(this.color == Piece.Side.WHITE && onWhite)
-			return  ("/white_king_on_white.png");
-		if(this.color == Piece.Side.WHITE && !onWhite)
-			return  ("/white_king_on_black.png");
-		if(this.color == Piece.Side.BLACK && onWhite)
-			return  ("/black_king_on_white.png");
+		if(this.color == Piece.Side.WHITE)
+		{		
+			if(selected)
+				return "/white_king_selected.png";
+			else if(onWhite)
+				return  "/white_king_on_white.png";
+			else
+				return  "/white_king_on_black.png";
+		}
 		else
-			return  ("/black_king_on_black.png");
-	}
+		{
+			if(selected)
+				return "/black_king_selected.png";
+			else if(onWhite)
+				return  "/black_king_on_white.png";
+			else
+				return  "/black_king_on_black.png";
+
+		}
+	}	
 
 	public int value() {return 0;}
 

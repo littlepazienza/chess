@@ -33,15 +33,26 @@ public class Knight extends Piece
 
 	
 	public String getImage(boolean onWhite) {
-		if(this.color == Piece.Side.WHITE && onWhite)
-			return  ("/white_knight_on_white.png");
-		if(this.color == Piece.Side.WHITE && !onWhite)
-			return  ("/white_knight_on_black.png");
-		if(this.color == Piece.Side.BLACK && onWhite)
-			return  ("/black_knight_on_white.png");
+		if(this.color == Piece.Side.WHITE)
+		{		
+			if(selected)
+				return "/white_knight_selected.png";
+			else if(onWhite)
+				return  "/white_knight_on_white.png";
+			else
+				return  "/white_knight_on_black.png";
+		}
 		else
-			return  ("/black_knight_on_black.png");
-	}		
+		{
+			if(selected)
+				return "/black_knight_selected.png";
+			else if(onWhite)
+				return  "/black_knight_on_white.png";
+			else
+				return  "/black_knight_on_black.png";
+
+		}
+	}	
 
 	public int value() {return 3;}
 }

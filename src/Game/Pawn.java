@@ -78,16 +78,26 @@ public class Pawn extends Piece
 	}
 
 
-	@Override
 	public String getImage(boolean onWhite) {
-		if(this.color == Piece.Side.WHITE && onWhite)
-			return ("/white_pawn_on_white.png");
-		if(this.color == Piece.Side.WHITE && !onWhite)
-			return  ("/white_pawn_on_black.png");
-		if(this.color == Piece.Side.BLACK && onWhite)
-			return ("/black_pawn_on_white.png");
+		if(this.color == Piece.Side.WHITE)
+		{		
+			if(selected)
+				return "/white_pawn_selected.png";
+			else if(onWhite)
+				return  "/white_pawn_on_white.png";
+			else
+				return  "/white_pawn_on_black.png";
+		}
 		else
-			return ("/black_pawn_on_black.png");
+		{
+			if(selected)
+				return "/black_pawn_selected.png";
+			else if(onWhite)
+				return  "/black_pawn_on_white.png";
+			else
+				return  "/black_pawn_on_black.png";
+
+		}
 	}
 	
 	public int value() {return 1;}

@@ -161,7 +161,7 @@ public class Menu extends JFrame{
 				String[] options = {"Yes", "No"};
 				int n = JOptionPane.showOptionDialog(
 						this,
-						"Player " + str + " already exists, would you like to overwrite?",
+						str + " has previously been registered, would you like to overwrite them?",
 						"Player Choice",
 						JOptionPane.YES_NO_OPTION, 
 						JOptionPane.QUESTION_MESSAGE, 

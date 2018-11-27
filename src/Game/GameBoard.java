@@ -41,8 +41,8 @@ public class GameBoard
 		board[7][7] = new Rook(7, 7, Piece.Side.BLACK);
 		board[7][6] = new Knight(7, 6, Piece.Side.BLACK);
 		board[7][5] = new Bishop(7, 5, Piece.Side.BLACK);
-		board[7][3] = new Queen(7, 4, Piece.Side.BLACK);
-		board[7][4] = new King(7, 3, Piece.Side.BLACK);
+		board[7][3] = new Queen(7, 3, Piece.Side.BLACK);
+		board[7][4] = new King(7, 4, Piece.Side.BLACK);
 		board[7][2] = new Bishop(7, 2, Piece.Side.BLACK);
 		board[7][1] = new Knight(7, 1, Piece.Side.BLACK);
 		board[7][0] = new Rook(7, 0, Piece.Side.BLACK);
@@ -208,7 +208,7 @@ public class GameBoard
 		P[fromR][fromF] = null;
 
 		return attackingKing(P, s);
-	}
+	}	
 	
 	private boolean attackingKing(Piece[][] A, Piece.Side s)
 	{
