@@ -90,7 +90,24 @@ public class GameBoard
 		if(board[toR][toF] != null)
 		{
 
-			if(board[toR][toF].color == board[fromR][fromF].color)
+			if(board[toR][toF].color == board[fromR][fromF].color && board[toR][toF] instanceof Rook && board[fromR][fromF] instanceof King)
+			{
+				if(inCheckIfMoveMade(fromR, fromF, toR, toF, board[fromR][fromF].color))
+				{
+					return false;
+				}
+				else
+				{
+					Piece temp = board[toR][toF];
+					board[toR][toF] = board[fromR][fromF];
+					board[fromR][fromF] = temp;
+					board[toR][toF].setCoord(toR, toF);
+					board[fromR][fromF].setCoord(fromR, fromF);
+					return true;
+				}
+
+			}
+			else if(board[toR][toF].color == board[fromR][fromF].color)
 			{
 				return false;
 			}
@@ -137,7 +154,24 @@ public class GameBoard
 		if(P[toR][toF] != null)
 		{
 
-			if(P[toR][toF].color == P[fromR][fromF].color)
+			if(P[toR][toF].color == P[fromR][fromF].color && P[toR][toF] instanceof Rook && P[fromR][fromF] instanceof King)
+			{
+				if(inCheckIfMoveMade(fromR, fromF, toR, toF, P[fromR][fromF].color))
+				{
+					return false;
+				}
+				else
+				{
+					Piece temp = P[toR][toF];
+					P[toR][toF] = P[fromR][fromF];
+					P[fromR][fromF] = temp;
+					P[toR][toF].setCoord(toR, toF);
+					P[fromR][fromF].setCoord(fromR, fromF);
+					return true;
+				}
+
+			}
+			else if(P[toR][toF].color == P[fromR][fromF].color)
 			{
 				return false;
 			}

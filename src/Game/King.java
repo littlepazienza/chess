@@ -3,10 +3,11 @@ import javax.swing.ImageIcon;
 
 public class King extends Piece
 {
-	
+	protected boolean moved;
 	public King(int r, int f, Side c)
 	{
 		super(f, r, c);
+		moved = false;
 	}
 
 	public boolean validMove(int r, int f, Piece[][] A)
@@ -29,6 +30,15 @@ public class King extends Piece
 		if(r == row - 1 && f == file)
 			valid = true;
 
+		if(color == Piece.Side.WHITE)
+		{
+			
+		}
+		else
+		{
+			
+		}
+		
 		return valid;
 	}
 

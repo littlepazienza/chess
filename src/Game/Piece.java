@@ -27,12 +27,19 @@ public abstract class Piece
 		selected = !selected;
 	}
 	
+	public void move()
+	{
+		if(this instanceof King)
+			((King) this).moved = true;
+	}
+	
 	public abstract String getImage(boolean onWhite);
 
 	public void setCoord(int r, int f)
 	{
 		this.row = r;
 		this.file = f;
+		move();
 	}
 	
 	public abstract int value();

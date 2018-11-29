@@ -87,7 +87,7 @@ public class Play extends JFrame implements ActionListener {
 			} else if (!whiteTurn && g.board[b.row][b.file] != null
 					&& g.board[b.row][b.file].color != Piece.Side.BLACK) {
 				JOptionPane.showMessageDialog(null, "Black's turn");
-			} else {
+			} else if(g.board[b.row][b.file] != null){
 				selectedR = b.row;
 				selectedF = b.file;
 				g.board[b.row][b.file].setSelected();
@@ -107,7 +107,7 @@ public class Play extends JFrame implements ActionListener {
 						whiteTurn = true;
 						turnNum++;
 					}
-
+					g.board[b.row][b.file].setSelected();
 					moves += g.moveNotation(selectedRTemp, selectedF, b.row, b.file, temp) + " ";
 				}
 			} else if (!wasAValidMove){
@@ -268,6 +268,7 @@ public class Play extends JFrame implements ActionListener {
 		JTextArea moveList = new JTextArea(moves);
 		moveList.setBackground(Color.WHITE);
 		moveList.setEditable(false);
+		moveList.setLineWrap(true);
 		moveList.setFont(new Font(moveList.getName(), 0, 16));
 		moveList.setBounds(900, 200, 500, 500);
 		frame.add(moveList);
