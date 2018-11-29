@@ -98,11 +98,8 @@ public class GameBoard
 				}
 				else
 				{
-					Piece temp = board[toR][toF];
-					board[toR][toF] = board[fromR][fromF];
-					board[fromR][fromF] = temp;
-					board[toR][toF].setCoord(toR, toF);
-					board[fromR][fromF].setCoord(fromR, fromF);
+					board[fromR][fromF].setSelected();
+					swapCastle(fromR, fromF, toR, toF, board);
 					return true;
 				}
 
@@ -120,6 +117,7 @@ public class GameBoard
 				}
 				else
 				{
+					board[fromR][fromF].setSelected();
 					captured.add(board[toR][toF]);
 					board[toR][toF] = board[fromR][fromF];
 					board[toR][toF].setCoord(toR, toF);
@@ -135,6 +133,7 @@ public class GameBoard
 				return false;
 			else
 			{
+				board[fromR][fromF].setSelected();
 				board[toR][toF] = board[fromR][fromF];
 				board[toR][toF].setCoord(toR, toF);
 				board[fromR][fromF] = null;
@@ -162,11 +161,7 @@ public class GameBoard
 				}
 				else
 				{
-					Piece temp = P[toR][toF];
-					P[toR][toF] = P[fromR][fromF];
-					P[fromR][fromF] = temp;
-					P[toR][toF].setCoord(toR, toF);
-					P[fromR][fromF].setCoord(fromR, fromF);
+					swapCastle(fromR, fromF, toR, toF, P);
 					return true;
 				}
 
@@ -204,6 +199,60 @@ public class GameBoard
 				return true;
 			}
 		}		
+	}
+	
+	private void swapCastle(int fR, int fF, int tR, int tF, Piece[][] P)
+	{
+		if(fR == 0)
+		{
+			if(tF == 0)
+			{
+				Piece rook = P[tR][tF];
+				Piece king = P[fR][fF];
+				P[tR][tF] = null;
+				P[fR][fF] = null;
+				P[0][2] = king;
+				P[0][3] = rook;
+				king.setCoord(0, 2);
+				rook.setCoord(0, 3);
+			}
+			else
+			{
+				Piece rook = P[tR][tF];
+				Piece king = P[fR][fF];
+				P[tR][tF] = null;
+				P[fR][fF] = null;
+				P[0][6] = king;
+				P[0][5] = rook;
+				king.setCoord(0, 6);
+				rook.setCoord(0, 5);
+			}
+		}
+		else if(fR == 7)
+		{
+			if(tF == 0)
+			{
+				Piece rook = P[tR][tF];
+				Piece king = P[fR][fF];
+				P[tR][tF] = null;
+				P[fR][fF] = null;
+				P[7][2] = king;
+				P[7][3] = rook;
+				king.setCoord(7, 2);
+				rook.setCoord(7, 3);
+			}
+			else
+			{
+				Piece rook = P[tR][tF];
+				Piece king = P[fR][fF];
+				P[tR][tF] = null;
+				P[fR][fF] = null;
+				P[0][6] = king;
+				P[0][5] = rook;
+				king.setCoord(7, 6);
+				rook.setCoord(7, 5);
+			}
+		}
 	}
 	
 	public Piece[][] getTempOfBoard()

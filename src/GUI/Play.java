@@ -107,7 +107,6 @@ public class Play extends JFrame implements ActionListener {
 						whiteTurn = true;
 						turnNum++;
 					}
-					g.board[b.row][b.file].setSelected();
 					moves += g.moveNotation(selectedRTemp, selectedF, b.row, b.file, temp) + " ";
 				}
 			} else if (!wasAValidMove){
@@ -285,7 +284,7 @@ public class Play extends JFrame implements ActionListener {
 
 		JLabel whiteRating = new JLabel("" + p.rating());
 		whiteRating.setOpaque(false);
-		whiteRating.setBounds(75, 750, 30, 30);
+		whiteRating.setBounds(75, 750, 100, 30);
 		whiteRating.setFont(new Font(whiteRating.getName(), 0, 12));
 		whiteRating.setForeground(Color.WHITE);
 		frame.add(whiteRating);
@@ -301,7 +300,7 @@ public class Play extends JFrame implements ActionListener {
 
 		JLabel blackRating = new JLabel("" + q.rating());
 		blackRating.setOpaque(false);
-		blackRating.setBounds(75, 5, 30, 30);
+		blackRating.setBounds(75, 5, 100, 30);
 		blackRating.setFont(new Font(blackRating.getName(), 0, 12));
 		blackRating.setForeground(Color.WHITE);
 		frame.add(blackRating);

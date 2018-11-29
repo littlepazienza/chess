@@ -30,13 +30,46 @@ public class King extends Piece
 		if(r == row - 1 && f == file)
 			valid = true;
 
+		//castling case
 		if(color == Piece.Side.WHITE)
 		{
-			
+			if(r == row && row == 0 && !moved && A[r][f] instanceof Rook)
+			{
+				if(f < file)
+				{
+					for(int i = 0; i < file - f;i++)
+						if(A[row][file - i] != null)
+							return false;
+					return true;
+				}
+				else
+				{
+					for(int i = 1; i < f - file;i++)
+						if(A[row][file + i] != null)
+							return false;
+					return true;
+				}
+			}
 		}
 		else
 		{
-			
+			if(r == row && row == 7 && !moved && A[r][f] instanceof Rook)
+			{
+				if(f < file)
+				{
+					for(int i = 0; i < file - f;i++)
+						if(A[row][file - i] != null)
+							return false;
+					return true;
+				}
+				else
+				{
+					for(int i = 0; i < f - file;i++)
+						if(A[row][file + i] != null)
+							return false;
+					return true;
+				}
+			}
 		}
 		
 		return valid;
