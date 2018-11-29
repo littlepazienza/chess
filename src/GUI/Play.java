@@ -96,7 +96,7 @@ public class Play extends JFrame implements ActionListener {
 			if (g.fakeMove(selectedR, selectedF, b.row, b.file, g.getTempOfBoard())) {
 				wasAValidMove = true;
 				if (JOptionPane.showOptionDialog(this, "Are you sure?", "Confirm Move", JOptionPane.YES_NO_OPTION,
-						JOptionPane.QUESTION_MESSAGE, null, yon, yon[1]) == 0
+						JOptionPane.QUESTION_MESSAGE, null, yon, yon[0]) == 0
 						&& g.makeMove(selectedR, selectedF, b.row, b.file)) {
 					int selectedRTemp = selectedR;
 					selectedR = -1;
