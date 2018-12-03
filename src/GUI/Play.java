@@ -5,6 +5,8 @@ import java.awt.Font;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 
@@ -49,8 +51,38 @@ public class Play extends JFrame implements ActionListener {
 	public Play(Player p, Player q) throws IOException {
 		p1 = p;
 		p2 = q;
-		setVisible(true);
-		setSize(1500, 1000);
+		
+		addWindowListener(new WindowAdapter()
+		{
+		    public void windowClosing(WindowEvent e)
+		    {
+		    	String whoWon[] = {p.name, q.name, "Draw"};
+		    	int n = JOptionPane.showOptionDialog(Play.this,"Who won?","Don't leave me hanging!",
+		    			JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE,null,whoWon,whoWon[0]);
+		    	if(n == 0)
+				{	
+		    		int r = p1.rating();
+					p1.add(new Game(p2.rating(), 'W', p2.name));
+					p2.add(new Game(r, 'L', p1.name));
+					try {
+						Menu.writeFile();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+		    	}
+		    	else if(n == 1)
+		    	{
+		    		int r = p1.rating();
+					p1.add(new Game(p2.rating(), 'L', p2.name));
+					p2.add(new Game(r, 'W', p1.name));
+					try {
+						Menu.writeFile();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+		    	}	
+		    }
+		});
 
 		g = new GameBoard();
 		g.GameFill();
@@ -315,16 +347,15 @@ public class Play extends JFrame implements ActionListener {
 			endgm = JOptionPane.showOptionDialog(this, "Black Wins!!!", "Winner is...", JOptionPane.OK_CANCEL_OPTION,
 					JOptionPane.INFORMATION_MESSAGE, null, winnerBox, winnerBox[0]);
 			if (endgm == 0) {
-				int r = p1.rating();
-				p1.add(new Game(p2.rating(), 'L'));
-				p2.add(new Game(r, 'W'));
-				Menu.writeFile();
-				Menu.main(null);
+				Menu m = new Menu();
+				m.setVisible(true);
+				m.setSize(600, 700);
+				m.setLocationRelativeTo(null);
 				dispose();
 			} else {
 				int r = p1.rating();
-				p1.add(new Game(p2.rating(), 'L'));
-				p2.add(new Game(r, 'W'));
+				p1.add(new Game(p2.rating(), 'L', p2.name));
+				p2.add(new Game(r, 'W', p1.name));
 				Menu.writeFile();
 				dispose();
 			}
@@ -333,15 +364,18 @@ public class Play extends JFrame implements ActionListener {
 					JOptionPane.INFORMATION_MESSAGE, null, winnerBox, winnerBox[0]);
 			if (endgm == 0) {
 				int r = p1.rating();
-				p1.add(new Game(p2.rating(), 'W'));
-				p2.add(new Game(r, 'L'));
+				p1.add(new Game(p2.rating(), 'W', p2.name));
+				p2.add(new Game(r, 'L', p1.name));
 				Menu.writeFile();
-				Menu.main(null);
+				Menu m = new Menu();
+				m.setVisible(true);
+				m.setSize(600, 700);
+				m.setLocationRelativeTo(null);
 				dispose();
 			} else {
 				int r = p1.rating();
-				p1.add(new Game(p2.rating(), 'W'));
-				p2.add(new Game(r, 'L'));
+				p1.add(new Game(p2.rating(), 'W',p2.name));
+				p2.add(new Game(r, 'L', p1.name));
 				Menu.writeFile();
 				dispose();
 			}
