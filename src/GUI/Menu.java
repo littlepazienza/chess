@@ -50,7 +50,6 @@ import javax.swing.JFrame;
 
 public class Menu extends JFrame implements ActionListener{
 
-	JButton play, exit;
 	JTextField p1, p2;
 	static ArrayList<Player> playerList;
 	protected Player currentPlayer;
@@ -140,19 +139,9 @@ public class Menu extends JFrame implements ActionListener{
 		
 		playPnl.setLayout(null);
 		
-		
-		JLabel chess = new JLabel(new ImageIcon(Main.class.getResource("/chess.png")));
-		chess.setBounds(40, 100, 500, 250);
-		chess.setIcon(resizeIcon(chess.getIcon(), chess.getWidth(), chess.getHeight()));
-		playPnl.add(chess);
-		
-		JLabel by = new JLabel(new ImageIcon(Main.class.getResource("/by.png")));
-		by.setBounds(200, 300, 150, 50);
-		by.setIcon(resizeIcon(by.getIcon(), by.getWidth(), by.getHeight()));
-		playPnl.add(by);
-		
-		play = new JButton("Play with Friend");
-		play.setBounds(100, 500, 150, 100);
+		JButton play = new JButton("Play with Friend");
+		play.setBounds(200, 100, 125, 50);
+		play.setBorder(BorderFactory.createSoftBevelBorder(1));
 		play.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				Player plr2 = login();
@@ -169,29 +158,33 @@ public class Menu extends JFrame implements ActionListener{
 				dispose();
 			}
 		});
-		
 		play.setOpaque(false);
 		play.setContentAreaFilled(false);
 		
-		p1 = new JTextField(currentPlayer.name);
-		p1.setEditable(false);
-		p1.setBounds(100, 450, 150, 35);
-		p1.setFont(new Font(p1.getName(), 0, 16));
-		p1.setForeground(Color.WHITE);
-		p1.setOpaque(false);
-		
-		p2 = new JTextField("Player 2");
-		p2.setBounds(300, 450, 150, 35);
-		p2.setFont(new Font(p2.getName(), 0, 16));
-		p2.setForeground(Color.WHITE);
-		p2.setSelectionStart(0);
-		p2.setSelectionEnd(p1.getText().length());
-		p2.setOpaque(false);
-
+		JButton playG = new JButton("Play with Guest");
+		playG.setBounds(200, 200, 125, 50);
+		playG.setBorder(BorderFactory.createSoftBevelBorder(1));
+		playG.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Player plr2 = new Player("Guest", "", true);
+				try {
+					Play p = new Play(currentPlayer, plr2);
+					p.setVisible(true);
+					p.setSize(1500, 1000);
+					p.setLocationRelativeTo(null);
+				} catch (FileNotFoundException e1) {
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				dispose();
+			}
+		});
+		playG.setOpaque(false);
+		playG.setContentAreaFilled(false);
 		
 		playPnl.add(play);
-		playPnl.add(p1);
-		playPnl.add(p2);
+		playPnl.add(playG);
 		
 		playPnl.setBackground(new Color(135, 67, 67));		
 		
@@ -217,37 +210,38 @@ public class Menu extends JFrame implements ActionListener{
 		leadPnl.add(ratingLbl);
 		
 		JLabel nameLbl = new JLabel("Username");
-		nameLbl.setBounds(200, 120, 200, 30);
+		nameLbl.setBounds(175, 120, 200, 30);
 		nameLbl.setForeground(Color.WHITE);
 		leadPnl.add(nameLbl);
 		
 		JLabel resultLblW = new JLabel("W");
-		resultLblW.setBounds(400, 120, 15, 30);
+		resultLblW.setBounds(385, 120, 15, 30);
 		resultLblW.setForeground(Color.GREEN);
 		leadPnl.add(resultLblW);
 		
 		JLabel resultLblSlash = new JLabel("/");
-		resultLblSlash.setBounds(415, 120, 15, 30);
+		resultLblSlash.setBounds(400, 120, 15, 30);
 		resultLblSlash.setForeground(Color.WHITE);
 		leadPnl.add(resultLblSlash);
 		
 		JLabel resultLblL = new JLabel("L");
-		resultLblL.setBounds(421, 120, 15, 30);
+		resultLblL.setBounds(406, 120, 15, 30);
 		resultLblL.setForeground(Color.RED);
 		leadPnl.add(resultLblL);
 		
 		JLabel resultLblSlash2 = new JLabel("/");
-		resultLblSlash2.setBounds(430, 120, 15, 30);
+		resultLblSlash2.setBounds(415, 120, 15, 30);
 		resultLblSlash2.setForeground(Color.WHITE);
 		leadPnl.add(resultLblSlash2);
 		
 		JLabel resultLabelD = new JLabel("D");
-		resultLabelD.setBounds(436, 120, 15, 30);
+		resultLabelD.setBounds(421, 120, 15, 30);
 		resultLabelD.setForeground(Color.GRAY);
 		leadPnl.add(resultLabelD);
 
 		JTextArea names = new JTextArea(getLeaderBoardNames());
-		names.setBounds(200, 150, 200, 200);
+		names.setBounds(175, 150, 200, 200);
+		names.setBorder(BorderFactory.createBevelBorder(1));
 		names.setFont(new Font(names.getName(), 3, 18));
 		names.setForeground(Color.WHITE);
 		names.setBackground(new Color(135, 67, 67));	
@@ -256,6 +250,7 @@ public class Menu extends JFrame implements ActionListener{
 		
 		JTextArea ratings = new JTextArea(getLeaderBoardRanks());
 		ratings.setBounds(125, 150, 50, 200);
+		ratings.setBorder(BorderFactory.createBevelBorder(1));
 		ratings.setFont(new Font(ratings.getName(), 3, 18));
 		ratings.setForeground(Color.WHITE);
 		ratings.setBackground(new Color(135, 67, 67));	
@@ -263,7 +258,8 @@ public class Menu extends JFrame implements ActionListener{
 		leadPnl.add(ratings);
 		
 		JTextArea record = new JTextArea(getLeaderBoardRecords());
-		record.setBounds(400, 150, 200, 200);
+		record.setBounds(375, 150, 75, 200);
+		record.setBorder(BorderFactory.createBevelBorder(1));
 		record.setFont(new Font(record.getName(), 3, 18));
 		record.setForeground(Color.WHITE);
 		record.setBackground(new Color(135, 67, 67));	
@@ -283,27 +279,53 @@ public class Menu extends JFrame implements ActionListener{
 		
 		rankPnl.setLayout(null);
 		
+		JLabel rankNmLbl = new JLabel(currentPlayer.name);
+		rankNmLbl.setBounds(50, 50, 200, 100);
+		rankNmLbl.setFont(new Font(rankNmLbl.getName(), 0, 40));
+		rankNmLbl.setForeground(Color.gray);
+		rankPnl.add(rankNmLbl);
+		
 		JLabel currentPlayerRankLabel = new JLabel("" + currentPlayer.rating());
-		currentPlayerRankLabel.setBounds(200, 50, 200, 100);
+		currentPlayerRankLabel.setBounds(200, 150, 200, 100);
 		currentPlayerRankLabel.setFont(new Font(currentPlayerRankLabel.getName(), 2, 64));
 		currentPlayerRankLabel.setForeground(Color.WHITE);
 		rankPnl.add(currentPlayerRankLabel);
 		
 		JLabel last5lbl = new JLabel("Last 5 Games");
-		last5lbl.setBounds(200, 270, 400, 30);
+		last5lbl.setBounds(220, 250, 400, 30);
 		last5lbl.setFont(new Font(last5lbl.getName(), 3, 20));
 		last5lbl.setBackground(new Color(135, 67, 67));
 		last5lbl.setForeground(Color.WHITE);
 		rankPnl.add(last5lbl);
 		
-		JTextArea last5 = new JTextArea(currentPlayer.last5Games());
-		last5.setEditable(true);
-		last5.setBounds(150, 330, 400, 300);
-		last5.setBackground(new Color(135, 67, 67));
-		last5.setForeground(Color.WHITE);
-		last5.setFont(new Font(last5.getName(), 0, 16));
-		rankPnl.add(last5);
+		String[] args = currentPlayer.last5Games();
+		JTextArea last5R = new JTextArea(args[0]);
+		last5R.setBorder(BorderFactory.createBevelBorder(1));
+		last5R.setEditable(true);
+		last5R.setBounds(130, 300, 50, 200);
+		last5R.setBackground(new Color(135, 67, 67));
+		last5R.setForeground(Color.WHITE);
+		last5R.setFont(new Font(last5R.getName(), 0, 16));
+		rankPnl.add(last5R);
 		
+		JTextArea last5N = new JTextArea(args[1]);
+		last5N.setBorder(BorderFactory.createBevelBorder(1));
+		last5N.setEditable(true);
+		last5N.setBounds(180, 300, 150, 200);
+		last5N.setBackground(new Color(135, 67, 67));
+		last5N.setForeground(Color.WHITE);
+		last5N.setFont(new Font(last5N.getName(), 0, 16));
+		rankPnl.add(last5N);
+		rankPnl.setBackground(new Color(135, 67, 67));
+		
+		JTextArea last5W = new JTextArea(args[2]);
+		last5W.setBorder(BorderFactory.createBevelBorder(1));
+		last5W.setEditable(true);
+		last5W.setBounds(330, 300, 100, 200);
+		last5W.setBackground(new Color(135, 67, 67));
+		last5W.setForeground(Color.WHITE);
+		last5W.setFont(new Font(last5W.getName(), 0, 16));
+		rankPnl.add(last5W);
 		rankPnl.setBackground(new Color(135, 67, 67));
 		
 		/**
@@ -409,7 +431,7 @@ public class Menu extends JFrame implements ActionListener{
 			
 		{
 			String[] nmAndps = scan.nextLine().split(";");
-			Player p = new Player(nmAndps[0], nmAndps[1]);
+			Player p = new Player(nmAndps[0], nmAndps[1], false);
 			String gm = scan.nextLine();
 			while(!gm.equals("--"))
 			{
@@ -547,7 +569,7 @@ public class Menu extends JFrame implements ActionListener{
 		String O = "";
 		for(int i = 0; i < 10 && i < playerList.size();i++)
 		{
-			O+=playerList.get(i).totalWins() + "/" + playerList.get(i).totalLosses() + "/" + "0\n";
+			O+=playerList.get(i).totalWins() + "/" + playerList.get(i).totalLosses() + "/" + playerList.get(i).totalDraws() + "\n";
 		}
 		return O;
 		

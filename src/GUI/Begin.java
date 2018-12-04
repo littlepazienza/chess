@@ -9,6 +9,7 @@ import javax.swing.ImageIcon;
 import javax.swing.JComponent;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import com.sun.awt.AWTUtilities;
@@ -39,6 +40,7 @@ public class Begin extends JFrame{
 	}
 	
 	public static void main(String[] args) throws InterruptedException, IOException {
+		try {
 		Begin b = new Begin();
 		b.setVisible(true);
 		b.setSize(600, 450);
@@ -65,6 +67,10 @@ public class Begin extends JFrame{
 		m.setSize(600, 700);
 		m.setBackground(new Color(135, 67, 67));		
 		m.setLocationRelativeTo(null);
+		}catch(Exception e)
+		{
+			JOptionPane.showMessageDialog(null, e.getLocalizedMessage());
+		}
 	}
 	
 	private static Icon resizeIcon(Icon icon, int resizedWidth, int resizedHeight) {

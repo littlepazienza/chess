@@ -5,12 +5,14 @@ public class Player implements Comparable{
 
 	public String name, password;
 	protected ArrayList<Game> games;
+	public boolean guest;
 	
-	public Player(String nm, String pswrd)
+	public Player(String nm, String pswrd, boolean g)
 	{
 		games = new ArrayList<Game>();
 		name = nm;
 		password = pswrd;
+		guest = g;
 	}
 	
 	public Player(String nm)
@@ -29,7 +31,7 @@ public class Player implements Comparable{
 	{
 		if(games.size() == 0)
 			return 1200;
-		return (opponentRatingSum() + 400 * (totalWins() -totalLosses()))/games.size();
+		return (opponentRatingSum() + 400 * (totalWins() -totalLosses()))/(games.size() - totalDraws());
 	}
 	
 	public int opponentRatingSum()
@@ -37,7 +39,7 @@ public class Player implements Comparable{
 		int sum=0;
 		for(Game g:games)
 		{
-			sum += g.opponentRating;
+			sum += (g.result != 'D'?g.opponentRating:0);
 		}
 		return sum;
 	}
@@ -63,6 +65,17 @@ public class Player implements Comparable{
 		}
 		return count;
 	}
+
+	public int totalDraws()
+	{
+		int count=0;
+		for(Game g:games)
+		{
+			if(g.result == 'D')
+				count++;
+		}
+		return count;
+	}
 	
 	public String print()
 	{
@@ -74,14 +87,16 @@ public class Player implements Comparable{
 		return O + "--\n";
 	}
 
-	public String last5Games()
+	public String[] last5Games()
 	{
-		String O = "";
+		String[] args = {"", "", ""};
 		for(int i = games.size() - 1; i >= 0 && i > games.size() - 5;i--)
 		{
-			O+= games.get(i).opponentRating + "\t" + games.get(i).opponentName + "\t" + (games.get(i).result == 'W'?"Win":games.get(i).result =='L'?"Loss":"Draw"); 
+			args[0]+=games.get(i).opponentRating + "\n";
+			args[1]+=games.get(i).opponentName + "\n";
+			args[2]+=(games.get(i).result == 'W'?"Win":games.get(i).result =='L'?"Loss":"Draw") + "\n"; 
 		}
-		return O;
+		return args;
 	}
 	
 	@Override

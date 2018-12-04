@@ -59,10 +59,10 @@ public class Play extends JFrame implements ActionListener {
 		    	String whoWon[] = {p.name, q.name, "Draw"};
 		    	int n = JOptionPane.showOptionDialog(Play.this,"Who won?","Don't leave me hanging!",
 		    			JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE,null,whoWon,whoWon[0]);
-		    	if(n == 0)
+		    	if(n == 0 && !p1.guest && !p2.guest)
 				{	
 		    		int r = p1.rating();
-					p1.add(new Game(p2.rating(), 'W', p2.name));
+		   			p1.add(new Game(p2.rating(), 'W', p2.name));
 					p2.add(new Game(r, 'L', p1.name));
 					try {
 						Menu.writeFile();
@@ -70,7 +70,7 @@ public class Play extends JFrame implements ActionListener {
 						e1.printStackTrace();
 					}
 		    	}
-		    	else if(n == 1)
+		    	else if(n == 1 && !p1.guest && !p2.guest)
 		    	{
 		    		int r = p1.rating();
 					p1.add(new Game(p2.rating(), 'L', p2.name));
@@ -80,7 +80,18 @@ public class Play extends JFrame implements ActionListener {
 					} catch (IOException e1) {
 						e1.printStackTrace();
 					}
-		    	}	
+		    	}
+		    	else
+		    	{
+		    		int r = p1.rating();
+					p1.add(new Game(p2.rating(), 'D', p2.name));
+					p2.add(new Game(r, 'D', p1.name));
+					try {
+						Menu.writeFile();
+					} catch (IOException e1) {
+						e1.printStackTrace();
+					}
+		    	}
 		    }
 		});
 
@@ -343,7 +354,7 @@ public class Play extends JFrame implements ActionListener {
 		// check for check mate
 		String[] winnerBox = { "Play Again!", "Nah, I'm Good. Thanks though, I really appreciate the offer." };
 		int endgm = g.endGameStatus();
-		if (endgm == g.BLACK_WIN) {
+		if (endgm == g.BLACK_WIN && !p1.guest && !p2.guest) {
 			endgm = JOptionPane.showOptionDialog(this, "Black Wins!!!", "Winner is...", JOptionPane.OK_CANCEL_OPTION,
 					JOptionPane.INFORMATION_MESSAGE, null, winnerBox, winnerBox[0]);
 			if (endgm == 0) {
@@ -359,7 +370,7 @@ public class Play extends JFrame implements ActionListener {
 				Menu.writeFile();
 				dispose();
 			}
-		} else if (endgm == g.WHITE_WIN) {
+		} else if (endgm == g.WHITE_WIN && !p1.guest && !p2.guest) {
 			endgm = JOptionPane.showOptionDialog(this, "White Wins!!!", "Winner is...", JOptionPane.OK_CANCEL_OPTION,
 					JOptionPane.INFORMATION_MESSAGE, null, winnerBox, winnerBox[0]);
 			if (endgm == 0) {
