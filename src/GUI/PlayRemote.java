@@ -19,6 +19,10 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
+
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.SftpException;
+
 import Game.Bishop;
 import Game.GameBoard;
 import Game.Knight;
@@ -27,10 +31,11 @@ import Game.Piece;
 import Game.Queen;
 import Game.Rook;
 import Player.Game;
+import Player.LiveGame;
 import Player.Player;
 import sun.applet.Main;
 
-public class Play extends JFrame implements ActionListener {
+public class PlayRemote extends JFrame implements ActionListener {
 	protected ImageIcon[] options = { new ImageIcon(Main.class.getResource("/white_queen_on_white.png")),
 			new ImageIcon(Main.class.getResource("/white_knight_on_white.png")),
 			new ImageIcon(Main.class.getResource("/white_bishop_on_white.png")),
@@ -46,62 +51,20 @@ public class Play extends JFrame implements ActionListener {
 	protected int selectedR, selectedF;
 	JPanel frame = new JPanel();
 	protected Player p1, p2;
+	protected LiveGame theGame;
 	protected String moves;
 
-	public Play(Player p, Player q) throws IOException {
+
+	public PlayRemote(Player p, Player q, LiveGame lg) throws IOException, JSchException, SftpException {
 		p1 = p;
 		p2 = q;
-		
-		addWindowListener(new WindowAdapter()
-		{
-		    public void windowClosing(WindowEvent e)
-		    {
-		    	String whoWon[] = {p.name, q.name, "Draw"};
-		    	int n = JOptionPane.showOptionDialog(Play.this,"Who won?","Don't leave me hanging!",
-		    			JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE,null,whoWon,whoWon[0]);
-		    	if(n == 0 && !p1.guest && !p2.guest)
-				{	
-		    		int r = p1.rating();
-		   			p1.add(new Game(p2.rating(), 'W', p2.name));
-					p2.add(new Game(r, 'L', p1.name));
-					try {
-						Menu.writeFile();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-		    	}
-		    	else if(n == 1 && !p1.guest && !p2.guest)
-		    	{
-		    		int r = p1.rating();
-					p1.add(new Game(p2.rating(), 'L', p2.name));
-					p2.add(new Game(r, 'W', p1.name));
-					try {
-						Menu.writeFile();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-		    	}
-		    	else
-		    	{
-		    		int r = p1.rating();
-					p1.add(new Game(p2.rating(), 'D', p2.name));
-					p2.add(new Game(r, 'D', p1.name));
-					try {
-						Menu.writeFile();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					}
-		    	}
-		    }
-		});
+		theGame = lg;
 
-		g = new GameBoard();
-		g.GameFill();
-		whiteTurn = true;
+		g = theGame.toGameBoard();
+		whiteTurn = theGame.whiteTurn;
 		selectedR = -1;
 		selectedF = -1;
 		buttons = new tileButton[8][8];
-		turnNum = 1;
 		wasAValidMove = false;
 		moves = "";
 
@@ -167,10 +130,16 @@ public class Play extends JFrame implements ActionListener {
 			update(p1, p2);
 		} catch (IOException e1) {
 			e1.printStackTrace();
+		} catch (JSchException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
+		} catch (SftpException e1) {
+			// TODO Auto-generated catch block
+			e1.printStackTrace();
 		}
 	}
 
-	private void update(Player p, Player q) throws IOException {
+	private void update(Player p, Player q) throws IOException, JSchException, SftpException {
 		frame.removeAll();
 
 		Pawn pwn = g.pawnPromotion();

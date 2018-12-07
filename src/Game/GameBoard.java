@@ -1,6 +1,8 @@
 package Game;
 import java.util.ArrayList;
 
+import Player.LiveGame;
+
 public class GameBoard
 {
 

@@ -1,5 +1,4 @@
 package GUI;
-import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Font;
 import java.awt.Image;
@@ -17,14 +16,9 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Scanner;
-import java.util.Set;
-import java.util.TreeSet;
 
 import javax.swing.BorderFactory;
-import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -36,22 +30,23 @@ import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
 
+import org.apache.commons.io.FileUtils;
+
+import com.jcraft.jsch.ChannelSftp;
+import com.jcraft.jsch.JSch;
+import com.jcraft.jsch.JSchException;
+import com.jcraft.jsch.Session;
+import com.jcraft.jsch.SftpException;
+
 import Player.Game;
+import Player.LiveGame;
 import Player.Player;
-import sun.applet.Main;
-
-
-import java.awt.Color;
-import java.awt.Graphics;
-import java.awt.Graphics2D;
-import java.awt.Rectangle;
-import javax.swing.JComponent;
-import javax.swing.JFrame;
 
 public class Menu extends JFrame implements ActionListener{
 
 	JTextField p1, p2;
 	static ArrayList<Player> playerList;
+	static ArrayList<LiveGame> gameList;
 	protected Player currentPlayer;
 	protected JPanel mainPnl;
 	protected JPanel rankPnl;
@@ -62,7 +57,7 @@ public class Menu extends JFrame implements ActionListener{
 	
 	protected MenuButton rankPnlButton, playPnlButton, newsPnlButton, leadPnlButton;
 	
-	public Menu() throws IOException
+	public Menu() throws IOException, JSchException, SftpException
 	{
 		super();
 		
@@ -74,11 +69,18 @@ public class Menu extends JFrame implements ActionListener{
 					writeFile();
 				} catch (IOException e1) {
 					e1.printStackTrace();
+				} catch (JSchException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (SftpException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
 				}
 	            }
 	        });
 		   
 		playerList = new ArrayList<Player>();
+		gameList = new ArrayList<LiveGame>();
 		readFile();
 		
 		currentPlayer = login();
@@ -146,13 +148,19 @@ public class Menu extends JFrame implements ActionListener{
 			public void actionPerformed(ActionEvent e) {
 				Player plr2 = login();
 				try {
-					Play p = new Play(currentPlayer, plr2);
+					PlayLocal p = new PlayLocal(currentPlayer, plr2);
 					p.setVisible(true);
 					p.setSize(1500, 1000);
 					p.setLocationRelativeTo(null);
 				} catch (FileNotFoundException e1) {
 					e1.printStackTrace();
 				} catch (IOException e1) {
+					e1.printStackTrace();
+				} catch (JSchException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				} catch (SftpException e1) {
+					// TODO Auto-generated catch block
 					e1.printStackTrace();
 				}
 				dispose();
@@ -168,10 +176,16 @@ public class Menu extends JFrame implements ActionListener{
 			public void actionPerformed(ActionEvent e) {
 				Player plr2 = new Player("Guest", "", true);
 				try {
-					Play p = new Play(currentPlayer, plr2);
-					p.setVisible(true);
-					p.setSize(1500, 1000);
-					p.setLocationRelativeTo(null);
+					PlayLocal p;
+					try {
+						p = new PlayLocal(currentPlayer, plr2);
+						p.setVisible(true);
+						p.setSize(1500, 1000);
+						p.setLocationRelativeTo(null);
+					} catch (JSchException | SftpException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 				} catch (FileNotFoundException e1) {
 					e1.printStackTrace();
 				} catch (IOException e1) {
@@ -183,8 +197,36 @@ public class Menu extends JFrame implements ActionListener{
 		playG.setOpaque(false);
 		playG.setContentAreaFilled(false);
 		
+		JButton playR = new JButton("Play with Friend");
+		playR.setBounds(200, 300, 125, 50);
+		playR.setBorder(BorderFactory.createSoftBevelBorder(1));
+		playR.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				Player plr2 = matchPlayer("chad");
+				try {
+					try {
+						PlayRemote p = new PlayRemote(currentPlayer, plr2, matchGame(currentPlayer, plr2));
+						p.setVisible(true);
+						p.setSize(1500, 1000);
+						p.setLocationRelativeTo(null);
+					} catch (JSchException | SftpException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				} catch (FileNotFoundException e1) {
+					e1.printStackTrace();
+				} catch (IOException e1) {
+					e1.printStackTrace();
+				}
+				dispose();
+			}
+		});
+		playR.setOpaque(false);
+		playR.setContentAreaFilled(false);
+		
 		playPnl.add(play);
 		playPnl.add(playG);
+		playPnl.add(playR);
 		
 		playPnl.setBackground(new Color(135, 67, 67));		
 		
@@ -414,37 +456,83 @@ public class Menu extends JFrame implements ActionListener{
 	    return new ImageIcon(resizedImage);
 	}
 	
-	public void readFile() throws IOException
+	public void readFile() throws IOException, JSchException, SftpException
 	{
-		String source = "\\\\10.233.148.78\\C$\\Users\\benpa\\Desktop\\Loyola\\fall18\\CS\\workspace\\play\\game\\data";
-		String target = "data";
 
-		try 
-		{
-		Files.copy(Paths.get(source),Paths.get(target),
-		StandardCopyOption.REPLACE_EXISTING);
-		}
-		catch(Exception e) {}
+		String user = "def";
+		String host = "66.175.216.86";
+		String password = "yo";
+		
+		JSch jsch = new JSch();
+		jsch.setKnownHosts("known_hosts");
+		Session session = jsch.getSession(user, host);
+		session.setPassword(password);
+		session.connect();
+
+		ChannelSftp sftpChannel = (ChannelSftp) session.openChannel("sftp");
+		sftpChannel.connect();
+
+		sftpChannel.get("/home/chess/data", "data");
 		
 		Scanner scan = new Scanner(new File("data"));
+		
+		if(!scan.nextLine().equals("PLAYERS"))
+			System.out.println("Data file corrupt");
+		
+		boolean gameMode = false;
 		while(scan.hasNextLine())
 			
 		{
-			String[] nmAndps = scan.nextLine().split(";");
-			Player p = new Player(nmAndps[0], nmAndps[1], false);
-			String gm = scan.nextLine();
-			while(!gm.equals("--"))
+			String nmAndp = scan.nextLine();
+			
+			if(nmAndp.equals("GAMES"))
 			{
-				String[] theGm = gm.split(";");
-				p.add(new Game(Integer.parseInt(theGm[1]), theGm[2].charAt(0), theGm[0]));
-				gm = scan.nextLine();
+				gameMode = true;
 			}
-			playerList.add(p);
+			else if(!gameMode)
+			{
+				String[] nmAndps = nmAndp.split(";");
+				Player p = new Player(nmAndps[0], nmAndps[1], false);
+				String gm = scan.nextLine();
+				while(!gm.equals("--"))
+				{
+					String[] theGm = gm.split(";");
+					p.add(new Game(Integer.parseInt(theGm[1]), theGm[2].charAt(0), theGm[0]));
+					gm = scan.nextLine();
+				}
+				playerList.add(p);
+			}
+			else
+			{
+				String[] gamePlrs = nmAndp.split(";");
+				LiveGame g = new LiveGame(gamePlrs[0], gamePlrs[1], 10, true);
+				g.addMove("wp34");
+				g.addMove("bp57");
+				//String[] moves = scan.nextLine().split(",");
+				
+				/**
+				 * TODO FINISH READING OF MOVES
+				 * REMEMBER TO ADD A TIME OF START SO THAT TIMEOUT IS PLAUSIBLE
+				 */
+				gameList.add(g);
+			}
 		}
 		scan.close();
 	}
 	
-	public static void writeFile() throws IOException
+	public LiveGame matchGame(Player p, Player q)
+	{
+		for(LiveGame g:gameList)
+		{
+			if(g.plr1.equals(p.name) && g.plr2.equals(q.name))
+				return g;
+			else if(g.plr1.equals(q.name) && g.plr2.equals(p.name))
+				return g;
+		}
+		return null;
+	}
+	
+	public static void writeFile() throws IOException, JSchException, SftpException
 	{
 		BufferedWriter buffy = new BufferedWriter(new FileWriter(new File("data")));
 		buffy.flush();
@@ -454,15 +542,20 @@ public class Menu extends JFrame implements ActionListener{
 		}
 		buffy.close();
 		
-		String source = "\\\\10.233.148.78\\C$\\Users\\benpa\\Desktop\\Loyola\\fall18\\CS\\workspace\\play\\game\\data";
-		String target = "data";
+		String user = "def";
+		String host = "66.175.216.86";
+		String password = "yo";
+		
+		JSch jsch = new JSch();
+		jsch.setKnownHosts("known_hosts");
+		Session session = jsch.getSession(user, host);
+		session.setPassword(password);
+		session.connect();
 
-		try 
-		{
-		Files.copy(Paths.get(target),Paths.get(source),
-		StandardCopyOption.REPLACE_EXISTING);
-		}
-		catch(Exception e) {}		
+		ChannelSftp sftpChannel = (ChannelSftp) session.openChannel("sftp");
+		sftpChannel.connect();
+
+		sftpChannel.put("data", "/home/chess/data");
 	}
 	
 	public Player matchPlayer(String str)
