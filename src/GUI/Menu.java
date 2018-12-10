@@ -29,6 +29,7 @@ import javax.swing.JPanel;
 import javax.swing.JPasswordField;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.text.Document;
 
 import org.apache.commons.io.FileUtils;
 
@@ -54,6 +55,7 @@ public class Menu extends JFrame implements ActionListener{
 	protected JPanel leadPnl;
 	protected JPanel playPnl;
 	protected JPanel srcBar;
+	protected static ChannelSftp channel;
 	
 	protected MenuButton rankPnlButton, playPnlButton, newsPnlButton, leadPnlButton;
 	
@@ -67,6 +69,7 @@ public class Menu extends JFrame implements ActionListener{
 	            {
 	               try {
 					writeFile();
+					writeGames();
 				} catch (IOException e1) {
 					e1.printStackTrace();
 				} catch (JSchException e1) {
@@ -79,11 +82,14 @@ public class Menu extends JFrame implements ActionListener{
 	            }
 	        });
 		   
+		initializeChannel();
 		playerList = new ArrayList<Player>();
 		gameList = new ArrayList<LiveGame>();
 		readFile();
 		
 		currentPlayer = login();
+		
+		readGame();
 		
 		Collections.sort(playerList);
 		Collections.reverse(playerList);
@@ -202,27 +208,54 @@ public class Menu extends JFrame implements ActionListener{
 		playR.setBorder(BorderFactory.createSoftBevelBorder(1));
 		playR.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				Player plr2 = matchPlayer("chad");
-				try {
-					try {
-						PlayRemote p = new PlayRemote(currentPlayer, plr2, matchGame(currentPlayer, plr2));
-						p.setVisible(true);
-						p.setSize(1500, 1000);
-						p.setLocationRelativeTo(null);
-					} catch (JSchException | SftpException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
+				String plr = JOptionPane.showInputDialog("Who would you like to challenge?");
+				Player plr2 =null;
+				for(Player tempPlayer:playerList)
+				{
+					if(tempPlayer.name.equals(plr))
+					{
+						plr2 = tempPlayer;
+						break;
 					}
-				} catch (FileNotFoundException e1) {
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					e1.printStackTrace();
 				}
-				dispose();
+				
+				if(plr2 == null)
+				{
+					JOptionPane.showMessageDialog(null, "Player does not exist");
+					
+				}
+				else
+				{
+					gameList.add(new LiveGame(currentPlayer.name, plr2.name, 0, plr2.name, "REQ", currentPlayer));
+				}
 			}
 		});
 		playR.setOpaque(false);
 		playR.setContentAreaFilled(false);
+		
+		int i=1;
+		for(LiveGame g:gameList)
+		{
+			JButton b = new JButton("vs " + g.getOpponent(currentPlayer.name));
+			b.setBounds(100, 300 + 100 * i, 100, 100);
+			b.setOpaque(true);
+			b.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					try {
+						PlayRemote p = new PlayRemote(currentPlayer, matchPlayer(g.getOpponent(currentPlayer.name)), g);
+						p.setSize(1000, 800);
+						p.setVisible(true);
+						p.setLocationRelativeTo(null);
+					} catch (IOException | JSchException | SftpException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
+				}
+			});
+			b.setBorder(BorderFactory.createBevelBorder(1));
+			i++;
+			playPnl.add(b);
+		}
 		
 		playPnl.add(play);
 		playPnl.add(playG);
@@ -387,6 +420,22 @@ public class Menu extends JFrame implements ActionListener{
 		srcBar.setBounds(0, 0, 600, 50);
 	}
 	
+	public void initializeChannel() throws JSchException
+	{
+		String user = "chess";
+		String host = "66.175.216.86";
+		String password = "chessisfun";
+		
+		JSch jsch = new JSch();
+		jsch.setKnownHosts("known_hosts");
+		Session session = jsch.getSession(user, host);
+		session.setPassword(password);
+		session.connect();
+
+		channel = (ChannelSftp) session.openChannel("sftp");
+		channel.connect();	
+	}
+	
 	private Player login()
 	{
 		JTextField username = new JTextField();
@@ -398,8 +447,21 @@ public class Menu extends JFrame implements ActionListener{
 
 		int option = JOptionPane.showConfirmDialog(null, userMsg, "Login", JOptionPane.OK_CANCEL_OPTION);
 		
+		boolean valid = true;
+		for (char c : username.getText().toCharArray()) {
+		    if (Character.isWhitespace(c)) {
+		        valid = false;
+		     }
+		}
+		    
+		if(!valid)
+		{
+			JOptionPane.showMessageDialog(this, "Invalid Username");
+			System.exit(0);
+		}
+		    
 		Player p = matchPlayer(username.getText());
-		
+	
 		if (option == JOptionPane.OK_OPTION) {
 			if(p.password == null)
 			{
@@ -458,62 +520,68 @@ public class Menu extends JFrame implements ActionListener{
 	
 	public void readFile() throws IOException, JSchException, SftpException
 	{
-
-		String user = "def";
-		String host = "66.175.216.86";
-		String password = "yo";
+		channel.get("/home/chess/playerdata", "playerdata");
 		
-		JSch jsch = new JSch();
-		jsch.setKnownHosts("known_hosts");
-		Session session = jsch.getSession(user, host);
-		session.setPassword(password);
-		session.connect();
-
-		ChannelSftp sftpChannel = (ChannelSftp) session.openChannel("sftp");
-		sftpChannel.connect();
-
-		sftpChannel.get("/home/chess/data", "data");
+		Scanner scan = new Scanner(new File("playerdata"));
 		
-		Scanner scan = new Scanner(new File("data"));
-		
-		if(!scan.nextLine().equals("PLAYERS"))
-			System.out.println("Data file corrupt");
-		
-		boolean gameMode = false;
 		while(scan.hasNextLine())
 			
 		{
 			String nmAndp = scan.nextLine();
-			
-			if(nmAndp.equals("GAMES"))
+			String[] nmAndps = nmAndp.split(";");
+			Player p = new Player(nmAndps[0], nmAndps[1], false);
+			String gm = scan.nextLine();
+			while(!gm.equals("--"))
 			{
-				gameMode = true;
+				String[] theGm = gm.split(";");
+				p.add(new Game(Integer.parseInt(theGm[1]), theGm[2].charAt(0), theGm[0]));
+				gm = scan.nextLine();
 			}
-			else if(!gameMode)
+			playerList.add(p);
+		}
+		scan.close();
+	}
+	
+	public void readGame() throws JSchException, SftpException, IOException
+	{
+		channel.get("/home/chess/gamedata", "gamedata");
+				
+		Scanner scan = new Scanner(new File("gamedata"));
+		
+		while(scan.hasNextLine())
+		{
+			String[] names = scan.nextLine().split(";");
+			String nxt = scan.nextLine();
+			if(nxt.equals("REQ"))
 			{
-				String[] nmAndps = nmAndp.split(";");
-				Player p = new Player(nmAndps[0], nmAndps[1], false);
-				String gm = scan.nextLine();
-				while(!gm.equals("--"))
+				if(names[1].equals(currentPlayer.name))
 				{
-					String[] theGm = gm.split(";");
-					p.add(new Game(Integer.parseInt(theGm[1]), theGm[2].charAt(0), theGm[0]));
-					gm = scan.nextLine();
+					String[] opt = {"accept", "decline"};
+					if(JOptionPane.showOptionDialog(this, "New game request from " + names[0], "Game Request", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, opt, opt[0]) == 0)
+					{
+						LiveGame g = new LiveGame(names[0], names[1], 0, currentPlayer.name, "ACPT", currentPlayer);
+						gameList.add(g);
+					}
 				}
-				playerList.add(p);
+				else
+				{
+					LiveGame g = new LiveGame(names[0], names[1], 0, names[1], "REQ", currentPlayer);
+				}
+				scan.nextLine();
 			}
 			else
 			{
-				String[] gamePlrs = nmAndp.split(";");
-				LiveGame g = new LiveGame(gamePlrs[0], gamePlrs[1], 10, true);
-				g.addMove("wp34");
-				g.addMove("bp57");
-				//String[] moves = scan.nextLine().split(",");
-				
-				/**
-				 * TODO FINISH READING OF MOVES
-				 * REMEMBER TO ADD A TIME OF START SO THAT TIMEOUT IS PLAUSIBLE
-				 */
+				int turnNum = Integer.parseInt(scan.nextLine());
+				String turn = scan.nextLine();
+				LiveGame g = new LiveGame(names[0], names[1], turnNum, turn, "ACPT", currentPlayer);
+				Scanner line = new Scanner(scan.nextLine());
+				line.useDelimiter(",");
+				String lineNext = line.next();
+				while(line.hasNext() && !lineNext.equals("--"))
+				{
+					g.addMove(lineNext);
+					lineNext = line.next();
+				}
 				gameList.add(g);
 			}
 		}
@@ -541,21 +609,21 @@ public class Menu extends JFrame implements ActionListener{
 			buffy.write(p.print());
 		}
 		buffy.close();
-		
-		String user = "def";
-		String host = "66.175.216.86";
-		String password = "yo";
-		
-		JSch jsch = new JSch();
-		jsch.setKnownHosts("known_hosts");
-		Session session = jsch.getSession(user, host);
-		session.setPassword(password);
-		session.connect();
 
-		ChannelSftp sftpChannel = (ChannelSftp) session.openChannel("sftp");
-		sftpChannel.connect();
+		channel.put("playerdata", "/home/chess/playerdata");
+	}
+	
+	public void writeGames() throws JSchException, SftpException, IOException
+	{
+		BufferedWriter buffy = new BufferedWriter(new FileWriter(new File("gamedata")));
 
-		sftpChannel.put("data", "/home/chess/data");
+		buffy.flush();
+		for(LiveGame g:gameList)
+		{
+			buffy.write(g.printGame());
+		}
+		buffy.close();
+		channel.put("gamedata", "/home/chess/gamedata");
 	}
 	
 	public Player matchPlayer(String str)

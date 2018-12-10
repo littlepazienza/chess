@@ -61,7 +61,7 @@ public class PlayRemote extends JFrame implements ActionListener {
 		theGame = lg;
 
 		g = theGame.toGameBoard();
-		whiteTurn = theGame.whiteTurn;
+		whiteTurn = theGame.currentTurn.equals(theGame.plr2);
 		selectedR = -1;
 		selectedF = -1;
 		buttons = new tileButton[8][8];
@@ -114,6 +114,7 @@ public class PlayRemote extends JFrame implements ActionListener {
 						turnNum++;
 					}
 					moves += g.moveNotation(selectedRTemp, selectedF, b.row, b.file, temp) + " ";
+					theGame.addMove("" + selectedR + selectedF + b.row + b.file);
 				}
 			} else if (!wasAValidMove){
 				JOptionPane.showMessageDialog(null, "Invalid Move");

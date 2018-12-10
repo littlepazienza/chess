@@ -13,18 +13,22 @@ import Game.Rook;
 
 public class LiveGame {
 
-	public boolean whiteTurn;
+	public String currentTurn;
 	public int turnNumber;
 	protected ArrayList<String> movelist;
 	public String plr1, plr2;
+	public String gameStatus;
+	public Player currentPlayer;
 	
-	public LiveGame(String plr1, String plr2, int turn, boolean whiteTurn)
+	public LiveGame(String plr1, String plr2, int turn, String whoseTurn, String gameStatus, Player currentPlayer)
 	{
 		movelist = new ArrayList<>();
-		this.whiteTurn = whiteTurn;
+		this.currentTurn = whoseTurn;
 		this.turnNumber = turn;
 		this.plr1 = plr1;
 		this.plr2 = plr2;
+		this.gameStatus =gameStatus;
+		this.currentPlayer = currentPlayer;
 	}
 	
 	public void addMove(String mv)
@@ -32,55 +36,41 @@ public class LiveGame {
 		movelist.add(mv);
 	}
 	
+	public String getOpponent(String otherName)
+	{
+		if(plr1.equals(otherName))
+			return plr2;
+		else
+			return plr1;
+	}
+	
 	public GameBoard toGameBoard()
 	{
 		GameBoard g = new GameBoard();
+		g.GameFill();
+		
 		for(String s:movelist)
 		{
-			if(s.charAt(0) == 'E')
-			{
-				g.board[(int)s.charAt(1)][(int)s.charAt(2)] = null;
-			}
-			
-			Piece.Side c;
-			if(s.charAt(0) == 'w')
-			{
-				c = Piece.Side.WHITE;
-			}
-			else
-			{
-				c = Piece.Side.BLACK;
-			}
-			
-			Piece p = null;
-			if(s.charAt(1) == 'p')
-			{
-				p = new Pawn((int)s.charAt(2), (int)s.charAt(3), c);
-			}
-			if(s.charAt(1) == 'k')
-			{
-				p = new King((int)s.charAt(2), (int)s.charAt(3), c);
-			}
-			if(s.charAt(1) == 'n')
-			{
-				p = new Knight((int)s.charAt(2), (int)s.charAt(3), c);
-			}
-			if(s.charAt(1) == 'r')
-			{
-				p = new Rook((int)s.charAt(2), (int)s.charAt(3), c);
-			}
-			if(s.charAt(1) == 'b')
-			{
-				p = new Bishop((int)s.charAt(2), (int)s.charAt(3), c);
-			}
-			if(s.charAt(1) == 'q')
-			{
-				p = new Queen((int)s.charAt(2), (int)s.charAt(3), c);
-			}
-			
-			g.board[Integer.parseInt(""+s.charAt(2))][Integer.parseInt(""+s.charAt(3))] = p;
+			g.makeMove(Integer.parseInt(""+s.charAt(0)), Integer.parseInt(""+s.charAt(1)), Integer.parseInt(""+s.charAt(2)), Integer.parseInt(""+s.charAt(3)));
 		}
 		
 		return g;
+	}
+	
+	public String printGame()
+	{
+		String O = "";
+		O+=plr1 + ";" + plr2  + "\n";
+		if(gameStatus.equals("REQ"))
+			return O + gameStatus + "--\n";
+		else
+		{	
+			O+=gameStatus + "\n";
+			O+=turnNumber + "\n";
+			O+=currentTurn + "\n";
+			for(String s: movelist)
+				O+= s + ",";
+			return O.substring(0, O.length()) + "--\n";
+		}
 	}
 }
