@@ -50,25 +50,27 @@ public class PlayRemote extends JFrame implements ActionListener {
 	boolean whiteTurn;
 	protected int selectedR, selectedF;
 	JPanel frame = new JPanel();
-	protected Player p1, p2;
+	protected Player current, other;
 	protected LiveGame theGame;
 	protected String moves;
 
 
-	public PlayRemote(Player p, Player q, LiveGame lg) throws IOException, JSchException, SftpException {
-		p1 = p;
-		p2 = q;
+	public PlayRemote(Player p, LiveGame lg) throws IOException, JSchException, SftpException {
 		theGame = lg;
 
+		
+		this.current = p;
+		this.other = theGame.getOpponent(p.name);
+
 		g = theGame.toGameBoard();
-		whiteTurn = theGame.currentTurn.equals(theGame.plr2);
+		whiteTurn = theGame.currentTurn.equals(theGame.white.name);
 		selectedR = -1;
 		selectedF = -1;
 		buttons = new tileButton[8][8];
 		wasAValidMove = false;
 		moves = "";
 
-		update(p, q);
+		update();
 
 		frame.setLayout(null);
 		frame.setBackground(new Color(135, 67, 67));
@@ -79,6 +81,16 @@ public class PlayRemote extends JFrame implements ActionListener {
 	}
 
 	public void actionPerformed(ActionEvent e) {
+		if(current.equals(theGame.white) && !whiteTurn)
+		{
+			JOptionPane.showMessageDialog(null, "Blacks Turn");
+			return;
+		}
+		if(current.equals(theGame.black) && whiteTurn)
+		{
+			JOptionPane.showMessageDialog(null, "White's Turn");
+			return;
+		}
 		wasAValidMove = false;
 		tileButton b = (tileButton) e.getSource();
 		Piece[][] temp = g.getTempOfBoard();
@@ -89,10 +101,10 @@ public class PlayRemote extends JFrame implements ActionListener {
 		}
 		else if (selectedR == -1) {
 			if (whiteTurn && g.board[b.row][b.file] != null && g.board[b.row][b.file].color != Piece.Side.WHITE) {
-				JOptionPane.showMessageDialog(null, "White's turn");
+				JOptionPane.showMessageDialog(null, "Invalid Move");
 			} else if (!whiteTurn && g.board[b.row][b.file] != null
 					&& g.board[b.row][b.file].color != Piece.Side.BLACK) {
-				JOptionPane.showMessageDialog(null, "Black's turn");
+				JOptionPane.showMessageDialog(null, "Invalid Move");
 			} else if(g.board[b.row][b.file] != null){
 				selectedR = b.row;
 				selectedF = b.file;
@@ -105,16 +117,13 @@ public class PlayRemote extends JFrame implements ActionListener {
 						JOptionPane.QUESTION_MESSAGE, null, yon, yon[0]) == 0
 						&& g.makeMove(selectedR, selectedF, b.row, b.file)) {
 					int selectedRTemp = selectedR;
-					selectedR = -1;
-					if (whiteTurn) {
-						moves += turnNum + ". ";
-						whiteTurn = false;
-					} else {
-						whiteTurn = true;
-						turnNum++;
-					}
+					
 					moves += g.moveNotation(selectedRTemp, selectedF, b.row, b.file, temp) + " ";
 					theGame.addMove("" + selectedR + selectedF + b.row + b.file);
+					theGame.passTurn();
+					selectedR = -1;
+					whiteTurn = !whiteTurn;
+
 				}
 			} else if (!wasAValidMove){
 				JOptionPane.showMessageDialog(null, "Invalid Move");
@@ -128,7 +137,7 @@ public class PlayRemote extends JFrame implements ActionListener {
 		}
 		
 		try {
-			update(p1, p2);
+			update();
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} catch (JSchException e1) {
@@ -140,7 +149,7 @@ public class PlayRemote extends JFrame implements ActionListener {
 		}
 	}
 
-	private void update(Player p, Player q) throws IOException, JSchException, SftpException {
+	private void update() throws IOException, JSchException, SftpException {
 		frame.removeAll();
 
 		Pawn pwn = g.pawnPromotion();
@@ -158,8 +167,8 @@ public class PlayRemote extends JFrame implements ActionListener {
 			else if (n == 3)
 				g.board[pwn.row][pwn.file] = new Rook(pwn.row, pwn.file, pwn.color);
 		}
-
-		if (whiteTurn) {
+		
+		if (current.equals(theGame.white)) {
 			// white side
 
 			boolean white = true;
@@ -233,7 +242,7 @@ public class PlayRemote extends JFrame implements ActionListener {
 			}
 		}
 		// whose turn is it
-		JLabel turn = new JLabel((whiteTurn ? p.name + "'s Turn" : q.name + "'s Turn"));
+		JLabel turn = new JLabel((whiteTurn ? current.name + "'s Turn" : other.name + "'s Turn"));
 		turn.setBounds(40, 400, 200, 100);
 		turn.setFont(new Font(turn.getName(), Font.PLAIN, 18));
 		turn.setForeground(Color.WHITE);
@@ -286,7 +295,7 @@ public class PlayRemote extends JFrame implements ActionListener {
 		frame.add(moveList);
 
 		// teams
-		JButton whiteBtn = new JButton(p.name);
+		JButton whiteBtn = new JButton(current.name);
 		whiteBtn.setBackground(new Color(135, 67, 67));
 		whiteBtn.setBounds(75, 775, 100, 100);
 		whiteBtn.setForeground(Color.BLACK);
@@ -295,14 +304,14 @@ public class PlayRemote extends JFrame implements ActionListener {
 		whiteBtn.setEnabled(false);
 		frame.add(whiteBtn);
 
-		JLabel whiteRating = new JLabel("" + p.rating());
+		JLabel whiteRating = new JLabel("" + current.rating());
 		whiteRating.setOpaque(false);
 		whiteRating.setBounds(75, 750, 100, 30);
 		whiteRating.setFont(new Font(whiteRating.getName(), 0, 12));
 		whiteRating.setForeground(Color.WHITE);
 		frame.add(whiteRating);
 
-		JButton blackBtn = new JButton(q.name);
+		JButton blackBtn = new JButton(other.name);
 		blackBtn.setBackground(new Color(135, 67, 67));
 		blackBtn.setBounds(75, 30, 100, 100);
 		blackBtn.setForeground(Color.WHITE);
@@ -311,7 +320,7 @@ public class PlayRemote extends JFrame implements ActionListener {
 		blackBtn.setEnabled(false);
 		frame.add(blackBtn);
 
-		JLabel blackRating = new JLabel("" + q.rating());
+		JLabel blackRating = new JLabel("" + other.rating());
 		blackRating.setOpaque(false);
 		blackRating.setBounds(75, 5, 100, 30);
 		blackRating.setFont(new Font(blackRating.getName(), 0, 12));
@@ -324,7 +333,7 @@ public class PlayRemote extends JFrame implements ActionListener {
 		// check for check mate
 		String[] winnerBox = { "Play Again!", "Nah, I'm Good. Thanks though, I really appreciate the offer." };
 		int endgm = g.endGameStatus();
-		if (endgm == g.BLACK_WIN && !p1.guest && !p2.guest) {
+		if (endgm == g.BLACK_WIN) {
 			endgm = JOptionPane.showOptionDialog(this, "Black Wins!!!", "Winner is...", JOptionPane.OK_CANCEL_OPTION,
 					JOptionPane.INFORMATION_MESSAGE, null, winnerBox, winnerBox[0]);
 			if (endgm == 0) {
@@ -334,19 +343,19 @@ public class PlayRemote extends JFrame implements ActionListener {
 				m.setLocationRelativeTo(null);
 				dispose();
 			} else {
-				int r = p1.rating();
-				p1.add(new Game(p2.rating(), 'L', p2.name));
-				p2.add(new Game(r, 'W', p1.name));
+				int r = current.rating();
+				current.add(new Game(other.rating(), 'L', other.name));
+				other.add(new Game(r, 'W', current.name));
 				Menu.writeFile();
 				dispose();
 			}
-		} else if (endgm == g.WHITE_WIN && !p1.guest && !p2.guest) {
+		} else if (endgm == g.WHITE_WIN) {
 			endgm = JOptionPane.showOptionDialog(this, "White Wins!!!", "Winner is...", JOptionPane.OK_CANCEL_OPTION,
 					JOptionPane.INFORMATION_MESSAGE, null, winnerBox, winnerBox[0]);
 			if (endgm == 0) {
-				int r = p1.rating();
-				p1.add(new Game(p2.rating(), 'W', p2.name));
-				p2.add(new Game(r, 'L', p1.name));
+				int r = current.rating();
+				current.add(new Game(other.rating(), 'W', other.name));
+				other.add(new Game(r, 'L', current.name));
 				Menu.writeFile();
 				Menu m = new Menu();
 				m.setVisible(true);
@@ -354,9 +363,9 @@ public class PlayRemote extends JFrame implements ActionListener {
 				m.setLocationRelativeTo(null);
 				dispose();
 			} else {
-				int r = p1.rating();
-				p1.add(new Game(p2.rating(), 'W',p2.name));
-				p2.add(new Game(r, 'L', p1.name));
+				int r = current.rating();
+				current.add(new Game(other.rating(), 'W',other.name));
+				other.add(new Game(r, 'L', current.name));
 				Menu.writeFile();
 				dispose();
 			}

@@ -1,6 +1,11 @@
 package GUI;
+import java.awt.BorderLayout;
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.Graphics;
+import java.awt.GridBagLayout;
+import java.awt.GridLayout;
 import java.awt.Image;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -19,6 +24,7 @@ import java.util.Collections;
 import java.util.Scanner;
 
 import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
 import javax.swing.JButton;
@@ -27,8 +33,15 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JPasswordField;
+import javax.swing.JScrollBar;
+import javax.swing.JScrollPane;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.JViewport;
+import javax.swing.UIManager;
+import javax.swing.border.LineBorder;
+import javax.swing.plaf.ColorUIResource;
+import javax.swing.plaf.ScrollPaneUI;
 import javax.swing.text.Document;
 
 import org.apache.commons.io.FileUtils;
@@ -42,9 +55,14 @@ import com.jcraft.jsch.SftpException;
 import Player.Game;
 import Player.LiveGame;
 import Player.Player;
+import sun.applet.Main;
+import sun.management.counter.perf.PerfLongArrayCounter;
 
 public class Menu extends JFrame implements ActionListener{
 
+	protected final String HOSTNAME = "known_hosts";
+	protected final String GAMEDATA = "gamedata";
+	protected final static String PLAYERDATA = "playerdata";
 	JTextField p1, p2;
 	static ArrayList<Player> playerList;
 	static ArrayList<LiveGame> gameList;
@@ -101,7 +119,7 @@ public class Menu extends JFrame implements ActionListener{
 		rankPnl = new JPanel();
 		newsPnl = new JPanel();
 		leadPnl = new JPanel();
-		playPnl = new JPanel();	
+		playPnl = new JPanel();
 		srcBar = new JPanel();
 		
 		
@@ -148,7 +166,7 @@ public class Menu extends JFrame implements ActionListener{
 		playPnl.setLayout(null);
 		
 		JButton play = new JButton("Play with Friend");
-		play.setBounds(200, 100, 125, 50);
+		play.setBounds(225, 100, 125, 50);
 		play.setBorder(BorderFactory.createSoftBevelBorder(1));
 		play.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -176,7 +194,7 @@ public class Menu extends JFrame implements ActionListener{
 		play.setContentAreaFilled(false);
 		
 		JButton playG = new JButton("Play with Guest");
-		playG.setBounds(200, 200, 125, 50);
+		playG.setBounds(225, 200, 125, 50);
 		playG.setBorder(BorderFactory.createSoftBevelBorder(1));
 		playG.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -204,7 +222,7 @@ public class Menu extends JFrame implements ActionListener{
 		playG.setContentAreaFilled(false);
 		
 		JButton playR = new JButton("Play with Friend");
-		playR.setBounds(200, 300, 125, 50);
+		playR.setBounds(225, 300, 125, 50);
 		playR.setBorder(BorderFactory.createSoftBevelBorder(1));
 		playR.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -226,24 +244,27 @@ public class Menu extends JFrame implements ActionListener{
 				}
 				else
 				{
-					gameList.add(new LiveGame(currentPlayer.name, plr2.name, 0, plr2.name, "REQ", currentPlayer));
+					gameList.add(new LiveGame(currentPlayer, plr2, 0, plr2.name, "REQ", currentPlayer));
 				}
 			}
 		});
 		playR.setOpaque(false);
 		playR.setContentAreaFilled(false);
 		
-		int i=1;
+		JPanel gamesPnl = new JPanel();
+		gamesPnl.setBackground(new Color(135, 67, 67));
+		
+		int i=0;
 		for(LiveGame g:gameList)
 		{
-			JButton b = new JButton("vs " + g.getOpponent(currentPlayer.name));
-			b.setBounds(100, 300 + 100 * i, 100, 100);
+			JButton b = new JButton("vs " + g.getOpponent(currentPlayer.name).name);
 			b.setOpaque(true);
+			b.setBackground(new Color(135, 67, 67));
 			b.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					try {
-						PlayRemote p = new PlayRemote(currentPlayer, matchPlayer(g.getOpponent(currentPlayer.name)), g);
-						p.setSize(1000, 800);
+						PlayRemote p = new PlayRemote(currentPlayer, g);
+						p.setSize(1500, 1000);
 						p.setVisible(true);
 						p.setLocationRelativeTo(null);
 					} catch (IOException | JSchException | SftpException e1) {
@@ -254,14 +275,20 @@ public class Menu extends JFrame implements ActionListener{
 			});
 			b.setBorder(BorderFactory.createBevelBorder(1));
 			i++;
-			playPnl.add(b);
+			gamesPnl.add(b, i, 0);
 		}
+		gamesPnl.setLayout(new GridLayout(0, 1, 30, 30));
+	    gamesPnl.setBorder(LineBorder.createBlackLineBorder());
+	    gamesPnl.setPreferredSize(new Dimension(200, gameList.size() * 200));
+		JScrollPane gamesPane = new JScrollPane(gamesPnl, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		gamesPane.setBounds(190, 400, 200, 400);
+		UIManager.getLookAndFeelDefaults().put( "ScrollBar.thumb", Color.blue );	
 		
 		playPnl.add(play);
 		playPnl.add(playG);
 		playPnl.add(playR);
-		
-		playPnl.setBackground(new Color(135, 67, 67));		
+		playPnl.setBackground(new Color(135, 67, 67));	
+		playPnl.add(gamesPane);
 		
 		/**
 		 *  PLAY PANEL DONE
@@ -427,7 +454,7 @@ public class Menu extends JFrame implements ActionListener{
 		String password = "chessisfun";
 		
 		JSch jsch = new JSch();
-		jsch.setKnownHosts("known_hosts");
+		jsch.setKnownHosts(HOSTNAME);
 		Session session = jsch.getSession(user, host);
 		session.setPassword(password);
 		session.connect();
@@ -520,9 +547,9 @@ public class Menu extends JFrame implements ActionListener{
 	
 	public void readFile() throws IOException, JSchException, SftpException
 	{
-		channel.get("/home/chess/playerdata", "playerdata");
+		channel.get("/home/chess/playerdata", PLAYERDATA);
 		
-		Scanner scan = new Scanner(new File("playerdata"));
+		Scanner scan = new Scanner(new File(PLAYERDATA));
 		
 		while(scan.hasNextLine())
 			
@@ -544,9 +571,9 @@ public class Menu extends JFrame implements ActionListener{
 	
 	public void readGame() throws JSchException, SftpException, IOException
 	{
-		channel.get("/home/chess/gamedata", "gamedata");
+		channel.get("/home/chess/gamedata", GAMEDATA);
 				
-		Scanner scan = new Scanner(new File("gamedata"));
+		Scanner scan = new Scanner(new File(GAMEDATA));
 		
 		while(scan.hasNextLine())
 		{
@@ -559,13 +586,13 @@ public class Menu extends JFrame implements ActionListener{
 					String[] opt = {"accept", "decline"};
 					if(JOptionPane.showOptionDialog(this, "New game request from " + names[0], "Game Request", JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, opt, opt[0]) == 0)
 					{
-						LiveGame g = new LiveGame(names[0], names[1], 0, currentPlayer.name, "ACPT", currentPlayer);
+						LiveGame g = new LiveGame(matchPlayer(names[0]), currentPlayer, 0, currentPlayer.name, "ACPT", currentPlayer);
 						gameList.add(g);
 					}
 				}
 				else
 				{
-					LiveGame g = new LiveGame(names[0], names[1], 0, names[1], "REQ", currentPlayer);
+					LiveGame g = new LiveGame(matchPlayer(names[0]), matchPlayer(names[1]), 0, names[1], "REQ", currentPlayer);
 				}
 				scan.nextLine();
 			}
@@ -573,7 +600,7 @@ public class Menu extends JFrame implements ActionListener{
 			{
 				int turnNum = Integer.parseInt(scan.nextLine());
 				String turn = scan.nextLine();
-				LiveGame g = new LiveGame(names[0], names[1], turnNum, turn, "ACPT", currentPlayer);
+				LiveGame g = new LiveGame(matchPlayer(names[0]), matchPlayer(names[1]), turnNum, turn, "ACPT", currentPlayer);
 				Scanner line = new Scanner(scan.nextLine());
 				line.useDelimiter(",");
 				String lineNext = line.next();
@@ -582,6 +609,7 @@ public class Menu extends JFrame implements ActionListener{
 					g.addMove(lineNext);
 					lineNext = line.next();
 				}
+				line.close();
 				gameList.add(g);
 			}
 		}
@@ -592,9 +620,9 @@ public class Menu extends JFrame implements ActionListener{
 	{
 		for(LiveGame g:gameList)
 		{
-			if(g.plr1.equals(p.name) && g.plr2.equals(q.name))
+			if(g.black.name.equals(p.name) && g.white.name.equals(q.name))
 				return g;
-			else if(g.plr1.equals(q.name) && g.plr2.equals(p.name))
+			else if(g.black.name.equals(q.name) && g.white.name.equals(p.name))
 				return g;
 		}
 		return null;
@@ -602,7 +630,7 @@ public class Menu extends JFrame implements ActionListener{
 	
 	public static void writeFile() throws IOException, JSchException, SftpException
 	{
-		BufferedWriter buffy = new BufferedWriter(new FileWriter(new File("data")));
+		BufferedWriter buffy = new BufferedWriter(new FileWriter(new File(PLAYERDATA)));
 		buffy.flush();
 		for(Player p:playerList)
 		{
@@ -610,12 +638,12 @@ public class Menu extends JFrame implements ActionListener{
 		}
 		buffy.close();
 
-		channel.put("playerdata", "/home/chess/playerdata");
+		channel.put(PLAYERDATA, "/home/chess/playerdata");
 	}
 	
 	public void writeGames() throws JSchException, SftpException, IOException
 	{
-		BufferedWriter buffy = new BufferedWriter(new FileWriter(new File("gamedata")));
+		BufferedWriter buffy = new BufferedWriter(new FileWriter(new File(GAMEDATA)));
 
 		buffy.flush();
 		for(LiveGame g:gameList)
@@ -623,7 +651,7 @@ public class Menu extends JFrame implements ActionListener{
 			buffy.write(g.printGame());
 		}
 		buffy.close();
-		channel.put("gamedata", "/home/chess/gamedata");
+		channel.put(GAMEDATA, "/home/chess/gamedata");
 	}
 	
 	public Player matchPlayer(String str)

@@ -103,4 +103,9 @@ public class Player implements Comparable{
 	public int compareTo(Object arg0) {
 		return this.rating() - ((Player) arg0).rating();
 	}
+	
+	public boolean equals(Object o)
+	{
+		return this.name.equals(((Player)o).name);
+	}
 }

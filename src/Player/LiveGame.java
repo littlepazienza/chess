@@ -16,17 +16,17 @@ public class LiveGame {
 	public String currentTurn;
 	public int turnNumber;
 	protected ArrayList<String> movelist;
-	public String plr1, plr2;
+	public Player black, white;
 	public String gameStatus;
 	public Player currentPlayer;
 	
-	public LiveGame(String plr1, String plr2, int turn, String whoseTurn, String gameStatus, Player currentPlayer)
+	public LiveGame(Player black, Player white, int turn, String whoseTurn, String gameStatus, Player currentPlayer)
 	{
 		movelist = new ArrayList<>();
 		this.currentTurn = whoseTurn;
 		this.turnNumber = turn;
-		this.plr1 = plr1;
-		this.plr2 = plr2;
+		this.black = black;
+		this.white = white;
 		this.gameStatus =gameStatus;
 		this.currentPlayer = currentPlayer;
 	}
@@ -36,13 +36,22 @@ public class LiveGame {
 		movelist.add(mv);
 	}
 	
-	public String getOpponent(String otherName)
+	public void passTurn()
 	{
-		if(plr1.equals(otherName))
-			return plr2;
+		if(currentTurn.equals(white.name))
+			currentTurn = black.name;
 		else
-			return plr1;
+			currentTurn = white.name;
 	}
+	
+	public Player getOpponent(String otherName)
+	{
+		if(black.name.equals(otherName))
+			return white;
+		else
+			return black;
+	}
+
 	
 	public GameBoard toGameBoard()
 	{
@@ -51,6 +60,7 @@ public class LiveGame {
 		
 		for(String s:movelist)
 		{
+			g.board[Integer.parseInt(""+s.charAt(0))][Integer.parseInt(""+s.charAt(1))].setSelected();
 			g.makeMove(Integer.parseInt(""+s.charAt(0)), Integer.parseInt(""+s.charAt(1)), Integer.parseInt(""+s.charAt(2)), Integer.parseInt(""+s.charAt(3)));
 		}
 		
@@ -60,9 +70,9 @@ public class LiveGame {
 	public String printGame()
 	{
 		String O = "";
-		O+=plr1 + ";" + plr2  + "\n";
+		O+=black.name + ";" + white.name  + "\n";
 		if(gameStatus.equals("REQ"))
-			return O + gameStatus + "--\n";
+			return O + gameStatus;
 		else
 		{	
 			O+=gameStatus + "\n";
@@ -70,7 +80,7 @@ public class LiveGame {
 			O+=currentTurn + "\n";
 			for(String s: movelist)
 				O+= s + ",";
-			return O.substring(0, O.length()) + "--\n";
+			return O.substring(0, O.length()) + "\n--\n";
 		}
 	}
 }

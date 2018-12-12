@@ -134,7 +134,6 @@ public class PlayLocal extends JFrame implements ActionListener {
 		getContentPane().setBackground(new Color(30, 206, 219));
 		getContentPane().add(frame, 0);
 		frame.setVisible(true);
-
 	}
 
 	public void actionPerformed(ActionEvent e) {
