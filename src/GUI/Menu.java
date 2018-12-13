@@ -165,8 +165,8 @@ public class Menu extends JFrame implements ActionListener{
 		
 		playPnl.setLayout(null);
 		
-		JButton play = new JButton("Play with Friend");
-		play.setBounds(225, 100, 125, 50);
+		JButton play = new JButton("2 Player (Ranked)");
+		play.setBounds(75, 100, 125, 50);
 		play.setBorder(BorderFactory.createSoftBevelBorder(1));
 		play.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -193,8 +193,8 @@ public class Menu extends JFrame implements ActionListener{
 		play.setOpaque(false);
 		play.setContentAreaFilled(false);
 		
-		JButton playG = new JButton("Play with Guest");
-		playG.setBounds(225, 200, 125, 50);
+		JButton playG = new JButton("2 Player");
+		playG.setBounds(225, 100, 125, 50);
 		playG.setBorder(BorderFactory.createSoftBevelBorder(1));
 		playG.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -222,7 +222,7 @@ public class Menu extends JFrame implements ActionListener{
 		playG.setContentAreaFilled(false);
 		
 		JButton playR = new JButton("Play with Friend");
-		playR.setBounds(225, 300, 125, 50);
+		playR.setBounds(325, 100, 125, 50);
 		playR.setBorder(BorderFactory.createSoftBevelBorder(1));
 		playR.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -257,31 +257,38 @@ public class Menu extends JFrame implements ActionListener{
 		int i=0;
 		for(LiveGame g:gameList)
 		{
-			JButton b = new JButton("vs " + g.getOpponent(currentPlayer.name).name);
-			b.setOpaque(true);
-			b.setBackground(new Color(135, 67, 67));
-			b.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					try {
-						PlayRemote p = new PlayRemote(currentPlayer, g);
-						p.setSize(1500, 1000);
-						p.setVisible(true);
-						p.setLocationRelativeTo(null);
-					} catch (IOException | JSchException | SftpException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
+			if(g.black.equals(currentPlayer) || g.white.equals(currentPlayer))
+			{
+				JButton b = new JButton("vs " + g.getOpponent(currentPlayer.name).name);
+				b.setOpaque(true);
+				b.setBackground(Color.GRAY);
+				b.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						try {
+							PlayRemote p = new PlayRemote(currentPlayer, g);
+							p.setSize(1500, 1000);
+							p.setVisible(true);
+							p.setLocationRelativeTo(null);
+						} catch (IOException | JSchException | SftpException e1) {
+							// TODO Auto-generated catch block
+							e1.printStackTrace();
+						}
 					}
-				}
-			});
-			b.setBorder(BorderFactory.createBevelBorder(1));
-			i++;
-			gamesPnl.add(b, i, 0);
+				});
+				b.setBorder(BorderFactory.createBevelBorder(1));
+				i++;
+				gamesPnl.add(b, i, 0);
+			}
 		}
 		gamesPnl.setLayout(new GridLayout(0, 1, 30, 30));
 	    gamesPnl.setBorder(LineBorder.createBlackLineBorder());
-	    gamesPnl.setPreferredSize(new Dimension(200, gameList.size() * 200));
+	    gamesPnl.setPreferredSize(new Dimension(200, i * 200));
 		JScrollPane gamesPane = new JScrollPane(gamesPnl, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED, JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
-		gamesPane.setBounds(190, 400, 200, 400);
+		if(i > 1)
+			gamesPane.setBounds(190, 200, 200, 400);
+		else
+			gamesPane.setBounds(190, 200, 200, 220);
+
 		UIManager.getLookAndFeelDefaults().put( "ScrollBar.thumb", Color.blue );	
 		
 		playPnl.add(play);
@@ -603,13 +610,16 @@ public class Menu extends JFrame implements ActionListener{
 				LiveGame g = new LiveGame(matchPlayer(names[0]), matchPlayer(names[1]), turnNum, turn, "ACPT", currentPlayer);
 				Scanner line = new Scanner(scan.nextLine());
 				line.useDelimiter(",");
-				String lineNext = line.next();
-				while(line.hasNext() && !lineNext.equals("--"))
+				String lineNext = "";
+				if(line.hasNext())
+					lineNext = line.next();
+				while(line.hasNext())
 				{
 					g.addMove(lineNext);
 					lineNext = line.next();
 				}
 				line.close();
+				scan.nextLine();
 				gameList.add(g);
 			}
 		}

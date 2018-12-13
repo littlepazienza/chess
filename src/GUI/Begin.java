@@ -42,7 +42,7 @@ public class Begin extends JFrame{
 	}
 	
 	public static void main(String[] args) throws InterruptedException, IOException, JSchException, SftpException {
-		try {
+		//try {
 		Begin b = new Begin();
 		b.setVisible(true);
 		b.setSize(600, 450);
@@ -69,10 +69,10 @@ public class Begin extends JFrame{
 		m.setSize(600, 700);
 		m.setBackground(new Color(135, 67, 67));		
 		m.setLocationRelativeTo(null);
-		}catch(Exception e)
-		{
-			JOptionPane.showMessageDialog(null, e.getLocalizedMessage());
-		}
+		//}catch(Exception e)
+		//{
+		//	JOptionPane.showMessageDialog(null, e.getLocalizedMessage());
+		//}
 	}
 	
 	private static Icon resizeIcon(Icon icon, int resizedWidth, int resizedHeight) {

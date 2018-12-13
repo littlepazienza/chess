@@ -337,6 +337,10 @@ public class PlayRemote extends JFrame implements ActionListener {
 			endgm = JOptionPane.showOptionDialog(this, "Black Wins!!!", "Winner is...", JOptionPane.OK_CANCEL_OPTION,
 					JOptionPane.INFORMATION_MESSAGE, null, winnerBox, winnerBox[0]);
 			if (endgm == 0) {
+				int r = current.rating();
+				current.add(new Game(other.rating(), 'W', other.name));
+				other.add(new Game(r, 'L', current.name));
+				Menu.gameList.remove(theGame);
 				Menu m = new Menu();
 				m.setVisible(true);
 				m.setSize(600, 700);
@@ -356,6 +360,7 @@ public class PlayRemote extends JFrame implements ActionListener {
 				int r = current.rating();
 				current.add(new Game(other.rating(), 'W', other.name));
 				other.add(new Game(r, 'L', current.name));
+				Menu.gameList.remove(theGame);
 				Menu.writeFile();
 				Menu m = new Menu();
 				m.setVisible(true);
@@ -366,6 +371,7 @@ public class PlayRemote extends JFrame implements ActionListener {
 				int r = current.rating();
 				current.add(new Game(other.rating(), 'W',other.name));
 				other.add(new Game(r, 'L', current.name));
+				Menu.gameList.remove(theGame);
 				Menu.writeFile();
 				dispose();
 			}

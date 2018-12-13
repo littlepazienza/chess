@@ -72,7 +72,7 @@ public class LiveGame {
 		String O = "";
 		O+=black.name + ";" + white.name  + "\n";
 		if(gameStatus.equals("REQ"))
-			return O + gameStatus;
+			return O + gameStatus + "\n--\n";
 		else
 		{	
 			O+=gameStatus + "\n";
