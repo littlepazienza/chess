@@ -34,7 +34,7 @@ import Player.Game;
 import Player.Player;
 import sun.applet.Main;
 
-public class PlayLocal extends JFrame implements ActionListener {
+public class PlayGuest extends JFrame implements ActionListener {
 	protected ImageIcon[] options = { new ImageIcon(Main.class.getResource("/white_queen_on_white.png")),
 			new ImageIcon(Main.class.getResource("/white_knight_on_white.png")),
 			new ImageIcon(Main.class.getResource("/white_bishop_on_white.png")),
@@ -49,79 +49,19 @@ public class PlayLocal extends JFrame implements ActionListener {
 	boolean whiteTurn;
 	protected int selectedR, selectedF;
 	JPanel frame = new JPanel();
-	protected Player p1, p2;
+	protected Player p1;
 	protected String moves;
 	protected Menu m;
+	protected String black, white, whitesRating, blacksRating;
 
-	public PlayLocal(Player p, Player q, Menu m) throws IOException, JSchException, SftpException {
+	public PlayGuest(Player p, Menu m) throws IOException, JSchException, SftpException {
 		p1 = p;
-		p2 = q;
 		this.m = m;
+		black = p.name;
+		white = "Guest";
+		blacksRating = "" + p.rating();
+		whitesRating = "1200";
 		
-		addWindowListener(new WindowAdapter()
-		{
-		    public void windowClosing(WindowEvent e)
-		    {
-		    	String whoWon[] = {p.name, q.name, "Draw"};
-		    	int n = JOptionPane.showOptionDialog(PlayLocal.this,"Who won?","Don't leave me hanging!",
-		    			JOptionPane.YES_NO_OPTION,JOptionPane.QUESTION_MESSAGE,null,whoWon,whoWon[0]);
-		    	if(n == 0 && !p1.guest && !p2.guest)
-				{	
-		    		int r = p1.rating();
-		   			p1.add(new Game(p2.rating(), 'W', p2.name));
-					p2.add(new Game(r, 'L', p1.name));
-					try {
-						m.writeFile();
-						m.update();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					} catch (JSchException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (SftpException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-		    	}
-		    	else if(n == 1 && !p1.guest && !p2.guest)
-		    	{
-		    		int r = p1.rating();
-					p1.add(new Game(p2.rating(), 'L', p2.name));
-					p2.add(new Game(r, 'W', p1.name));
-					try {
-						m.writeFile();
-						m.update();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					} catch (JSchException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (SftpException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-		    	}
-		    	else
-		    	{
-		    		int r = p1.rating();
-					p1.add(new Game(p2.rating(), 'D', p2.name));
-					p2.add(new Game(r, 'D', p1.name));
-					try {
-						m.writeFile();
-						m.update();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					} catch (JSchException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (SftpException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-		    	}
-		    }
-		});
-
 		g = new GameBoard();
 		g.GameFill();
 		whiteTurn = true;
@@ -132,7 +72,7 @@ public class PlayLocal extends JFrame implements ActionListener {
 		wasAValidMove = false;
 		moves = "";
 
-		update(p, q);
+		update(p);
 
 		frame.setLayout(null);
 		frame.setBackground(new Color(135, 67, 67));
@@ -190,7 +130,7 @@ public class PlayLocal extends JFrame implements ActionListener {
 		}
 		
 		try {
-			update(p1, p2);
+			update(p1);
 		} catch (IOException e1) {
 			e1.printStackTrace();
 		} catch (JSchException e1) {
@@ -202,7 +142,7 @@ public class PlayLocal extends JFrame implements ActionListener {
 		}
 	}
 
-	private void update(Player p, Player q) throws IOException, JSchException, SftpException {
+	private void update(Player p) throws IOException, JSchException, SftpException {
 		frame.removeAll();
 
 		Pawn pwn = g.pawnPromotion();
@@ -295,7 +235,7 @@ public class PlayLocal extends JFrame implements ActionListener {
 			}
 		}
 		// whose turn is it
-		JLabel turn = new JLabel((whiteTurn ? p.name + "'s Turn" : q.name + "'s Turn"));
+		JLabel turn = new JLabel((whiteTurn ? white + "'s Turn" : black + "'s Turn"));
 		turn.setBounds(40, 400, 200, 100);
 		turn.setFont(new Font(turn.getName(), Font.PLAIN, 18));
 		turn.setForeground(Color.WHITE);
@@ -348,7 +288,7 @@ public class PlayLocal extends JFrame implements ActionListener {
 		frame.add(moveList);
 
 		// teams
-		JButton whiteBtn = new JButton(p.name);
+		JButton whiteBtn = new JButton(white);
 		whiteBtn.setBackground(new Color(135, 67, 67));
 		whiteBtn.setBounds(75, 775, 100, 100);
 		whiteBtn.setForeground(Color.BLACK);
@@ -357,14 +297,14 @@ public class PlayLocal extends JFrame implements ActionListener {
 		whiteBtn.setEnabled(false);
 		frame.add(whiteBtn);
 
-		JLabel whiteRating = new JLabel("" + p.rating());
+		JLabel whiteRating = new JLabel("" + whitesRating);
 		whiteRating.setOpaque(false);
 		whiteRating.setBounds(75, 750, 100, 30);
 		whiteRating.setFont(new Font(whiteRating.getName(), 0, 12));
 		whiteRating.setForeground(Color.WHITE);
 		frame.add(whiteRating);
 
-		JButton blackBtn = new JButton(q.name);
+		JButton blackBtn = new JButton(black);
 		blackBtn.setBackground(new Color(135, 67, 67));
 		blackBtn.setBounds(75, 30, 100, 100);
 		blackBtn.setForeground(Color.WHITE);
@@ -373,7 +313,7 @@ public class PlayLocal extends JFrame implements ActionListener {
 		blackBtn.setEnabled(false);
 		frame.add(blackBtn);
 
-		JLabel blackRating = new JLabel("" + q.rating());
+		JLabel blackRating = new JLabel("" + blacksRating);
 		blackRating.setOpaque(false);
 		blackRating.setBounds(75, 5, 100, 30);
 		blackRating.setFont(new Font(blackRating.getName(), 0, 12));
@@ -384,40 +324,16 @@ public class PlayLocal extends JFrame implements ActionListener {
 		frame.repaint();
 
 		// check for check mate
-		String[] winnerBox = { "Play Again!", "Nah, I'm Good. Thanks though, I really appreciate the offer." };
 		int endgm = g.endGameStatus();
-		if (endgm == g.BLACK_WIN && !p1.guest && !p2.guest) {
-			endgm = JOptionPane.showOptionDialog(this, "Black Wins!!!", "Winner is...", JOptionPane.OK_CANCEL_OPTION,
-					JOptionPane.INFORMATION_MESSAGE, null, winnerBox, winnerBox[0]);
-			if (endgm == 0) {
+		if (endgm == g.BLACK_WIN) {
+			JOptionPane.showMessageDialog(null, this.black + " is the winner");
 				m.update();
 				dispose();
-			} else {
-				int r = p1.rating();
-				p1.add(new Game(p2.rating(), 'L', p2.name));
-				p2.add(new Game(r, 'W', p1.name));
-				m.writeFile();
-				m.update();
-				dispose();
-			}
-		} else if (endgm == g.WHITE_WIN && !p1.guest && !p2.guest) {
-			endgm = JOptionPane.showOptionDialog(this, "White Wins!!!", "Winner is...", JOptionPane.OK_CANCEL_OPTION,
-					JOptionPane.INFORMATION_MESSAGE, null, winnerBox, winnerBox[0]);
-			if (endgm == 0) {
-				int r = p1.rating();
-				p1.add(new Game(p2.rating(), 'W', p2.name));
-				p2.add(new Game(r, 'L', p1.name));
-				m.writeFile();
-				m.update();
-				dispose();
-			} else {
-				int r = p1.rating();
-				p1.add(new Game(p2.rating(), 'W',p2.name));
-				p2.add(new Game(r, 'L', p1.name));
-				m.writeFile();
-				m.update();
-				dispose();
-			}
+		} else
+		{
+			JOptionPane.showMessageDialog(null, this.white + " is the winner");
+			m.update();
+			dispose();
 		}
 	}
 

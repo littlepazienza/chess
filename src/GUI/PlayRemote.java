@@ -53,11 +53,12 @@ public class PlayRemote extends JFrame implements ActionListener {
 	protected Player current, other;
 	protected LiveGame theGame;
 	protected String moves;
+	protected Menu m;
 
 
-	public PlayRemote(Player p, LiveGame lg) throws IOException, JSchException, SftpException {
+	public PlayRemote(Player p, LiveGame lg, Menu m) throws IOException, JSchException, SftpException {
 		theGame = lg;
-
+		this.m = m;
 		
 		this.current = p;
 		this.other = theGame.getOpponent(p.name);
@@ -242,7 +243,7 @@ public class PlayRemote extends JFrame implements ActionListener {
 			}
 		}
 		// whose turn is it
-		JLabel turn = new JLabel((whiteTurn ? current.name + "'s Turn" : other.name + "'s Turn"));
+		JLabel turn = new JLabel(theGame.currentTurn);
 		turn.setBounds(40, 400, 200, 100);
 		turn.setFont(new Font(turn.getName(), Font.PLAIN, 18));
 		turn.setForeground(Color.WHITE);
@@ -340,17 +341,15 @@ public class PlayRemote extends JFrame implements ActionListener {
 				int r = current.rating();
 				current.add(new Game(other.rating(), 'W', other.name));
 				other.add(new Game(r, 'L', current.name));
-				Menu.gameList.remove(theGame);
-				Menu m = new Menu();
-				m.setVisible(true);
-				m.setSize(600, 700);
-				m.setLocationRelativeTo(null);
+				m.gameList.remove(theGame);
+				m.update();
 				dispose();
 			} else {
 				int r = current.rating();
 				current.add(new Game(other.rating(), 'L', other.name));
 				other.add(new Game(r, 'W', current.name));
-				Menu.writeFile();
+				m.writeFile();
+				m.update();
 				dispose();
 			}
 		} else if (endgm == g.WHITE_WIN) {
@@ -360,19 +359,17 @@ public class PlayRemote extends JFrame implements ActionListener {
 				int r = current.rating();
 				current.add(new Game(other.rating(), 'W', other.name));
 				other.add(new Game(r, 'L', current.name));
-				Menu.gameList.remove(theGame);
-				Menu.writeFile();
-				Menu m = new Menu();
-				m.setVisible(true);
-				m.setSize(600, 700);
-				m.setLocationRelativeTo(null);
+				m.gameList.remove(theGame);
+				m.writeFile();
+				m.update();
 				dispose();
 			} else {
 				int r = current.rating();
 				current.add(new Game(other.rating(), 'W',other.name));
 				other.add(new Game(r, 'L', current.name));
-				Menu.gameList.remove(theGame);
-				Menu.writeFile();
+				m.gameList.remove(theGame);
+				m.writeFile();
+				m.update();
 				dispose();
 			}
 		}
