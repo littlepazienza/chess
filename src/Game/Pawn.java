@@ -17,7 +17,7 @@ public class Pawn extends Piece
 			{
 				if(Math.abs(r-row) <= 2 && P[r][f] == null  && P[r-1][f] == null && color == Piece.Side.WHITE)
 					return true;
-				else if(Math.abs(r-row) <= 2 && P[r][f] == null  && P[r-1][f] == null && color == Piece.Side.BLACK)
+				else if(Math.abs(r-row) <= 2 && P[r][f] == null  && P[r+1][f] == null && color == Piece.Side.BLACK)
 					return true;
 				else if(Math.abs(r-row) == 1 && r > row && color == Piece.Side.WHITE && P[r][f] == null)
 					return true;

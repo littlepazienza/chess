@@ -610,13 +610,9 @@ public class Menu extends JFrame implements ActionListener{
 				LiveGame g = new LiveGame(matchPlayer(names[0]), matchPlayer(names[1]), turnNum, turn, "ACPT", currentPlayer);
 				Scanner line = new Scanner(scan.nextLine());
 				line.useDelimiter(",");
-				String lineNext = "";
-				if(line.hasNext())
-					lineNext = line.next();
 				while(line.hasNext())
 				{
-					g.addMove(lineNext);
-					lineNext = line.next();
+					g.addMove(line.next());
 				}
 				line.close();
 				scan.nextLine();
