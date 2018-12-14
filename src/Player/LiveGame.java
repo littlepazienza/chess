@@ -19,6 +19,7 @@ public class LiveGame {
 	public Player black, white;
 	public String gameStatus;
 	public Player currentPlayer;
+	public boolean notified;
 	public final String ID;
 	
 	public LiveGame(Player black, Player white, int turn, String whoseTurn, String gameStatus, Player currentPlayer, String id)
@@ -83,7 +84,7 @@ public class LiveGame {
 			O+=currentTurn + "\n";
 			for(String s: movelist)
 				O+= s + ",";
-			return O.substring(0, O.length()) + "\n--\n";
+			return O.substring(0, O.length()) + "\n" + notified + "\n--\n";
 		}
 	}
 	
@@ -91,6 +92,11 @@ public class LiveGame {
 	{
 		if(this.movelist.size() > g.movelist.size())
 			return this;
+		else if(this.movelist.size() == g.movelist.size())
+			if(this.notified = true)
+				return this;
+			else
+				return g;
 		else
 			return g;
 	}

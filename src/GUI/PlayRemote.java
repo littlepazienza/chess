@@ -23,6 +23,10 @@ import javax.swing.JTextArea;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 
+import javax.mail.*;
+import javax.mail.internet.*;
+import java.util.*;
+
 import Game.Bishop;
 import Game.GameBoard;
 import Game.Knight;
@@ -122,11 +126,17 @@ public class PlayRemote extends JFrame implements ActionListener {
 					moves += g.moveNotation(selectedRTemp, selectedF, b.row, b.file, temp) + " ";
 					theGame.addMove("" + selectedR + selectedF + b.row + b.file);
 					theGame.passTurn();
+					theGame.notified = false;
 					try {
 						m.writeGames();
 					} catch (JSchException | SftpException | IOException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
+						try {
+							Thread.sleep(1000);
+							m.writeGames();
+						} catch (JSchException | SftpException | IOException | InterruptedException e3) {
+							// TODO Auto-generated catch block
+							e3.printStackTrace();
+						}
 					}
 					selectedR = -1;
 					whiteTurn = !whiteTurn;

@@ -9,6 +9,7 @@ import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
 import java.io.FileNotFoundException;
 import java.io.IOException;
+import java.util.Random;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -57,10 +58,20 @@ public class PlayGuest extends JFrame implements ActionListener {
 	public PlayGuest(Player p, Menu m) throws IOException, JSchException, SftpException {
 		p1 = p;
 		this.m = m;
-		black = p.name;
-		white = "Guest";
-		blacksRating = "" + p.rating();
-		whitesRating = "1200";
+		if(new Random().nextInt(2) == 2)
+		{
+			black = p.name;
+			white = "Guest";
+			blacksRating = "" + p.rating();
+			whitesRating = "1200";
+		}
+		else
+		{
+			black = "Guest";
+			white = p.name;
+			blacksRating = "1200";
+			whitesRating = "" + p.rating();
+		}
 		
 		g = new GameBoard();
 		g.GameFill();
@@ -329,7 +340,7 @@ public class PlayGuest extends JFrame implements ActionListener {
 			JOptionPane.showMessageDialog(null, this.black + " is the winner");
 				m.update();
 				dispose();
-		} else
+		} else if(endgm == g.WHITE_WIN)
 		{
 			JOptionPane.showMessageDialog(null, this.white + " is the winner");
 			m.update();

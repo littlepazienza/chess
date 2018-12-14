@@ -3,6 +3,7 @@ package GUI;
 import java.awt.Color;
 import java.awt.Image;
 import java.io.IOException;
+import java.util.concurrent.ExecutionException;
 
 import javax.swing.Icon;
 import javax.swing.ImageIcon;
@@ -41,7 +42,7 @@ public class Begin extends JFrame{
 		
 	}
 	
-	public static void main(String[] args) throws InterruptedException, IOException, JSchException, SftpException {
+	public static void main(String[] args) throws InterruptedException, IOException, JSchException, SftpException, ExecutionException {
 		//try {
 		Begin b = new Begin();
 		b.setVisible(true);

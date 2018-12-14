@@ -1,5 +1,6 @@
 package GUI;
 
+import java.awt.AWTException;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
@@ -8,6 +9,10 @@ import java.awt.Graphics;
 import java.awt.GridBagLayout;
 import java.awt.GridLayout;
 import java.awt.Image;
+import java.awt.SystemTray;
+import java.awt.Toolkit;
+import java.awt.TrayIcon;
+import java.awt.TrayIcon.MessageType;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -17,6 +22,7 @@ import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
@@ -24,6 +30,11 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Random;
 import java.util.Scanner;
+import java.util.concurrent.Callable;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.Future;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;
@@ -82,7 +93,8 @@ public class Menu extends JFrame {
 
 	protected MenuButton rankPnlButton, playPnlButton, newsPnlButton, leadPnlButton;
 
-	public Menu() throws IOException, JSchException, SftpException {
+	public Menu() throws IOException, JSchException, SftpException, InterruptedException, ExecutionException {
+
 		playerList = new ArrayList<Player>();
 		gameList = new ArrayList<LiveGame>();
 
@@ -105,24 +117,74 @@ public class Menu extends JFrame {
 			}
 		});
 
-		initializeChannel();
+		channel = initializeChannel();
 
 		playerList = readFile();
 
 		currentPlayer = login();
 
-		gameList = readGame();
-		
+		gameList = readGame(channel);
+
 		readGameRequests();
 
 		Collections.sort(playerList);
 		Collections.reverse(playerList);
-		update();
+
+		final ExecutorService executorService = Executors.newFixedThreadPool(16);
+		final Future<String> res1 = executorService.submit(new Notification());
+		final Future<String> res2 = executorService.submit(new GameTime());
+		String obj1 = res1.get();
+		String obj2 = res2.get();
+	}
+
+	class Notification implements Callable<String> {
+
+		@Override
+		public String call() throws Exception {
+			boolean keepGoing = true;
+			while (keepGoing) {
+				try {
+					ArrayList<LiveGame> gml = readGame(initializeChannel());
+
+					for (LiveGame g : gml) {
+						if (g.currentTurn.equals(currentPlayer.name) && !g.notified) {
+							m.displayTray(g.getOpponent(currentPlayer.name).name);
+							g.notified = true;
+							m.writeGames();
+						}
+					}
+				} catch (JSchException | SftpException | IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				} catch (AWTException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+				Thread.sleep(100000);
+			}
+			return "";
+		}
+
+	}
+
+	class GameTime implements Callable<String> {
+
+		@Override
+		public String call() throws Exception {
+			try {
+				m.update();
+			} catch (IOException | JSchException | SftpException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+			return "";
+		}
+
 	}
 
 	public void update() throws IOException, JSchException, SftpException {
 		playerList = collidePlayers(playerList, readFile());
-		gameList = collideGames(gameList, readGame());
+		gameList = collideGames(gameList, readGame(channel));
 
 		currentPlayer = matchPlayer(currentPlayer.name);
 
@@ -218,6 +280,12 @@ public class Menu extends JFrame {
 		exitButton.setBounds(4 * getWidth() / 5, 0, srcBar.getWidth() / 5 - 20, srcBar.getHeight());
 		exitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
+				try {
+					writeGames();
+				} catch (JSchException | SftpException | IOException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
 				System.exit(0);
 			}
 		});
@@ -559,11 +627,31 @@ public class Menu extends JFrame {
 		playPnl.setBounds(0, 50, 600, 600);
 		rankPnl.setBounds(0, 50, 600, 600);
 		srcBar.setBounds(0, 0, 600, 50);
-		
+
 		repaint();
 	}
 
-	public void initializeChannel() throws JSchException {
+	public void displayTray(String plr) throws AWTException, MalformedURLException {
+		// Obtain only one instance of the SystemTray object
+		SystemTray tray = SystemTray.getSystemTray();
+
+		// If the icon is a file
+		Image image = Toolkit.getDefaultToolkit().createImage(Main.class.getResource("/white_bishop_on_black.png"));
+		// Alternative (if the icon is on the classpath):
+		// Image image =
+		// Toolkit.getDefaultToolkit().createImage(getClass().getResource("icon.png"));
+
+		TrayIcon trayIcon = new TrayIcon(image, "Chess");
+		// Let the system resize the image if needed
+		trayIcon.setImageAutoSize(true);
+		// Set tooltip text for the tray icon
+		trayIcon.setToolTip("System tray icon demo");
+		tray.add(trayIcon);
+
+		trayIcon.displayMessage("Chess", "YOUR MOVE vs " + plr, MessageType.INFO);
+	}
+
+	public ChannelSftp initializeChannel() throws JSchException {
 		String user = "chess";
 		String host = "66.175.216.86";
 		String password = "chessisfun";
@@ -574,8 +662,9 @@ public class Menu extends JFrame {
 		session.setPassword(password);
 		session.connect();
 
-		channel = (ChannelSftp) session.openChannel("sftp");
-		channel.connect();
+		ChannelSftp chn = (ChannelSftp) session.openChannel("sftp");
+		chn.connect();
+		return chn;
 	}
 
 	private Player login() {
@@ -667,18 +756,23 @@ public class Menu extends JFrame {
 		return temp;
 	}
 
-	public ArrayList<LiveGame> readGame() throws JSchException, SftpException, IOException {
+	public ArrayList<LiveGame> readGame(ChannelSftp c) throws JSchException, SftpException, IOException {
 		ArrayList<LiveGame> templist = new ArrayList<LiveGame>();
 
-		channel.get("/home/chess/gamedata", GAMEDATA);
+		c.get("/home/chess/gamedata", GAMEDATA);
 
 		Scanner scan = new Scanner(new File(GAMEDATA));
 
 		while (scan.hasNextLine()) {
 			String[] names = scan.nextLine().split(";");
+			if(!scan.hasNext())
+			{
+				scan.close();
+				return templist;
+			}
 			String id = scan.nextLine();
 			String nxt = scan.nextLine();
-				
+
 			int turnNum = Integer.parseInt(scan.nextLine());
 			String turn = scan.nextLine();
 			LiveGame g = new LiveGame(matchPlayer(names[0]), matchPlayer(names[1]), turnNum, turn, "ACPT",
@@ -689,6 +783,8 @@ public class Menu extends JFrame {
 				g.addMove(line.next());
 			}
 			line.close();
+			boolean notified = scan.nextLine().equals("true");
+			g.notified = notified;
 			templist.add(g);
 			scan.nextLine();
 		}
@@ -700,12 +796,12 @@ public class Menu extends JFrame {
 		channel.get("/home/chess/" + GAMEREQ, GAMEREQ);
 
 		Scanner scan = new Scanner(new File(GAMEREQ));
-		
+
 		ArrayList<LiveGame> ignore = new ArrayList<LiveGame>();
 
 		while (scan.hasNext()) {
 			String[] names = scan.nextLine().split(";");
-			if(!scan.hasNext())
+			if (!scan.hasNext())
 				return;
 			String id = scan.nextLine();
 			scan.nextLine();
@@ -713,8 +809,16 @@ public class Menu extends JFrame {
 				String[] opt = { "accept", "decline" };
 				if (JOptionPane.showOptionDialog(this, "New game request from " + names[0], "Game Request",
 						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, opt, opt[0]) == 0) {
-					LiveGame g = new LiveGame(matchPlayer(names[0]), currentPlayer, 0, currentPlayer.name, "ACPT",
+					LiveGame g = null;
+					if(new Random().nextBoolean())
+					{
+						g = new LiveGame(matchPlayer(names[0]), currentPlayer, 0, currentPlayer.name, "ACPT",
 							currentPlayer, id);
+					}else
+					{
+						g = new LiveGame(currentPlayer, matchPlayer(names[0]), 0, names[0], "ACPT",
+								currentPlayer, id);
+					}
 					gameList.add(g);
 				}
 			} else {
@@ -725,25 +829,23 @@ public class Menu extends JFrame {
 			scan.next();
 		}
 		scan.close();
-		
+
 		BufferedWriter buffy = new BufferedWriter(new FileWriter(new File(GAMEREQ)));
 		buffy.flush();
-		
-		for(LiveGame g:ignore)
-		{
+
+		for (LiveGame g : ignore) {
 			buffy.write(g.printGame());
 		}
 		buffy.close();
 		channel.put(GAMEREQ, "/home/chess/" + GAMEREQ);
 	}
-	
-	public void writeGameRequest(LiveGame g) throws SftpException, IOException
-	{
+
+	public void writeGameRequest(LiveGame g) throws SftpException, IOException {
 		BufferedWriter buffy = new BufferedWriter(new FileWriter(new File(GAMEREQ)));
 		buffy.flush();
-		
+
 		buffy.append(g.printGame());
-		
+
 		buffy.close();
 		channel.put(GAMEREQ, "/home/chess/" + GAMEREQ);
 	}
@@ -815,7 +917,7 @@ public class Menu extends JFrame {
 	}
 
 	public void writeGames() throws JSchException, SftpException, IOException {
-		gameList = collideGames(gameList, readGame());
+		gameList = collideGames(gameList, readGame(channel));
 		BufferedWriter buffy = new BufferedWriter(new FileWriter(new File(GAMEDATA)));
 
 		buffy.flush();
