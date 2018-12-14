@@ -71,7 +71,6 @@ public class PlayLocal extends JFrame implements ActionListener {
 		   			p1.add(new Game(p2.rating(), 'W', p2.name));
 					p2.add(new Game(r, 'L', p1.name));
 					try {
-						m.writeFile();
 						m.update();
 					} catch (IOException e1) {
 						e1.printStackTrace();
@@ -89,7 +88,6 @@ public class PlayLocal extends JFrame implements ActionListener {
 					p1.add(new Game(p2.rating(), 'L', p2.name));
 					p2.add(new Game(r, 'W', p1.name));
 					try {
-						m.writeFile();
 						m.update();
 					} catch (IOException e1) {
 						e1.printStackTrace();
@@ -107,7 +105,6 @@ public class PlayLocal extends JFrame implements ActionListener {
 					p1.add(new Game(p2.rating(), 'D', p2.name));
 					p2.add(new Game(r, 'D', p1.name));
 					try {
-						m.writeFile();
 						m.update();
 					} catch (IOException e1) {
 						e1.printStackTrace();
@@ -396,7 +393,6 @@ public class PlayLocal extends JFrame implements ActionListener {
 				int r = p1.rating();
 				p1.add(new Game(p2.rating(), 'L', p2.name));
 				p2.add(new Game(r, 'W', p1.name));
-				m.writeFile();
 				m.update();
 				dispose();
 			}
@@ -407,14 +403,12 @@ public class PlayLocal extends JFrame implements ActionListener {
 				int r = p1.rating();
 				p1.add(new Game(p2.rating(), 'W', p2.name));
 				p2.add(new Game(r, 'L', p1.name));
-				m.writeFile();
 				m.update();
 				dispose();
 			} else {
 				int r = p1.rating();
 				p1.add(new Game(p2.rating(), 'W',p2.name));
 				p2.add(new Game(r, 'L', p1.name));
-				m.writeFile();
 				m.update();
 				dispose();
 			}

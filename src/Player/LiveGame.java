@@ -19,8 +19,9 @@ public class LiveGame {
 	public Player black, white;
 	public String gameStatus;
 	public Player currentPlayer;
+	public final String ID;
 	
-	public LiveGame(Player black, Player white, int turn, String whoseTurn, String gameStatus, Player currentPlayer)
+	public LiveGame(Player black, Player white, int turn, String whoseTurn, String gameStatus, Player currentPlayer, String id)
 	{
 		movelist = new ArrayList<>();
 		this.currentTurn = whoseTurn;
@@ -29,6 +30,7 @@ public class LiveGame {
 		this.white = white;
 		this.gameStatus =gameStatus;
 		this.currentPlayer = currentPlayer;
+		this.ID = id;
 	}
 	
 	public void addMove(String mv)
@@ -71,6 +73,7 @@ public class LiveGame {
 	{
 		String O = "";
 		O+=black.name + ";" + white.name  + "\n";
+		O+=ID+"\n";
 		if(gameStatus.equals("REQ"))
 			return O + gameStatus + "\n--\n";
 		else
@@ -82,5 +85,19 @@ public class LiveGame {
 				O+= s + ",";
 			return O.substring(0, O.length()) + "\n--\n";
 		}
+	}
+	
+	public LiveGame mostUpdated(LiveGame g)
+	{
+		if(this.movelist.size() > g.movelist.size())
+			return this;
+		else
+			return g;
+	}
+	
+	@Override
+	public boolean equals(Object g)
+	{
+		return this.ID.equals( ((LiveGame) g).ID );
 	}
 }

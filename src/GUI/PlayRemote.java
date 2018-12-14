@@ -122,6 +122,12 @@ public class PlayRemote extends JFrame implements ActionListener {
 					moves += g.moveNotation(selectedRTemp, selectedF, b.row, b.file, temp) + " ";
 					theGame.addMove("" + selectedR + selectedF + b.row + b.file);
 					theGame.passTurn();
+					try {
+						m.writeGames();
+					} catch (JSchException | SftpException | IOException e1) {
+						// TODO Auto-generated catch block
+						e1.printStackTrace();
+					}
 					selectedR = -1;
 					whiteTurn = !whiteTurn;
 
@@ -348,7 +354,7 @@ public class PlayRemote extends JFrame implements ActionListener {
 				int r = current.rating();
 				current.add(new Game(other.rating(), 'L', other.name));
 				other.add(new Game(r, 'W', current.name));
-				m.writeFile();
+				m.gameList.remove(theGame);
 				m.update();
 				dispose();
 			}
@@ -360,7 +366,6 @@ public class PlayRemote extends JFrame implements ActionListener {
 				current.add(new Game(other.rating(), 'W', other.name));
 				other.add(new Game(r, 'L', current.name));
 				m.gameList.remove(theGame);
-				m.writeFile();
 				m.update();
 				dispose();
 			} else {
@@ -368,7 +373,6 @@ public class PlayRemote extends JFrame implements ActionListener {
 				current.add(new Game(other.rating(), 'W',other.name));
 				other.add(new Game(r, 'L', current.name));
 				m.gameList.remove(theGame);
-				m.writeFile();
 				m.update();
 				dispose();
 			}

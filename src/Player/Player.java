@@ -104,6 +104,7 @@ public class Player implements Comparable{
 		return this.rating() - ((Player) arg0).rating();
 	}
 	
+	@Override
 	public boolean equals(Object o)
 	{
 		return this.name.equals(((Player)o).name);

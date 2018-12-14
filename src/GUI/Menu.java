@@ -22,6 +22,7 @@ import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.Random;
 import java.util.Scanner;
 
 import javax.swing.BorderFactory;
@@ -63,6 +64,7 @@ public class Menu extends JFrame {
 
 	protected final String HOSTNAME = "known_hosts";
 	protected final String GAMEDATA = "gamedata";
+	protected final String GAMEREQ = "gamerequests";
 	protected final static String PLAYERDATA = "playerdata";
 	JTextField p1, p2;
 	static ArrayList<Player> playerList;
@@ -76,14 +78,17 @@ public class Menu extends JFrame {
 	protected JPanel srcBar;
 	protected static ChannelSftp channel;
 	protected Menu m = this;
+	protected boolean inUse;
 
 	protected MenuButton rankPnlButton, playPnlButton, newsPnlButton, leadPnlButton;
 
 	public Menu() throws IOException, JSchException, SftpException {
-		
+		playerList = new ArrayList<Player>();
+		gameList = new ArrayList<LiveGame>();
+
 		this.setTitle("Chess");
 		this.addWindowListener(new WindowAdapter() {
-			
+
 			public void windowClosing(WindowEvent e) {
 				try {
 					writeFile();
@@ -101,12 +106,14 @@ public class Menu extends JFrame {
 		});
 
 		initializeChannel();
-		readFile();
+
+		playerList = readFile();
 
 		currentPlayer = login();
 
-		writeFile();
-		readGame();
+		gameList = readGame();
+		
+		readGameRequests();
 
 		Collections.sort(playerList);
 		Collections.reverse(playerList);
@@ -114,8 +121,8 @@ public class Menu extends JFrame {
 	}
 
 	public void update() throws IOException, JSchException, SftpException {
-		readFile();
-		readGame();
+		playerList = collidePlayers(playerList, readFile());
+		gameList = collideGames(gameList, readGame());
 
 		currentPlayer = matchPlayer(currentPlayer.name);
 
@@ -204,11 +211,11 @@ public class Menu extends JFrame {
 			}
 		});
 		srcBar.add(newsPnlButton);
-		
+
 		JButton exitButton = new JButton("Exit");
 		exitButton.setBackground(Color.red);
 		exitButton.setForeground(Color.black);
-		exitButton.setBounds(4*getWidth() / 5, 0, srcBar.getWidth()/5 - 20, srcBar.getHeight());
+		exitButton.setBounds(4 * getWidth() / 5, 0, srcBar.getWidth() / 5 - 20, srcBar.getHeight());
 		exitButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				System.exit(0);
@@ -292,7 +299,7 @@ public class Menu extends JFrame {
 		play.setOpaque(false);
 		play.setContentAreaFilled(false);
 
-		JButton playG = new JButton("2 Player With Guest");
+		JButton playG = new JButton("Play With Guest");
 		playG.setBounds(225, 100, 125, 50);
 		playG.setBorder(BorderFactory.createSoftBevelBorder(1));
 		playG.addActionListener(new ActionListener() {
@@ -339,17 +346,15 @@ public class Menu extends JFrame {
 					JOptionPane.showMessageDialog(null, "Player does not exist");
 
 				} else {
-					gameList.add(new LiveGame(currentPlayer, plr2, 0, plr2.name, "REQ", currentPlayer));
+					LiveGame g = new LiveGame(currentPlayer, plr2, 0, plr2.name, "REQ", currentPlayer,
+							"" + new Random().nextLong());
 					try {
-						m.writeGames();
-					} catch (JSchException | SftpException | IOException e1) {
+						writeGameRequest(g);
+					} catch (SftpException | IOException e2) {
 						// TODO Auto-generated catch block
-						e1.printStackTrace();
+						e2.printStackTrace();
 					}
 				}
-				setInvisible();
-				deselectAll();
-				dispose();
 			}
 		});
 		playR.setOpaque(false);
@@ -554,6 +559,8 @@ public class Menu extends JFrame {
 		playPnl.setBounds(0, 50, 600, 600);
 		rankPnl.setBounds(0, 50, 600, 600);
 		srcBar.setBounds(0, 0, 600, 50);
+		
+		repaint();
 	}
 
 	public void initializeChannel() throws JSchException {
@@ -635,8 +642,8 @@ public class Menu extends JFrame {
 		return new ImageIcon(resizedImage);
 	}
 
-	public void readFile() throws IOException, JSchException, SftpException {
-		playerList = new ArrayList<Player>();
+	public static ArrayList<Player> readFile() throws IOException, JSchException, SftpException {
+		ArrayList<Player> temp = new ArrayList<Player>();
 
 		channel.get("/home/chess/playerdata", PLAYERDATA);
 
@@ -654,13 +661,14 @@ public class Menu extends JFrame {
 				p.add(new Game(Integer.parseInt(theGm[1]), theGm[2].charAt(0), theGm[0]));
 				gm = scan.nextLine();
 			}
-			playerList.add(p);
+			temp.add(p);
 		}
 		scan.close();
+		return temp;
 	}
 
-	public void readGame() throws JSchException, SftpException, IOException {
-		gameList = new ArrayList<LiveGame>();
+	public ArrayList<LiveGame> readGame() throws JSchException, SftpException, IOException {
+		ArrayList<LiveGame> templist = new ArrayList<LiveGame>();
 
 		channel.get("/home/chess/gamedata", GAMEDATA);
 
@@ -668,37 +676,120 @@ public class Menu extends JFrame {
 
 		while (scan.hasNextLine()) {
 			String[] names = scan.nextLine().split(";");
+			String id = scan.nextLine();
 			String nxt = scan.nextLine();
-			if (nxt.equals("REQ")) {
-				if (names[1].equals(currentPlayer.name)) {
-					String[] opt = { "accept", "decline" };
-					if (JOptionPane.showOptionDialog(this, "New game request from " + names[0], "Game Request",
-							JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, opt, opt[0]) == 0) {
-						LiveGame g = new LiveGame(matchPlayer(names[0]), currentPlayer, 0, currentPlayer.name, "ACPT",
-								currentPlayer);
-						gameList.add(g);
-					}
-				} else {
-					LiveGame g = new LiveGame(matchPlayer(names[0]), matchPlayer(names[1]), 0, names[1], "REQ",
-							currentPlayer);
-				}
-				scan.nextLine();
-			} else {
-				int turnNum = Integer.parseInt(scan.nextLine());
-				String turn = scan.nextLine();
-				LiveGame g = new LiveGame(matchPlayer(names[0]), matchPlayer(names[1]), turnNum, turn, "ACPT",
-						currentPlayer);
-				Scanner line = new Scanner(scan.nextLine());
-				line.useDelimiter(",");
-				while (line.hasNext()) {
-					g.addMove(line.next());
-				}
-				line.close();
-				scan.nextLine();
-				gameList.add(g);
+				
+			int turnNum = Integer.parseInt(scan.nextLine());
+			String turn = scan.nextLine();
+			LiveGame g = new LiveGame(matchPlayer(names[0]), matchPlayer(names[1]), turnNum, turn, "ACPT",
+					currentPlayer, id);
+			Scanner line = new Scanner(scan.nextLine());
+			line.useDelimiter(",");
+			while (line.hasNext()) {
+				g.addMove(line.next());
 			}
+			line.close();
+			templist.add(g);
+			scan.nextLine();
 		}
 		scan.close();
+		return templist;
+	}
+
+	public void readGameRequests() throws SftpException, IOException {
+		channel.get("/home/chess/" + GAMEREQ, GAMEREQ);
+
+		Scanner scan = new Scanner(new File(GAMEREQ));
+		
+		ArrayList<LiveGame> ignore = new ArrayList<LiveGame>();
+
+		while (scan.hasNext()) {
+			String[] names = scan.nextLine().split(";");
+			if(!scan.hasNext())
+				return;
+			String id = scan.nextLine();
+			scan.nextLine();
+			if (names[1].equals(currentPlayer.name)) {
+				String[] opt = { "accept", "decline" };
+				if (JOptionPane.showOptionDialog(this, "New game request from " + names[0], "Game Request",
+						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, opt, opt[0]) == 0) {
+					LiveGame g = new LiveGame(matchPlayer(names[0]), currentPlayer, 0, currentPlayer.name, "ACPT",
+							currentPlayer, id);
+					gameList.add(g);
+				}
+			} else {
+				LiveGame g = new LiveGame(matchPlayer(names[0]), matchPlayer(names[1]), 0, names[1], "REQ",
+						currentPlayer, id);
+				ignore.add(g);
+			}
+			scan.next();
+		}
+		scan.close();
+		
+		BufferedWriter buffy = new BufferedWriter(new FileWriter(new File(GAMEREQ)));
+		buffy.flush();
+		
+		for(LiveGame g:ignore)
+		{
+			buffy.write(g.printGame());
+		}
+		buffy.close();
+		channel.put(GAMEREQ, "/home/chess/" + GAMEREQ);
+	}
+	
+	public void writeGameRequest(LiveGame g) throws SftpException, IOException
+	{
+		BufferedWriter buffy = new BufferedWriter(new FileWriter(new File(GAMEREQ)));
+		buffy.flush();
+		
+		buffy.append(g.printGame());
+		
+		buffy.close();
+		channel.put(GAMEREQ, "/home/chess/" + GAMEREQ);
+	}
+
+	public ArrayList<LiveGame> collideGames(ArrayList<LiveGame> one, ArrayList<LiveGame> other) {
+		ArrayList<LiveGame> temp = new ArrayList<>();
+
+		for (LiveGame g : one)
+			for (LiveGame h : other)
+				if (g.equals(h)) {
+					temp.add(g.mostUpdated(h));
+					break;
+				}
+
+		one.removeAll(temp);
+		other.removeAll(temp);
+
+		for (LiveGame g : one)
+			temp.add(g);
+
+		for (LiveGame g : other)
+			temp.add(g);
+
+		return temp;
+	}
+
+	public static ArrayList<Player> collidePlayers(ArrayList<Player> one, ArrayList<Player> other) {
+		ArrayList<Player> temp = new ArrayList<>();
+
+		for (Player p : one)
+			for (Player j : other)
+				if (p.equals(j)) {
+					temp.add(p);
+					break;
+				}
+
+		one.removeAll(temp);
+		other.removeAll(temp);
+
+		for (Player p : one)
+			temp.add(p);
+
+		for (Player p : other)
+			temp.add(p);
+
+		return temp;
 	}
 
 	public LiveGame matchGame(Player p, Player q) {
@@ -712,6 +803,7 @@ public class Menu extends JFrame {
 	}
 
 	public static void writeFile() throws IOException, JSchException, SftpException {
+		playerList = collidePlayers(playerList, readFile());
 		BufferedWriter buffy = new BufferedWriter(new FileWriter(new File(PLAYERDATA)));
 		buffy.flush();
 		for (Player p : playerList) {
@@ -723,6 +815,7 @@ public class Menu extends JFrame {
 	}
 
 	public void writeGames() throws JSchException, SftpException, IOException {
+		gameList = collideGames(gameList, readGame());
 		BufferedWriter buffy = new BufferedWriter(new FileWriter(new File(GAMEDATA)));
 
 		buffy.flush();
