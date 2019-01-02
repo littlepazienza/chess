@@ -44,7 +44,10 @@ public class LiveGame {
 		if(currentTurn.equals(white.name))
 			currentTurn = black.name;
 		else
+		{
 			currentTurn = white.name;
+			turnNumber++;
+		}
 	}
 	
 	public Player getOpponent(String otherName)
@@ -64,6 +67,7 @@ public class LiveGame {
 		for(String s:movelist)
 		{
 			g.board[Integer.parseInt(""+s.charAt(0))][Integer.parseInt(""+s.charAt(1))].setSelected();
+			g.moveNotation(Integer.parseInt(""+s.charAt(0)), Integer.parseInt(""+s.charAt(1)), Integer.parseInt(""+s.charAt(2)), Integer.parseInt(""+s.charAt(3)), g.getTempOfBoard());
 			g.makeMove(Integer.parseInt(""+s.charAt(0)), Integer.parseInt(""+s.charAt(1)), Integer.parseInt(""+s.charAt(2)), Integer.parseInt(""+s.charAt(3)));
 		}
 		

@@ -51,11 +51,23 @@ public class PlayGuest extends JFrame implements ActionListener {
 	protected int selectedR, selectedF;
 	JPanel frame = new JPanel();
 	protected Player p1;
-	protected String moves;
 	protected Menu m;
 	protected String black, white, whitesRating, blacksRating;
 
 	public PlayGuest(Player p, Menu m) throws IOException, JSchException, SftpException {
+		addWindowListener(new WindowAdapter()
+		{
+		    public void windowClosing(WindowEvent e)
+		    {
+		    	try {
+					m.update();
+				} catch (IOException | JSchException | SftpException e1) {
+					// TODO Auto-generated catch block
+					e1.printStackTrace();
+				}
+		    }
+		});
+		
 		p1 = p;
 		this.m = m;
 		if(new Random().nextInt(2) == 2)
@@ -81,7 +93,6 @@ public class PlayGuest extends JFrame implements ActionListener {
 		buttons = new tileButton[8][8];
 		turnNum = 1;
 		wasAValidMove = false;
-		moves = "";
 
 		update(p);
 
@@ -121,13 +132,13 @@ public class PlayGuest extends JFrame implements ActionListener {
 					int selectedRTemp = selectedR;
 					selectedR = -1;
 					if (whiteTurn) {
-						moves += turnNum + ". ";
+						g.moves += turnNum + ". ";
 						whiteTurn = false;
 					} else {
 						whiteTurn = true;
 						turnNum++;
 					}
-					moves += g.moveNotation(selectedRTemp, selectedF, b.row, b.file, temp) + " ";
+					g.moveNotation(selectedRTemp, selectedF, b.row, b.file, temp);
 				}
 			} else if (!wasAValidMove){
 				JOptionPane.showMessageDialog(null, "Invalid Move");
@@ -290,7 +301,7 @@ public class PlayGuest extends JFrame implements ActionListener {
 		}
 
 		// text area for moves
-		JTextArea moveList = new JTextArea(moves);
+		JTextArea moveList = new JTextArea(g.moves);
 		moveList.setBackground(Color.WHITE);
 		moveList.setEditable(false);
 		moveList.setLineWrap(true);

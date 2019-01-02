@@ -26,8 +26,11 @@ import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Calendar;
 import java.util.Collections;
+import java.util.Date;
 import java.util.Random;
 import java.util.Scanner;
 import java.util.concurrent.Callable;
@@ -65,6 +68,7 @@ import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.Session;
 import com.jcraft.jsch.SftpException;
 
+import Player.Chat;
 import Player.Game;
 import Player.LiveGame;
 import Player.Player;
@@ -73,30 +77,35 @@ import sun.management.counter.perf.PerfLongArrayCounter;
 
 public class Menu extends JFrame {
 
-	protected final String HOSTNAME = "known_hosts";
+	protected final static String HOSTNAME = "known_hosts";
 	protected final String GAMEDATA = "gamedata";
 	protected final String GAMEREQ = "gamerequests";
+	public final static String ERRORREP = "errorlog";
 	protected final static String PLAYERDATA = "playerdata";
+	protected final String CHATDATA = "chat";
 	JTextField p1, p2;
 	static ArrayList<Player> playerList;
 	static ArrayList<LiveGame> gameList;
+	static ArrayList<Chat> chatlist;
 	protected Player currentPlayer;
 	protected JPanel mainPnl;
 	protected JPanel rankPnl;
-	protected JPanel newsPnl;
+	protected JPanel chatPnl;
 	protected JPanel leadPnl;
 	protected JPanel playPnl;
 	protected JPanel srcBar;
 	protected static ChannelSftp channel;
 	protected Menu m = this;
 	protected boolean inUse;
+	protected Chat currentChat = null;
 
-	protected MenuButton rankPnlButton, playPnlButton, newsPnlButton, leadPnlButton;
+	protected MenuButton rankPnlButton, playPnlButton, chatPnlButton, leadPnlButton;
 
 	public Menu() throws IOException, JSchException, SftpException, InterruptedException, ExecutionException {
 
 		playerList = new ArrayList<Player>();
 		gameList = new ArrayList<LiveGame>();
+		chatlist = new ArrayList<Chat>();
 
 		this.setTitle("Chess");
 		this.addWindowListener(new WindowAdapter() {
@@ -105,14 +114,11 @@ public class Menu extends JFrame {
 				try {
 					writeFile();
 					writeGames();
-				} catch (IOException e1) {
-					e1.printStackTrace();
-				} catch (JSchException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
-				} catch (SftpException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				} catch (Exception e1) {
+					catchHandle(
+							e1.getMessage() + " writing games while closing menu by " + currentPlayer.name + " @ "
+									+ new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()),
+							m);
 				}
 			}
 		});
@@ -148,17 +154,36 @@ public class Menu extends JFrame {
 
 					for (LiveGame g : gml) {
 						if (g.currentTurn.equals(currentPlayer.name) && !g.notified) {
-							m.displayTray(g.getOpponent(currentPlayer.name).name);
+							m.displayTray("YOUR MOVE vs " + g.getOpponent(currentPlayer.name).name);
 							g.notified = true;
 							m.writeGames();
 						}
 					}
-				} catch (JSchException | SftpException | IOException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
-				} catch (AWTException e) {
-					// TODO Auto-generated catch block
-					e.printStackTrace();
+				} catch (Exception e1) {
+					catchHandle(
+							e1.getMessage() + " grabbing turn notifications for " + currentPlayer.name + " @ "
+									+ new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()),
+							m);
+				}
+
+				try {
+					ArrayList<Chat> c = readChat(initializeChannel());
+
+					System.out.println(c.get(0).chatlist.size());
+					for (int i = 0; i < c.size();i++) {
+						if (c.get(i).includesPlayer(currentPlayer))
+							c.get(i).notify(m, currentPlayer);
+					}
+					m.writeChats();
+					
+					System.out.println(c.get(0).chatlist.size());
+					
+				} catch (Exception e1) {
+					catchHandle(
+							e1.getMessage() + " grabbing chat notifications for " + currentPlayer.name + " @ "
+									+ new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()),
+							m);
+					e1.printStackTrace();
 				}
 				Thread.sleep(100000);
 			}
@@ -173,11 +198,38 @@ public class Menu extends JFrame {
 		public String call() throws Exception {
 			try {
 				m.update();
-			} catch (IOException | JSchException | SftpException e) {
-				// TODO Auto-generated catch block
-				e.printStackTrace();
+			} catch (Exception e1) {
+				// catchHandle(e1.getMessage() + " running initial update for " +
+				// currentPlayer.name + " @ "
+				// + new
+				// SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()),
+				// m);
+				e1.printStackTrace();
 			}
 			return "";
+		}
+
+	}
+
+	public void catchHandle(String msg, Menu m) {
+		try {
+			ChannelSftp c = initializeChannel();
+
+			JOptionPane.showMessageDialog(null, "There was an error, this will be reported and fixed ASAP");
+			m.update();
+
+			c.get("/home/chess/" + Menu.ERRORREP, Menu.ERRORREP);
+
+			BufferedWriter buffy = new BufferedWriter(new FileWriter(new File(Menu.ERRORREP)));
+			buffy.flush();
+			buffy.append(msg);
+
+			c.put(Menu.ERRORREP, "/home/chess/" + Menu.ERRORREP);
+
+			c.disconnect();
+		} catch (Exception x) {
+			JOptionPane.showMessageDialog(null, "There was an error in the error reporting.... #@$%");
+			System.exit(0);
 		}
 
 	}
@@ -185,6 +237,8 @@ public class Menu extends JFrame {
 	public void update() throws IOException, JSchException, SftpException {
 		playerList = collidePlayers(playerList, readFile());
 		gameList = collideGames(gameList, readGame(channel));
+		chatlist = collideChats(chatlist, readChat(channel));
+		System.out.println(chatlist.get(0).chatlist.size());
 
 		currentPlayer = matchPlayer(currentPlayer.name);
 
@@ -193,7 +247,7 @@ public class Menu extends JFrame {
 		setLocationRelativeTo(null);
 
 		rankPnl = new JPanel();
-		newsPnl = new JPanel();
+		chatPnl = new JPanel();
 		leadPnl = new JPanel();
 		playPnl = new JPanel();
 		srcBar = new JPanel();
@@ -257,22 +311,22 @@ public class Menu extends JFrame {
 		});
 		srcBar.add(leadPnlButton);
 
-		newsPnlButton = new MenuButton("News", MenuButton.NEWS);
-		newsPnlButton.setBackground(new Color(77, 65, 65));
-		newsPnlButton.setForeground(new Color(135, 67, 67));
-		newsPnlButton.setBounds(3 * getWidth() / 5, 0, srcBar.getWidth() / 5, srcBar.getHeight());
-		newsPnlButton.addActionListener(new ActionListener() {
+		chatPnlButton = new MenuButton("Chat", MenuButton.CHAT);
+		chatPnlButton.setBackground(new Color(77, 65, 65));
+		chatPnlButton.setForeground(new Color(135, 67, 67));
+		chatPnlButton.setBounds(3 * getWidth() / 5, 0, srcBar.getWidth() / 5, srcBar.getHeight());
+		chatPnlButton.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				deselectAll();
 				setInvisible();
-				if (!newsPnlButton.currentlySelected) {
-					newsPnl.setVisible(true);
-					newsPnlButton.currentlySelected = true;
+				if (!chatPnlButton.currentlySelected) {
+					chatPnl.setVisible(true);
+					chatPnlButton.currentlySelected = true;
 				}
 				repaint();
 			}
 		});
-		srcBar.add(newsPnlButton);
+		srcBar.add(chatPnlButton);
 
 		JButton exitButton = new JButton("Exit");
 		exitButton.setBackground(Color.red);
@@ -282,9 +336,11 @@ public class Menu extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					writeGames();
-				} catch (JSchException | SftpException | IOException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				} catch (Exception e1) {
+					catchHandle(
+							e1.getMessage() + " creating the exit button by " + currentPlayer.name + " @ "
+									+ new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()),
+							m);
 				}
 				System.exit(0);
 			}
@@ -312,9 +368,11 @@ public class Menu extends JFrame {
 				try {
 					dispose();
 					update();
-				} catch (IOException | JSchException | SftpException e1) {
-					// TODO Auto-generated catch block
-					e1.printStackTrace();
+				} catch (Exception e1) {
+					catchHandle(
+							e1.getMessage() + " creating the refresh button by " + currentPlayer.name + " @ "
+									+ new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()),
+							m);
 				}
 				playPnl.setVisible(true);
 				playPnlButton.currentlySelected = true;
@@ -349,16 +407,10 @@ public class Menu extends JFrame {
 						p.setVisible(true);
 						p.setSize(1500, 1000);
 						p.setLocationRelativeTo(null);
-					} catch (FileNotFoundException e1) {
-						e1.printStackTrace();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					} catch (JSchException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (SftpException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
+					} catch (Exception e1) {
+						catchHandle(e1.getMessage() + " challenging a 2nd player by " + currentPlayer.name + " against "
+								+ plr2.name + " @ "
+								+ new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()), m);
 					}
 					dispose();
 				}
@@ -374,21 +426,17 @@ public class Menu extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				try {
 					PlayGuest p;
-					try {
-						deselectAll();
-						setInvisible();
-						p = new PlayGuest(currentPlayer, m);
-						p.setVisible(true);
-						p.setSize(1500, 1000);
-						p.setLocationRelativeTo(null);
-					} catch (JSchException | SftpException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					}
-				} catch (FileNotFoundException e1) {
-					e1.printStackTrace();
-				} catch (IOException e1) {
-					e1.printStackTrace();
+					deselectAll();
+					setInvisible();
+					p = new PlayGuest(currentPlayer, m);
+					p.setVisible(true);
+					p.setSize(1500, 1000);
+					p.setLocationRelativeTo(null);
+				} catch (Exception e1) {
+					catchHandle(
+							e1.getMessage() + " playing with quest by " + currentPlayer.name + " @ "
+									+ new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()),
+							m);
 				}
 				dispose();
 			}
@@ -418,9 +466,10 @@ public class Menu extends JFrame {
 							"" + new Random().nextLong());
 					try {
 						writeGameRequest(g);
-					} catch (SftpException | IOException e2) {
-						// TODO Auto-generated catch block
-						e2.printStackTrace();
+					} catch (Exception e1) {
+						catchHandle(e1.getMessage() + " writing a new game request by " + currentPlayer.name
+								+ " against " + plr2.name + " @ "
+								+ new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()), m);
 					}
 				}
 			}
@@ -444,9 +493,11 @@ public class Menu extends JFrame {
 							p.setSize(1500, 1000);
 							p.setVisible(true);
 							p.setLocationRelativeTo(null);
-						} catch (IOException | JSchException | SftpException e1) {
-							// TODO Auto-generated catch block
-							e1.printStackTrace();
+						} catch (Exception e1) {
+							catchHandle(e1.getMessage() + " painting a live game for " + currentPlayer.name
+									+ " against " + g.getOpponent(currentPlayer.name).name + " @ "
+									+ new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()),
+									m);
 						}
 					}
 				});
@@ -616,22 +667,123 @@ public class Menu extends JFrame {
 		 * STATS PANEL DONE
 		 */
 
+		/**
+		 * Chat panel
+		 */
+
+		chatPnl.setBackground(new Color(135, 67, 67));
+		chatPnl.setLayout(null);
+
+		JPanel chatPeople = new JPanel();
+		JPanel chat = new JPanel();
+
+		chatPeople.setBackground(new Color(135, 67, 67));
+		chat.setBackground(new Color(135, 67, 67));
+		chat.setBounds(200, 100, 350, 550);
+		chatPeople.setBounds(50, 100, 150, 500);
+
+		i = 0;
+		for (Chat c : chatlist) {
+			chat.setSize(400, c.chatlist.size());
+			System.out.println(c.chatlist.size());
+			if (c.includesPlayer(currentPlayer)) {
+				JButton b = new JButton(c.getOther(currentPlayer));
+				b.setBackground(new Color(77, 65, 65));
+				b.setForeground(new Color(135, 67, 67));
+				b.setBounds(0, i * 50, chatPeople.getWidth(), 50);
+				b.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						chat.removeAll();
+						c.addToPanel(chat, currentPlayer);
+						chat.repaint();
+						chat.setPreferredSize(new Dimension(350, c.chatlist.size() * 100));
+						currentChat = c;
+					}
+				});
+				i++;
+
+				chatPeople.add(b);
+			}
+		}
+
+		chatPeople.setLayout(new GridLayout(0, 1, 0, 0));
+		chatPeople.setPreferredSize(new Dimension(150, chatlist.size() * 50));
+		JScrollPane chatPplScroll = new JScrollPane(chatPeople, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+
+		chat.setLayout(new GridLayout(0, 1, 0, 10));
+		JScrollPane chatScroll = new JScrollPane(chat, JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED,
+				JScrollPane.HORIZONTAL_SCROLLBAR_NEVER);
+		chatScroll.setBounds(0, 0, 350, 450);
+		chatPplScroll.setBounds(0, 0, 150, 500);
+
+		if (i < 10)
+			chatPplScroll.setSize(150, i * 60);
+
+		if (chat.getPreferredSize().getHeight() < 450)
+			chatScroll.getSize(new Dimension(350, (int) chat.getPreferredSize().getHeight()));
+
+		JPanel cp = new JPanel();
+		cp.setLayout(null);
+		cp.setBackground(new Color(135, 67, 67));
+		cp.setBorder(BorderFactory.createBevelBorder(1));
+		cp.add(chatPplScroll);
+		cp.setBounds(50, 100, 150, 500);
+
+		JPanel c = new JPanel();
+		c.setLayout(null);
+		c.setBackground(new Color(135, 67, 67));
+		c.setBorder(BorderFactory.createBevelBorder(1));
+		c.add(chatScroll);
+		c.setBounds(200, 100, 350, 450);
+
+		chatPnl.add(cp);
+		chatPnl.add(c);
+
+		JTextField chatTxt = new JTextField("");
+		chatTxt.setBounds(200, 550, 250, 50);
+		chatPnl.add(chatTxt);
+
+		JButton send = new JButton("Send");
+		send.setBounds(450, 550, 100, 50);
+		send.setBackground(new Color(77, 65, 65));
+		send.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				if (currentChat != null) {
+					currentChat.addMessage(chatTxt.getText().trim() == "" ? "-" : chatTxt.getText(), currentPlayer,
+							new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()), false);
+					try {
+						writeChats();
+					} catch (Exception e1) {
+						catchHandle(e1.getMessage() + " sending a message by " + currentPlayer.name + " @ "
+								+ new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()), m);
+					}
+					currentChat.addToPanel(chat, currentPlayer);
+					chat.repaint();
+				} else
+					JOptionPane.showMessageDialog(m, "You must have a chat selected to send a message!");
+			}
+		});
+		chatPnl.add(send);
+
 		setInvisible();
 		getContentPane().setBackground(new Color(135, 67, 67));
 		getContentPane().add(leadPnl);
 		getContentPane().add(rankPnl);
 		getContentPane().add(srcBar);
 		getContentPane().add(playPnl);
+		getContentPane().add(chatPnl);
 
 		leadPnl.setBounds(0, 50, 600, 600);
 		playPnl.setBounds(0, 50, 600, 600);
 		rankPnl.setBounds(0, 50, 600, 600);
+		chatPnl.setBounds(0, 50, 600, 600);
 		srcBar.setBounds(0, 0, 600, 50);
 
 		repaint();
 	}
 
-	public void displayTray(String plr) throws AWTException, MalformedURLException {
+	public void displayTray(String msg) throws AWTException, MalformedURLException {
 		// Obtain only one instance of the SystemTray object
 		SystemTray tray = SystemTray.getSystemTray();
 
@@ -648,7 +800,7 @@ public class Menu extends JFrame {
 		trayIcon.setToolTip("System tray icon demo");
 		tray.add(trayIcon);
 
-		trayIcon.displayMessage("Chess", "YOUR MOVE vs " + plr, MessageType.INFO);
+		trayIcon.displayMessage("Chess", msg, MessageType.INFO);
 	}
 
 	public ChannelSftp initializeChannel() throws JSchException {
@@ -667,7 +819,7 @@ public class Menu extends JFrame {
 		return chn;
 	}
 
-	private Player login() {
+	private Player login() throws IOException, JSchException, SftpException {
 		JTextField username = new JTextField();
 		JTextField password = new JPasswordField();
 
@@ -696,6 +848,7 @@ public class Menu extends JFrame {
 
 				if (option2 == JOptionPane.OK_OPTION) {
 					p.password = password.getText();
+					writeFile();
 					return p;
 				} else {
 					System.exit(0);
@@ -765,8 +918,7 @@ public class Menu extends JFrame {
 
 		while (scan.hasNextLine()) {
 			String[] names = scan.nextLine().split(";");
-			if(!scan.hasNext())
-			{
+			if (!scan.hasNext()) {
 				scan.close();
 				return templist;
 			}
@@ -792,6 +944,47 @@ public class Menu extends JFrame {
 		return templist;
 	}
 
+	public ArrayList<Chat> readChat(ChannelSftp chnl) throws SftpException, FileNotFoundException {
+		ArrayList<Chat> temp = new ArrayList<Chat>();
+
+		chnl.get("/home/chess/" + CHATDATA, CHATDATA);
+
+		Scanner s = new Scanner(new File(CHATDATA));
+
+		while (s.hasNext()) {
+			String nms = s.nextLine();
+			if ("".equals(nms))
+				break;
+
+			String[] names = nms.split(";");
+			Player p1 = matchPlayer(names[0]);
+			Player p2 = matchPlayer(names[1]);
+			Chat c = new Chat(p1, p2);
+
+			String nxtline = s.nextLine();
+			while (!nxtline.equals("--")) {
+				String[] msg = new String[4];
+				int x = 0;
+				String str = "";
+				for (char chr : nxtline.toCharArray()) {
+					if (chr == ';') {
+						msg[x] = str;
+						x++;
+						str = "";
+					} else {
+						str += chr;
+					}
+				}
+				msg[x] = str;
+				Player sender = matchPlayer(msg[0]);
+				c.addMessage(msg[2], sender, msg[1], msg[3].equals("true")?true:false);
+				nxtline = s.nextLine();
+			}
+			temp.add(c);
+		}
+		return temp;
+	}
+
 	public void readGameRequests() throws SftpException, IOException {
 		channel.get("/home/chess/" + GAMEREQ, GAMEREQ);
 
@@ -810,14 +1003,11 @@ public class Menu extends JFrame {
 				if (JOptionPane.showOptionDialog(this, "New game request from " + names[0], "Game Request",
 						JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE, null, opt, opt[0]) == 0) {
 					LiveGame g = null;
-					if(new Random().nextBoolean())
-					{
+					if (new Random().nextBoolean()) {
 						g = new LiveGame(matchPlayer(names[0]), currentPlayer, 0, currentPlayer.name, "ACPT",
-							currentPlayer, id);
-					}else
-					{
-						g = new LiveGame(currentPlayer, matchPlayer(names[0]), 0, names[0], "ACPT",
 								currentPlayer, id);
+					} else {
+						g = new LiveGame(currentPlayer, matchPlayer(names[0]), 0, names[0], "ACPT", currentPlayer, id);
 					}
 					gameList.add(g);
 				}
@@ -868,6 +1058,27 @@ public class Menu extends JFrame {
 
 		for (LiveGame g : other)
 			temp.add(g);
+
+		return temp;
+	}
+
+	public ArrayList<Chat> collideChats(ArrayList<Chat> one, ArrayList<Chat> two) {
+		ArrayList<Chat> temp = new ArrayList<Chat>();
+
+		for (Chat c : one)
+			for (Chat x : two)
+				if (c.equals(x)) {
+					temp.add(c.mostUpdated(x));
+					break;
+				}
+		one.removeAll(temp);
+		two.removeAll(temp);
+
+		for (Chat c : one)
+			temp.add(c);
+
+		for (Chat c : two)
+			temp.add(c);
 
 		return temp;
 	}
@@ -928,6 +1139,18 @@ public class Menu extends JFrame {
 		channel.put(GAMEDATA, "/home/chess/gamedata");
 	}
 
+	public void writeChats() throws SftpException, IOException {
+		chatlist = collideChats(chatlist, readChat(channel));
+		BufferedWriter buffy = new BufferedWriter(new FileWriter(new File(CHATDATA)));
+
+		buffy.flush();
+		for (Chat c : chatlist) {
+			buffy.write(c.print());
+		}
+		buffy.close();
+		channel.put(CHATDATA, "/home/chess/" + CHATDATA);
+	}
+
 	public Player matchPlayer(String str) {
 		for (Player p : playerList) {
 			if (p.name.equals(str)) {
@@ -941,17 +1164,16 @@ public class Menu extends JFrame {
 
 	private void setInvisible() {
 		playPnl.setVisible(false);
-		newsPnl.setVisible(false);
+		chatPnl.setVisible(false);
 		rankPnl.setVisible(false);
 		leadPnl.setVisible(false);
-
 	}
 
 	private void deselectAll() {
 		leadPnlButton.currentlySelected = false;
 		playPnlButton.currentlySelected = false;
 		rankPnlButton.currentlySelected = false;
-		newsPnlButton.currentlySelected = false;
+		chatPnlButton.currentlySelected = false;
 	}
 
 	public String getLeaderBoardNames() {
@@ -988,7 +1210,7 @@ public class Menu extends JFrame {
 		protected static final int RANK = 0;
 		protected static final int PLAY = 1;
 		protected static final int LEADERBOARD = 2;
-		protected static final int NEWS = 3;
+		protected static final int CHAT = 3;
 
 		public MenuButton(String s, int d) {
 			super(s);

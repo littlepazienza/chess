@@ -56,7 +56,6 @@ public class PlayRemote extends JFrame implements ActionListener {
 	JPanel frame = new JPanel();
 	protected Player current, other;
 	protected LiveGame theGame;
-	protected String moves;
 	protected Menu m;
 
 
@@ -73,7 +72,6 @@ public class PlayRemote extends JFrame implements ActionListener {
 		selectedF = -1;
 		buttons = new tileButton[8][8];
 		wasAValidMove = false;
-		moves = "";
 
 		update();
 
@@ -123,19 +121,28 @@ public class PlayRemote extends JFrame implements ActionListener {
 						&& g.makeMove(selectedR, selectedF, b.row, b.file)) {
 					int selectedRTemp = selectedR;
 					
-					moves += g.moveNotation(selectedRTemp, selectedF, b.row, b.file, temp) + " ";
+					g.moveNotation(selectedRTemp, selectedF, b.row, b.file, temp);
 					theGame.addMove("" + selectedR + selectedF + b.row + b.file);
 					theGame.passTurn();
+					
+					if(theGame.currentTurn.equals(theGame.white.name))
+						g.moves += theGame.turnNumber + ". ";
+					
 					theGame.notified = false;
-					try {
-						m.writeGames();
-					} catch (JSchException | SftpException | IOException e1) {
+					
+					boolean worked = false;
+					while(!worked)
+					{
 						try {
-							Thread.sleep(1000);
 							m.writeGames();
-						} catch (JSchException | SftpException | IOException | InterruptedException e3) {
-							// TODO Auto-generated catch block
-							e3.printStackTrace();
+							worked = true;
+						} catch (Exception e1) {
+							worked = false;
+							try {
+								Thread.sleep(1000);
+							} catch (InterruptedException e2) {
+								e2.printStackTrace();
+							}
 						}
 					}
 					selectedR = -1;
@@ -303,7 +310,7 @@ public class PlayRemote extends JFrame implements ActionListener {
 		}
 
 		// text area for moves
-		JTextArea moveList = new JTextArea(moves);
+		JTextArea moveList = new JTextArea(g.moves);
 		moveList.setBackground(Color.WHITE);
 		moveList.setEditable(false);
 		moveList.setLineWrap(true);
@@ -354,16 +361,26 @@ public class PlayRemote extends JFrame implements ActionListener {
 			endgm = JOptionPane.showOptionDialog(this, "Black Wins!!!", "Winner is...", JOptionPane.OK_CANCEL_OPTION,
 					JOptionPane.INFORMATION_MESSAGE, null, winnerBox, winnerBox[0]);
 			if (endgm == 0) {
-				int r = current.rating();
-				current.add(new Game(other.rating(), 'W', other.name));
-				other.add(new Game(r, 'L', current.name));
+				int r = theGame.white.rating();
+				theGame.white.add(new Game(theGame.black.rating(), 'L', theGame.black.name));
+				theGame.black.add(new Game(r, 'W', theGame.white.name));
 				m.gameList.remove(theGame);
+				
+				LiveGame g = new LiveGame(current, other, 0, other.name, "REQ", current,
+						"" + new Random().nextLong());
+				try {
+					m.writeGameRequest(g);
+				} catch (SftpException | IOException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+				
 				m.update();
 				dispose();
 			} else {
-				int r = current.rating();
-				current.add(new Game(other.rating(), 'L', other.name));
-				other.add(new Game(r, 'W', current.name));
+				int r = theGame.white.rating();
+				theGame.white.add(new Game(theGame.black.rating(), 'L', theGame.black.name));
+				theGame.black.add(new Game(r, 'W', theGame.white.name));
 				m.gameList.remove(theGame);
 				m.update();
 				dispose();
@@ -372,16 +389,26 @@ public class PlayRemote extends JFrame implements ActionListener {
 			endgm = JOptionPane.showOptionDialog(this, "White Wins!!!", "Winner is...", JOptionPane.OK_CANCEL_OPTION,
 					JOptionPane.INFORMATION_MESSAGE, null, winnerBox, winnerBox[0]);
 			if (endgm == 0) {
-				int r = current.rating();
-				current.add(new Game(other.rating(), 'W', other.name));
-				other.add(new Game(r, 'L', current.name));
+				int r = theGame.white.rating();
+				theGame.white.add(new Game(theGame.black.rating(), 'W', theGame.black.name));
+				theGame.black.add(new Game(r, 'L', theGame.white.name));
 				m.gameList.remove(theGame);
+				
+				LiveGame g = new LiveGame(current, other, 0, other.name, "REQ", current,
+						"" + new Random().nextLong());
+				try {
+					m.writeGameRequest(g);
+				} catch (SftpException | IOException e2) {
+					// TODO Auto-generated catch block
+					e2.printStackTrace();
+				}
+				
 				m.update();
 				dispose();
 			} else {
-				int r = current.rating();
-				current.add(new Game(other.rating(), 'W',other.name));
-				other.add(new Game(r, 'L', current.name));
+				int r = theGame.white.rating();
+				theGame.white.add(new Game(theGame.black.rating(), 'W', theGame.black.name));
+				theGame.black.add(new Game(r, 'L', theGame.white.name));
 				m.gameList.remove(theGame);
 				m.update();
 				dispose();

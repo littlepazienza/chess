@@ -12,11 +12,13 @@ public class GameBoard
 	public final int BLACK_WIN = 0;
 	public final int WHITE_WIN = 1;
 	protected final int CONTINUE = 2;
+	public String moves;
 	
 	public GameBoard()
 	{
 		board = new Piece[8][8];
 		captured = new ArrayList<>();
+		moves = "";
 	}
 	
 	public void GameFill()
@@ -397,7 +399,7 @@ public class GameBoard
 		return sum;
 	}
 	
-	public String moveNotation(int fromR, int fromF, int toR, int toF, Piece[][] P)
+	public void moveNotation(int fromR, int fromF, int toR, int toF, Piece[][] P)
 	{
 		Piece from = P[fromR][fromF];
 		String O = "";
@@ -437,7 +439,7 @@ public class GameBoard
 		
 		
 		if(whiteCheckMate())
-			return O + "#";
+			moves += O + "#" + " ";
 		else
 		{
 			
@@ -445,9 +447,9 @@ public class GameBoard
 			P[fromR][fromF] = null;
 			
 			if(attackingKing(P, (P[toR][toF].color == Piece.Side.WHITE ? Piece.Side.BLACK:Piece.Side.WHITE)))
-				return O + "+";
+				moves+= O + "+" + " ";
 			else
-				return O;
+				moves += O + " ";
 		}
 		
 	}

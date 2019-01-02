@@ -7,8 +7,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileWriter;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 
 import javax.swing.BorderFactory;
 import javax.swing.Icon;
@@ -20,6 +25,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JTextArea;
 
+import com.jcraft.jsch.ChannelSftp;
 import com.jcraft.jsch.JSchException;
 import com.jcraft.jsch.SftpException;
 
@@ -50,7 +56,6 @@ public class PlayLocal extends JFrame implements ActionListener {
 	protected int selectedR, selectedF;
 	JPanel frame = new JPanel();
 	protected Player p1, p2;
-	protected String moves;
 	protected Menu m;
 
 	public PlayLocal(Player p, Player q, Menu m) throws IOException, JSchException, SftpException {
@@ -72,14 +77,8 @@ public class PlayLocal extends JFrame implements ActionListener {
 					p2.add(new Game(r, 'L', p1.name));
 					try {
 						m.update();
-					} catch (IOException e1) {
-						e1.printStackTrace();
-					} catch (JSchException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
-					} catch (SftpException e1) {
-						// TODO Auto-generated catch block
-						e1.printStackTrace();
+					} catch (Exception e1) {
+						catchHandle(e1.getMessage() + " returning to menu after game win by " + p1.name + " against " + p2.name + " @ " + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()), m);
 					}
 		    	}
 		    	else if(n == 1 && !p1.guest && !p2.guest)
@@ -127,7 +126,6 @@ public class PlayLocal extends JFrame implements ActionListener {
 		buttons = new tileButton[8][8];
 		turnNum = 1;
 		wasAValidMove = false;
-		moves = "";
 
 		update(p, q);
 
@@ -167,13 +165,13 @@ public class PlayLocal extends JFrame implements ActionListener {
 					int selectedRTemp = selectedR;
 					selectedR = -1;
 					if (whiteTurn) {
-						moves += turnNum + ". ";
+						g.moves += turnNum + ". ";
 						whiteTurn = false;
 					} else {
 						whiteTurn = true;
 						turnNum++;
 					}
-					moves += g.moveNotation(selectedRTemp, selectedF, b.row, b.file, temp) + " ";
+					g.moveNotation(selectedRTemp, selectedF, b.row, b.file, temp);
 				}
 			} else if (!wasAValidMove){
 				JOptionPane.showMessageDialog(null, "Invalid Move");
@@ -188,14 +186,31 @@ public class PlayLocal extends JFrame implements ActionListener {
 		
 		try {
 			update(p1, p2);
-		} catch (IOException e1) {
-			e1.printStackTrace();
-		} catch (JSchException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
-		} catch (SftpException e1) {
-			// TODO Auto-generated catch block
-			e1.printStackTrace();
+		} catch (Exception e1) {
+			catchHandle(e1.getMessage() + " updating the board " + p1.name  + " against " + p2.name + " @ " + new SimpleDateFormat("yyyyMMdd_HHmmss").format(Calendar.getInstance().getTime()), m);
+		}
+	}
+	
+	public void catchHandle(String msg, Menu m)
+	{
+		try {
+			ChannelSftp c = m.initializeChannel();
+			
+			JOptionPane.showMessageDialog(null, "There was an error, this will be reported and fixed ASAP");
+			m.update();
+			
+			c.get("/home/chess/" + Menu.ERRORREP, Menu.ERRORREP);
+			
+			BufferedWriter buffy = new BufferedWriter(new FileWriter(new File(Menu.ERRORREP)));
+			buffy.flush();
+			buffy.append(msg);
+			
+			c.put(Menu.ERRORREP, "/home/chess/" + Menu.ERRORREP);
+			
+			c.disconnect();
+		}catch (Exception x) {
+			JOptionPane.showMessageDialog(null, "There was an error in the error reporting.... #@$%");
+			System.exit(0);
 		}
 	}
 
@@ -336,7 +351,7 @@ public class PlayLocal extends JFrame implements ActionListener {
 		}
 
 		// text area for moves
-		JTextArea moveList = new JTextArea(moves);
+		JTextArea moveList = new JTextArea(g.moves);
 		moveList.setBackground(Color.WHITE);
 		moveList.setEditable(false);
 		moveList.setLineWrap(true);
