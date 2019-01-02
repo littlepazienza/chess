@@ -1,5 +1,5 @@
 ````
-Hey All! (All being a questionable word as I don't expect more than my pal Nacho to every be reading this)
+Hey All! (All being a questionable word as I don't expect more than my pal Nacho to ever be reading this)
 
 To download simply download all the contents of this folder and make sure to keep them all in the same folder wherever
 you leave them on your computer!!!
