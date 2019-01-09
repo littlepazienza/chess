@@ -166,6 +166,7 @@ public class Menu extends JFrame {
 							m);
 				}
 
+				/*
 				try {
 					ArrayList<Chat> c = readChat(initializeChannel());
 
@@ -185,6 +186,7 @@ public class Menu extends JFrame {
 							m);
 					e1.printStackTrace();
 				}
+				*/
 				Thread.sleep(100000);
 			}
 			return "";

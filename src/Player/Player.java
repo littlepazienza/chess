@@ -90,7 +90,7 @@ public class Player implements Comparable{
 	public String[] last5Games()
 	{
 		String[] args = {"", "", ""};
-		for(int i = games.size() - 1; i >= 0 && i > games.size() - 5;i--)
+		for(int i = games.size() - 1; i >= 0 && i >= games.size() - 5;i--)
 		{
 			args[0]+=games.get(i).opponentRating + "\n";
 			args[1]+=games.get(i).opponentName + "\n";
