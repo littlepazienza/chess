@@ -47,8 +47,9 @@ public class Chat {
 		
 		int i = 0;
 		int size = 0;
-		for(Message m:chatlist)
+		for(int c = 0; i < chatlist.size();i++)
 		{
+			Message m = chatlist.get(c);
 			JLabel l = new JLabel();
 			if(m.sender.equals(current))
 			{
