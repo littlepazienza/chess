@@ -1,5 +1,9 @@
 ````
-Hey All! (All being a questionable word as I don't expect more than my pal Nacho to every be reading this)
+Hey All! (All being a questionable word as I don't expect more than my pal Nacho to ever be reading this)
+
+To download simply download all the contents of this folder and make sure to keep them all in the same folder wherever
+you leave them on your computer!!!
+
 Since this project has been made by a low level CS major from Boston, MA, It does not have a working update engine
 Unfortunately, that means that every time you would like to update the game, you would have to delete your version
 and come back here to reinstall. There is a small shortcut which I will include here, and I apologize for the inconvenience.
