@@ -1,0 +1,209 @@
+
+<!doctype html>
+
+<html lang="en" class="dashboard-bg">
+    <head>
+        <meta charset="utf-8">
+
+        <title>Dashboard </title>
+        <meta name="description" content="The HTML5 Herald">
+        <meta name="author" content="SitePoint">
+
+        <link rel="stylesheet" href="../css/materialize.css">
+        <link rel="stylesheet" href="../css/bootstrap.css">
+        <link rel="stylesheet" href="../css/main.css">
+        <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css" integrity="sha384-q94+BZtLrkL1/ohfjR8c6L+A6qzNH9R2hBLwyoAfu3i/WCvQjzL2RQJ3uNHDISdU" crossorigin="anonymous">
+
+    </head>
+    <body>
+
+        <ul id="slide-out" class="sidenav">
+            <li>
+                <div class="user-view">
+                    <a href="#"><img class="img-thumbnail" src="../img/logo.png"></a>
+                    <a href="https://coldspringfederate.com"><span class="black-text name">Cold Spring Federate</span></a>
+                    <a href="#"><span class="black-text email">ben.pazienza@coldspringfederate.com</span></a>
+                    </div>
+            </li>
+            <li><a class="waves-effect" onclick="playAI()">Play our chess bot</a></li>
+            <li><a class="waves-effect" data-toggle="modal" data-target="#gamesModal" onclick="getGames()">Play a friend</a></li>
+        </ul>
+        <a href="#" data-target="slide-out" class="sidenav-trigger nav-link h3" style="position: absolute">&#9776;</a>
+
+
+
+        <div class="modal" tabindex="-1" role="dialog" id="gamesModal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Games with friends</h3>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="list-group" id="gamesContent">
+
+                        </div>
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="newGame(1)">New Normal Game</button>
+                        <button type="button" class="btn btn-danger" onclick="newGame(0)">New Random Game</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+<!--        <span style="font-size:30px;cursor:pointer" data-toggle="modal" data-target="sidenavmodal" onclick="openNav()">&#9776;</span>-->
+
+        <div class="jumbotron-nobg">
+            <div class="display-3">Chess</div>
+            <p>Welcome <strong id="username"></strong> to Ben's Chess App. Go fuck yourself, Matt Phillips <a style="color: #FFF" href="https://twitter.com/mdot528">@mdot528</a>!</p>
+        </div>
+
+        <div class="btn-group">
+            <a class="btn btn-primary" onclick="playAI()">Play Ben's Chess Bot</a>
+            <button class="btn btn-success" data-toggle="modal" data-target="#gamesModal" onclick="getGames()">Play with a friend</button>
+        </div>
+
+        <script>
+            const Store = require('electron-store');
+            require('bootstrap');
+            require('popper.js');
+            require('materialize-css');
+            const $ = require('jquery');
+            const store = new Store();
+
+
+            window.resizeTo(800, 600);
+
+            let gameType = 1;
+
+            let user = store.get('user');
+            console.log(user);
+
+            let users = [];
+
+            $('#username').text(user.userName);
+
+
+            document.addEventListener('DOMContentLoaded', function() {
+                var elems = document.querySelectorAll('.sidenav');
+                var instances = M.Sidenav.init(elems);
+            });
+
+            // Initialize collapsible (uncomment the lines below if you use the dropdown variation)
+            // var collapsibleElem = document.querySelector('.collapsible');
+            // var collapsibleInstance = M.Collapsible.init(collapsibleElem, options);
+
+            function getGames() {
+
+                $.ajax({
+                    method: 'POST',
+                    data: JSON.stringify(user),
+                    contentType: 'application/json',
+                    url: `https://coldspringfederate.com/chess/getGames`,
+                    success: function (data) {
+                        console.log(data);
+                        document.getElementById('gamesContent').innerHTML = `<table class="table">
+
+                            <tbody id="gamesTable">
+
+
+                            </tbody>
+                        </table>`;
+
+                        for(let i = 0 ; i < data.length ; i++)
+                        {
+                            let row = document.createElement("a");
+                            row.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center waves-effect";
+                            row.style.fontFamily = 'Roboto, sans-serif';
+                            row.style.fontSize = '20px';
+                            row.style.fontWeight = '300';
+                            row.onclick = function() {
+                                window.location.href = `play.html#${data[i].id}`;
+                            }
+                            if(user.userName == data[i].white)
+                            {
+                                row.innerText = `white vs ${data[i].black}`;
+                            }
+                            else
+                            {
+                                row.innerText = `black vs ${data[i].white}`;
+                                row.className += "table-dark"
+                            }
+                            document.getElementById("gamesTable").appendChild(row);
+                        }
+
+                    },
+                    error: function (error) {
+                        alert('error');
+                        console.log(error);
+                    }
+                });
+            }
+
+            function newGame(x) {
+                gameType = x;
+                $.ajax({
+                    method: 'GET',
+                    url: "https://coldspringfederate.com/chess/getUsers",
+                    success: function (data) {
+                        users = data;
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                })
+
+                document.getElementById("gamesContent").innerHTML = '\t<div class="dropdown"><input id="searchInput" type="text" placeholder="Search..." onkeyup="updateAutocomplete()"><br><div aria-labelledby="dropdownMenuButton" id="dropdownMenuBody"></div></div>'
+                updateAutocomplete();
+            }
+
+            function updateAutocomplete()
+            {
+                let val = document.getElementById("searchInput").value;
+
+                let htmlStr = ""
+
+                if(val.length > 1)
+                {
+                    for(let i = 0; i < users.length; i++)
+                    {
+                        let str = users[i];
+
+                        if(str.toLowerCase().includes(val.toLowerCase()))
+                        {
+                            let index = str.toLowerCase().indexOf(val.toLowerCase());
+                            let boldStr = `${str.substring(0, index)}<strong>${str.substring(index, index+val.length)}</strong>${str.substring(index+val.length, str.length)}`;
+                            htmlStr += `<button class="btn dropdown-item btn-primary" data-dismiss="modal" style="padding-left: 2px" onclick="requestGame('${users[i]}')">${boldStr}</button>`;
+                        }
+                    }
+                }
+
+                document.getElementById("dropdownMenuBody").innerHTML = htmlStr;
+            }
+
+            function requestGame(x) {
+                $.ajax({
+                    method: 'POST',
+                    contentType: "application/json",
+                    data: `${gameType}`,
+                    url: `https://coldspringfederate.com/chess/${user.userName}/${x}/newGame`,
+                    success: function(data) {
+
+                    },
+                    error: function(error) {
+
+                    }
+                })
+            }
+
+        </script>
+    </body>
+</html>
+
