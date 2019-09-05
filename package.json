@@ -4,8 +4,7 @@
   "description": "Chess!",
   "main": "js/index.js",
   "scripts": {
-    "start": "electron .",
-    "package": "electron-packager ./ benschess --all --out ~/Desktop/js/out/benschess --overwrite"
+    "start": "electron ."
   },
   "author": "Ben",
   "license": "ISC",
