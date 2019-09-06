@@ -1,0 +1,4 @@
+node_modules
+chess-*
+.idea
+package-lock.json
