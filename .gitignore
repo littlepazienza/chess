@@ -1,4 +1,5 @@
 node_modules
-chess-*
+release/deployments
+release/downloads
 .idea
 package-lock.json
