@@ -4,7 +4,7 @@ CHESS_DIR=/home/ben/chess/release
 DEPLOY=deployments
 DNLD=downloads
 
-echo Bensdaman1* | sudo rm -rf $CHESS_DIR/$DEPLOY/* $CHESS_DIR/$DNLD/*
+sudo rm -rf $CHESS_DIR/$DEPLOY/* $CHESS_DIR/$DNLD/*
 cd $CHESS_DIR
 git checkout master
 git pull
