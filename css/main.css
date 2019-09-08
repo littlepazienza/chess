@@ -117,3 +117,52 @@
     margin-top: auto;
     margin-bottom: auto;
 }
+
+.glow {
+    animation: glow 2s ease-out;
+}
+
+@keyframes glow {
+    0% { box-shadow: 0 0 -10px #c4a300; }
+    40% { box-shadow: 0 0 20px #c4a300; }
+    60% { box-shadow: 0 0 20px #c4a300; }
+    100% { box-shadow: 0 0 -10px #c4a300; }
+}
+
+
+.game,
+.request {
+    width: auto;
+    height: 100px;
+    font-family: 'Roboto', sans-serif;
+    font-size: 14px;
+    font-weight: 300;
+    padding-left: 1vw;
+}
+
+.request {
+    position: relative;
+}
+
+.accept {
+    /*position: absolute;*/
+    width: 20px;
+    height: 20px;
+    border-color: black;
+    border-width: 1px;
+    background-image: url("../img/checkmark.png");
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    opacity: 30%;
+}
+
+.cancel {
+    /*position: absolute;*/
+    width: 20px;
+    height: 20px;
+    border-color: black;
+    border-width: 1px;
+    background-image: url("../img/cancel.png");
+    opacity: 30%;
+}
