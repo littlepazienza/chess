@@ -250,6 +250,8 @@
             const Chess = require('../js/chess');
             const store = new Store();
 
+            const devMode = false;
+
             const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
             window.resizeTo(600, 600);
@@ -381,8 +383,7 @@
                             cell = document.getElementById(`${i},${BOARD_SIZE-j}`);
                         }
                         cell.innerHTML = "";
-                        if (game.board[i][j] != null)
-                        {
+                        if (game.board[i][j] != null) {
                             let img = document.createElement('img');
                             img.src = game.board[i][j].getImg();
                             img.className = "piece";
@@ -391,39 +392,46 @@
                                 snap: '.tile',
                                 snapMode: 'both',
                             });
+
                             cell.appendChild(img);
                         }
 
                         $(cell).droppable();
 
-                        cell.ondrop = function(ev, ui) {
+                        cell.ondrop = async function (ev, ui) {
+
                             let from = ui.draggable[0].parentNode.id.split(',');
                             let to = cell.id.split(',');
                             let move = null;
-                            if(game.white == user.userName)
-                            {
-                                move = newMove(BOARD_SIZE -parseInt(from[0]), parseInt(from[1]), BOARD_SIZE-parseInt(to[0]), parseInt(to[1]));
-                            }
-                            else
-                            {
+
+
+                            if (game.white == user.userName) {
+                                move = newMove(BOARD_SIZE - parseInt(from[0]), parseInt(from[1]), BOARD_SIZE - parseInt(to[0]), parseInt(to[1]));
+                            } else {
                                 move = newMove(parseInt(from[0]), BOARD_SIZE - parseInt(from[1]), parseInt(to[0]), BOARD_SIZE - parseInt(to[1]));
                             }
-                            if(game.validMove(move)) {
+                            if (!devMode && ((game.board[move.fromR][move.fromF].isWhite && game.white != user.userName) || (!game.board[move.fromR][move.fromF].isWhite && game.black != user.userName))) {
+                                update();
+                                console.log('here')
+                                $('#isOthersTurn').addClass('glow');
+                                await sleep(2000);
+                                $('#isOthersTurn').removeClass('glow');
+                            }
+                            else if (game.validMove(move))
+                            {
                                 if (game.isQueening(move)) {
                                     $('#queen').html(`<img class="piece" src="${newQueen(true).getImg()}" data-dismiss="modal" onclick="submitQueeningChoice('${move}', ${TO_QUEEN})">`);
                                     $('#bishop').html(`<img class="piece" src="${newBishop(true).getImg()}" data-dismiss="modal" onclick="submitQueeningChoice('${move}', ${TO_BISHOP})">`);
                                     $('#rook').html(`<img class="piece" src="${newRook(true).getImg()}" data-dismiss="modal" onclick="submitQueeningChoice('${move}', ${TO_ROOK})">`);
                                     $('#knight').html(`<img class="piece" src="${newKnight(true).getImg()}" data-dismiss="modal" onclick="submitQueeningChoice('${move}', ${TO_KNIGHT})">`);
                                     $('#queeningModal').modal('show');
-                                }
-                                else if(game.isCastling(move)) {
+                                } else if (game.isCastling(move)) {
                                     // this.board[move.fromR][(move.toF==2?3:5)] = this.board[move.fromR][(move.toF==2?0:7)];
                                     // this.board[move.fromR][(move.toF==2?0:7)].notMoved = false;
                                     // this.board[move.fromR][(move.toF==2?0:7)] = null;
-                                    makeCastlingMove(newMove(move.fromR, move.toF==2?0:7, move.fromR, move.toF==2?3:5));
+                                    makeCastlingMove(newMove(move.fromR, move.toF == 2 ? 0 : 7, move.fromR, move.toF == 2 ? 3 : 5));
                                     makeMove(move);
-                                }
-                                else {
+                                } else {
                                     makeMove(move);
                                 }
                             }
@@ -434,6 +442,10 @@
                         }
                     }
                 }
+            }
+
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
             }
 
             function submitQueeningChoice(move, queeningChoice) {
@@ -491,7 +503,6 @@
                     contentType: "application/json",
                     data: JSON.stringify(user),
                     success: function(data) {
-                        console.log('called first');
                         console.log(data);
 
                         //global.newGame = function(board, type, white, black, accepted, isWhitesTurn, id) {
@@ -533,11 +544,14 @@
 
             function update()
             {
-                console.log('called second');
                 updateBoard();
                 if(game.isCheckMate(true)) {
                     $('#gameOverModal').modal('show');
                 }
+                if(game.isCheckMate(false)) {
+                    $('#gameOverModal').modal('show');
+                }
+
             }
 
 

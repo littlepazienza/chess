@@ -2345,7 +2345,7 @@ svg:not(:root) {
  * 1. Change the font styles in all browsers (opinionated).
  * 2. Remove the margin in Firefox and Safari.
  */
-button,
+mat-button,
 input,
 optgroup,
 select,
@@ -2364,7 +2364,7 @@ textarea {
  * Show the overflow in IE.
  * 1. Show the overflow in Edge.
  */
-button,
+mat-button,
 input {
   /* 1 */
   overflow: visible;
@@ -2374,7 +2374,7 @@ input {
  * Remove the inheritance of text transform in Edge, Firefox, and IE.
  * 1. Remove the inheritance of text transform in Firefox.
  */
-button,
+mat-button,
 select {
   /* 1 */
   text-transform: none;
@@ -2385,19 +2385,19 @@ select {
  *    controls in Android 4.
  * 2. Correct the inability to style clickable types in iOS and Safari.
  */
-button,
-html [type="button"],
+mat-button,
+html [type="mat-button"],
 [type="reset"],
 [type="submit"] {
-  -webkit-appearance: button;
+  -webkit-appearance: mat-button;
   /* 2 */
 }
 
 /**
  * Remove the inner border and padding in Firefox.
  */
-button::-moz-focus-inner,
-[type="button"]::-moz-focus-inner,
+mat-button::-moz-focus-inner,
+[type="mat-button"]::-moz-focus-inner,
 [type="reset"]::-moz-focus-inner,
 [type="submit"]::-moz-focus-inner {
   border-style: none;
@@ -2407,8 +2407,8 @@ button::-moz-focus-inner,
 /**
  * Restore the focus styles unset by the previous rule.
  */
-button:-moz-focusring,
-[type="button"]:-moz-focusring,
+mat-button:-moz-focusring,
+[type="mat-button"]:-moz-focusring,
 [type="reset"]:-moz-focusring,
 [type="submit"]:-moz-focusring {
   outline: 1px dotted ButtonText;
@@ -2475,10 +2475,10 @@ textarea {
 }
 
 /**
- * Correct the cursor style of increment and decrement buttons in Chrome.
+ * Correct the cursor style of increment and decrement mat-buttons in Chrome.
  */
-[type="number"]::-webkit-inner-spin-button,
-[type="number"]::-webkit-outer-spin-button {
+[type="number"]::-webkit-inner-spin-mat-button,
+[type="number"]::-webkit-outer-spin-mat-button {
   height: auto;
 }
 
@@ -2494,9 +2494,9 @@ textarea {
 }
 
 /**
- * Remove the inner padding and cancel buttons in Chrome and Safari on macOS.
+ * Remove the inner padding and cancel mat-buttons in Chrome and Safari on macOS.
  */
-[type="search"]::-webkit-search-cancel-button,
+[type="search"]::-webkit-search-cancel-mat-button,
 [type="search"]::-webkit-search-decoration {
   -webkit-appearance: none;
 }
@@ -2505,8 +2505,8 @@ textarea {
  * 1. Correct the inability to style clickable types in iOS and Safari.
  * 2. Change font properties to `inherit` in Safari.
  */
-::-webkit-file-upload-button {
-  -webkit-appearance: button;
+::-webkit-file-upload-mat-button {
+  -webkit-appearance: mat-button;
   /* 1 */
   font: inherit;
   /* 2 */
@@ -2565,7 +2565,7 @@ html {
           box-sizing: inherit;
 }
 
-button,
+mat-button,
 input,
 optgroup,
 select,
@@ -3340,7 +3340,7 @@ input[type=range] + .thumb {
   padding: 0 !important;
 }
 
-span.badge {
+span.mat-badge {
   min-width: 3rem;
   padding: 0 6px;
   margin-left: 14px;
@@ -3354,7 +3354,7 @@ span.badge {
           box-sizing: border-box;
 }
 
-span.badge.new {
+span.mat-badge.new {
   font-weight: 300;
   font-size: 0.8rem;
   color: #fff;
@@ -3362,15 +3362,15 @@ span.badge.new {
   border-radius: 2px;
 }
 
-span.badge.new:after {
+span.mat-badge.new:after {
   content: " new";
 }
 
-span.badge[data-badge-caption]::after {
-  content: " " attr(data-badge-caption);
+span.mat-badge[data-mat-badge-caption]::after {
+  content: " " attr(data-mat-badge-caption);
 }
 
-nav ul a span.badge {
+nav ul a span.mat-badge {
   display: inline-block;
   float: none;
   margin-left: 4px;
@@ -3379,19 +3379,19 @@ nav ul a span.badge {
   -webkit-font-smoothing: auto;
 }
 
-.collection-item span.badge {
+.collection-item span.mat-badge {
   margin-top: calc(0.75rem - 11px);
 }
 
-.collapsible span.badge {
+.collapsible span.mat-badge {
   margin-left: auto;
 }
 
-.sidenav span.badge {
+.sidenav span.mat-badge {
   margin-top: calc(24px - 11px);
 }
 
-table span.badge {
+table span.mat-badge {
   display: inline-block;
   float: none;
   margin-left: auto;
@@ -5314,7 +5314,7 @@ small {
   line-height: 40px;
 }
 
-button.mat-btn-floating {
+mat-button.mat-btn-floating {
   border: none;
 }
 
@@ -5343,7 +5343,7 @@ button.mat-btn-floating {
           transform: translateY(-50%);
   height: 100%;
   left: auto;
-  /*width 100% only goes to width of button container */
+  /*width 100% only goes to width of mat-button container */
   width: 500px;
 }
 
@@ -5672,7 +5672,7 @@ body.keyboard-focused .dropdown-content li:focus {
   background-color: rgba(0, 150, 136, 0.7);
 }
 
-.waves-effect input[type="button"], .waves-effect input[type="reset"], .waves-effect input[type="submit"] {
+.waves-effect input[type="mat-button"], .waves-effect input[type="reset"], .waves-effect input[type="submit"] {
   border: 0;
   font-style: normal;
   font-size: inherit;
@@ -5701,7 +5701,7 @@ body.keyboard-focused .dropdown-content li:focus {
   vertical-align: bottom;
 }
 
-.waves-input-wrapper .waves-button-input {
+.waves-input-wrapper .waves-mat-button-input {
   position: relative;
   top: 0;
   left: 0;
@@ -6069,7 +6069,7 @@ select:focus {
   outline: 1px solid #c9f3ef;
 }
 
-button:focus {
+mat-button:focus {
   outline: none;
   background-color: #2ab7a9;
 }
@@ -7304,7 +7304,7 @@ body.keyboard-focused .select-dropdown.dropdown-content li:focus {
   filter: alpha(opacity=0);
 }
 
-.file-field input[type=file]::-webkit-file-upload-button {
+.file-field input[type=file]::-webkit-file-upload-mat-button {
   display: none;
 }
 
@@ -8771,7 +8771,7 @@ input[type=range]::-ms-thumb {
   pointer-events: none;
 }
 
-.datepicker-day-button {
+.datepicker-day-mat-button {
   background-color: transparent;
   border: none;
   line-height: 38px;
@@ -8783,7 +8783,7 @@ input[type=range]::-ms-thumb {
   color: inherit;
 }
 
-.datepicker-day-button:focus {
+.datepicker-day-mat-button:focus {
   background-color: rgba(43, 161, 150, 0.25);
 }
 
@@ -8837,7 +8837,7 @@ input[type=range]::-ms-thumb {
   .datepicker-footer {
     width: 320px;
   }
-  .datepicker-day-button {
+  .datepicker-day-mat-button {
     line-height: 44px;
   }
 }
