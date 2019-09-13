@@ -1,0 +1,1000 @@
+
+<!doctype html>
+
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+
+        <title>Dashboard</title>
+        <meta name="description" content="The HTML5 Herald">
+        <meta name="author" content="SitePoint">
+
+        <link rel="stylesheet" href="../css/materialize.css">
+        <link rel="stylesheet" href="../css/bootstrap.css">
+        <link rel="stylesheet" href="../css/main.css">
+        <link rel="stylesheet" href="https://unpkg.com/@chrisoakman/chessboardjs@1.0.0/dist/chessboard-1.0.0.min.css" integrity="sha384-q94+BZtLrkL1/ohfjR8c6L+A6qzNH9R2hBLwyoAfu3i/WCvQjzL2RQJ3uNHDISdU" crossorigin="anonymous">
+
+    </head>
+    <body>
+
+
+        <div class="row ">
+            <div class="col-3">
+                <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
+                    <div class="user-view section">
+                        <div class="text-center">
+                            <a href="#"><img width="155" height="119" src="../img/logo.png"></a>
+                        </div>
+                    </div>
+                    <a class="nav-link text-dark waves-effect active" id="v-pills-dashboard-tab" data-toggle="pill" href="#v-pills-dashboard" role="tab" aria-controls="v-pills-home" aria-selected="true">Dashboard</a>
+                    <a class="nav-link text-dark waves-effect" id="v-pills-profile-tab" data-toggle="pill" href="#v-pills-profile" role="tab" aria-controls="v-pills-profile" aria-selected="false">Profile</a>
+                    <a class="nav-link text-dark waves-effect" id="v-pills-games-tab" data-toggle="pill" href="#v-pills-games" role="tab" aria-controls="v-pills-games" aria-selected="false">Games</a>
+                    <a class="nav-link text-dark waves-effect" id="v-pills-game-tab" data-toggle="pill" href="#v-pills-game" role="tab" aria-controls="v-pills-game" aria-selected="false" hidden>Game</a>
+                </div>
+            </div>
+            <div class="col-9">
+                <div class="tab-content bg-light tab" id="v-pills-tabContent">
+                    <div class="tab-pane fade show active" id="v-pills-dashboard" role="tabpanel" aria-labelledby="v-pills-dashboard-tab">
+
+
+                        <div class="jumbotron-nobg">
+                            <div class="display-3 text-center">Chess</div>
+                            <p class="text-center">Welcome <strong id="username"></strong> to Ben's Chess App. Go fuck yourself, Matt Phillips <a href="https://twitter.com/mdot528">@mdot528</a>!</p>
+
+                            <div class="info text-center">
+                                Welcome to CSF Chess. Play against friends, our bot, or just sit here and look at this screen like a fucking psychopath :)
+                                <br>Contact our team over at <a href="https://coldspringfederate.com"><span class="black-text name">Cold Spring Federate</span></a>
+                                or by email at <a href="#"><span class="black-text email">ben.pazienza@coldspringfederate.com</span></a>
+                            </div>
+
+                            <div class="vertical-glue"></div>
+                            <div class="title">
+                                News
+                            </div>
+
+                            <hr>
+
+                            Chess is not for the weak minded
+
+
+                        </div>
+
+
+                    </div>
+                    <div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
+
+                    </div>
+
+                    <div class="tab-pane fade" id="v-pills-games" role="tabpanel" aria-labelledby="v-pills-games-tab">
+
+
+                        <div class="sidebar" id="sidebar">
+<!--                            <div class="sidebar-content">-->
+
+
+                        </div>
+                        <div class="sidebar-body" id="sidebar-body">
+
+                            <a href="#" class="sidebar-close" id="sidebar-close">&times;</a>
+
+                            <div class="vertical-glue"></div>
+
+                            <ul class="list-group">
+                                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center waves-effect" onclick="playAI()">Play our chess bot</a>
+                                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center waves-effect" data-toggle="modal" data-target="#gamesModal">Play a friend</a>
+                            </ul>
+
+                        </div>
+                        <!--                            </div>-->
+
+
+                        <a href="#" data-target="sidebar" id="sidebar-trigger" class="nav-link float-right flex-fill">New Game</a>
+                        <div class="jumbotron">
+
+
+                            <div class="display-3">Games</div>
+
+                            <table class="table">
+
+                                <tbody id="gamesTable">
+
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                        <div class="jumbotron bg-secondary">
+                            <div class="display-3">Requests</div>
+                            <table class="table">
+
+                                <tbody id="requestsTable">
+
+
+                                </tbody>
+                            </table>
+                        </div>
+
+                    </div>
+
+                    <div class="tab-pane fade" id="v-pills-game" role="tabpanel" aria-labelledby="v-pills-game-tab">
+
+                        <div class="game-container">
+                            <div class="game-body">
+                                <div class="player-info-container">
+                                    <div class="player-info" id="otherContainer">
+                                        <div class="profile-image" id="otherProfile"></div>
+                                        <div class="username" id="otherUserName"></div>
+                                        <div class="advantage" id="otherAdvantage"></div>
+                                        <div class="taken-pieces-container" id="otherTakenPieces"></div>
+                                        <div class="turn float-right" id="isOthersTurn"></div>
+                                    </div>
+                                </div>
+
+                                <div class="chessboard-container">
+
+
+
+                                    <table class="chessboard">
+                                        <tbody>
+                                            <tr>
+                                                <!--                                    <td id="rank0">8</td>-->
+                                                <td id="7,0" class="tile white-tile"></td>
+                                                <td id="7,1" class="tile black-tile"></td>
+                                                <td id="7,2" class="tile white-tile"></td>
+                                                <td id="7,3" class="tile black-tile"></td>
+                                                <td id="7,4" class="tile white-tile"></td>
+                                                <td id="7,5" class="tile black-tile"></td>
+                                                <td id="7,6" class="tile white-tile"></td>
+                                                <td id="7,7" class="tile black-tile"><p id="rank0" class="file-subscript">8</p></td>
+                                            </tr>
+                                            <tr>
+                                                <!--                                    <td id="rank1">7</td>-->
+                                                <td id="6,0" class="tile black-tile"></td>
+                                                <td id="6,1" class="tile white-tile"></td>
+                                                <td id="6,2" class="tile black-tile"></td>
+                                                <td id="6,3" class="tile white-tile"></td>
+                                                <td id="6,4" class="tile black-tile"></td>
+                                                <td id="6,5" class="tile white-tile"></td>
+                                                <td id="6,6" class="tile black-tile"></td>
+                                                <td id="6,7" class="tile white-tile"><p id="rank1" class="file-subscript">7</p></td>
+                                            </tr>
+                                            <tr>
+                                                <!--                                    <td id="rank2">6</td>-->
+                                                <td id="5,0" class="tile white-tile"></td>
+                                                <td id="5,1" class="tile black-tile"></td>
+                                                <td id="5,2" class="tile white-tile"></td>
+                                                <td id="5,3" class="tile black-tile"></td>
+                                                <td id="5,4" class="tile white-tile"></td>
+                                                <td id="5,5" class="tile black-tile"></td>
+                                                <td id="5,6" class="tile white-tile"></td>
+                                                <td id="5,7" class="tile black-tile"><p id="rank2" class="file-subscript">6</p></td>
+                                            </tr>
+                                            <tr>
+                                                <!--                                    <td id="rank3">5</td>-->
+                                                <td id="4,0" class="tile black-tile"></td>
+                                                <td id="4,1" class="tile white-tile"></td>
+                                                <td id="4,2" class="tile black-tile"></td>
+                                                <td id="4,3" class="tile white-tile"></td>
+                                                <td id="4,4" class="tile black-tile"></td>
+                                                <td id="4,5" class="tile white-tile"></td>
+                                                <td id="4,6" class="tile black-tile"></td>
+                                                <td id="4,7" class="tile white-tile"><p id="rank3" class="file-subscript">5</p></td>
+                                            </tr>
+                                            <tr>
+                                                <!--                                    <td id="rank4">4</td>-->
+                                                <td id="3,0" class="tile white-tile"></td>
+                                                <td id="3,1" class="tile black-tile"></td>
+                                                <td id="3,2" class="tile white-tile"></td>
+                                                <td id="3,3" class="tile black-tile"></td>
+                                                <td id="3,4" class="tile white-tile"></td>
+                                                <td id="3,5" class="tile black-tile"></td>
+                                                <td id="3,6" class="tile white-tile"></td>
+                                                <td id="3,7" class="tile black-tile"><p id="rank4" class="file-subscript">4</p></td>
+                                            </tr>
+                                            <tr>
+                                                <!--                                    <td id="rank5">3</td>-->
+                                                <td id="2,0" class="tile black-tile"></td>
+                                                <td id="2,1" class="tile white-tile"></td>
+                                                <td id="2,2" class="tile black-tile"></td>
+                                                <td id="2,3" class="tile white-tile"></td>
+                                                <td id="2,4" class="tile black-tile"></td>
+                                                <td id="2,5" class="tile white-tile"></td>
+                                                <td id="2,6" class="tile black-tile"></td>
+                                                <td id="2,7" class="tile white-tile"><p id="rank5" class="file-subscript">3</p></td>
+                                            </tr>
+
+                                            <tr>
+                                                <!--                                    <td id="rank6">2</td>-->
+                                                <td id="1,0" class="tile white-tile"></td>
+                                                <td id="1,1" class="tile black-tile"></td>
+                                                <td id="1,2" class="tile white-tile"></td>
+                                                <td id="1,3" class="tile black-tile"></td>
+                                                <td id="1,4" class="tile white-tile"></td>
+                                                <td id="1,5" class="tile black-tile"></td>
+                                                <td id="1,6" class="tile white-tile"></td>
+                                                <td id="1,7" class="tile black-tile"><p id="rank6" class="file-subscript">2</p></td>
+                                            </tr>
+                                            <tr>
+                                                <p hidden id="rank7">1</p>
+                                                <td id="0,0" class="tile black-tile"><p id="file0" class="file-subscript">a</p></td>
+                                                <td id="0,1" class="tile white-tile"><p id="file1" class="file-subscript">b</p></td>
+                                                <td id="0,2" class="tile black-tile"><p id="file2" class="file-subscript">c</p></td>
+                                                <td id="0,3" class="tile white-tile"><p id="file3" class="file-subscript">d</p></td>
+                                                <td id="0,4" class="tile black-tile"><p id="file4" class="file-subscript">e</p></td>
+                                                <td id="0,5" class="tile white-tile"><p id="file5" class="file-subscript">f</p></td>
+                                                <td id="0,6" class="tile black-tile"><p id="file6" class="file-subscript">g</p></td>
+                                                <td id="0,7" class="tile white-tile"><p id="file7" class="file-subscript">h</p></td>
+                                            </tr>
+                                        </tbody>
+                                    </table>
+
+                                </div>
+
+                                <div class="player-info-container">
+                                    <div class="player-info" id="currentContainer">
+
+                                        <div class="profile-image" id="currentProfile"></div>
+                                        <div class="username" id="currentUserName"></div>
+                                        <div class="advantage" id="currentAdvantage"></div>
+                                        <div class="taken-pieces-container" id="currentTakenPieces"></div>
+                                        <div class="turn float-right" id="isCurrentsTurn"></div>
+                                    </div>
+                                </div>
+
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+<!--        <ul id="slide-out" class="sidenav">-->
+<!--            <li>-->
+<!--                <div class="user-view">-->
+<!--&lt;!&ndash;                    <a href="#"><img class="img-thumbnail" src="../img/logo.png"></a>&ndash;&gt;-->
+<!--                    <a href="https://coldspringfederate.com"><span class="black-text name">Cold Spring Federate</span></a>-->
+<!--                    <a href="#"><span class="black-text email">ben.pazienza@coldspringfederate.com</span></a>-->
+<!--                </div>-->
+<!--            </li>-->
+<!--            <li><a class="waves-effect" onclick="playAI()">Play our chess bot</a></li>-->
+<!--            <li><a class="waves-effect" data-toggle="modal" data-target="#gamesModal" onclick="getGames()">Play a friend</a></li>-->
+<!--        </ul>-->
+<!--        <a href="#" data-target="slide-out" class="sidenav-trigger nav-link h3" style="position: absolute">&#9776;</a>-->
+
+
+
+        <div class="modal" tabindex="-1" role="dialog" id="gamesModal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <div class="title">Games with friends</div>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="list-group" id="gamesContent">
+
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="getUsersForGameType(1)">New Normal Game</button>
+                        <button type="button" class="btn btn-danger" onclick="getUsersForGameType(0)">New Random Game</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+
+
+
+
+        <div class="modal" tabindex="-1" role="dialog" id="gameOverModal">
+            <div class="modal-dialog" role="document">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h3 class="modal-title">Game Over</h3>
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="gameOverContent">
+
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-primary" onclick="rematch()">Rematch</button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="modal" tabindex="-1" role="dialog" id="queeningModal">
+            <div class="modal-dialog" role="document">
+                <div class="promotion-content">
+                    <div class="modal-header">
+                        Pawn Promotion
+                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                            <span aria-hidden="true">&times;</span>
+                        </button>
+                    </div>
+                    <div class="modal-body" id="queenChoice">
+
+                        <table>
+                            <tbody>
+                                <tr>
+                                    <td class="tile white-tile" id="queen">
+
+                                    </td>
+                                    <td class="tile white-tile" id="bishop">
+
+                                    </td>
+                                </tr>
+
+                                <tr>
+                                    <td class="tile white-tile" id="knight">
+
+                                    </td>
+                                    <td class="tile white-tile" id="rook">
+
+                                    </td>
+                                </tr>
+                            </tbody>
+
+                        </table>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancel</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+
+        <script>window.$ = window.jQuery = require('jquery');</script>
+
+<!--        <span style="font-size:30px;cursor:pointer" data-toggle="modal" data-target="sidenavmodal" onclick="openNav()">&#9776;</span>-->
+        <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js" integrity="sha256-VazP97ZCwtekAsvgPBSUwPFKdrwD3unUfSGVYrahUqU=" crossorigin="anonymous"></script>
+
+        <script>
+            const Store = require('electron-store');
+            require('bootstrap');
+            require('popper.js');
+            require('materialize-css');
+            const $ = require('jquery');
+            const store = new Store();
+            const Chess = require('../js/chess');
+
+
+            const devMode = true;
+
+            const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
+
+            window.resizeTo(1000, 800);
+
+            let gameType = 1;
+
+            let gid = '';
+
+            let game = undefined;
+
+            let user = store.get('user');
+
+            let users = [];
+
+            $('#username').text(user.userName);
+
+
+            document.addEventListener('DOMContentLoaded', function() {
+                var elems = document.querySelectorAll('.sidenav');
+                var instances = M.Sidenav.init(elems);
+            });
+
+            $('#sidebar-trigger').click(function() {
+                $('#sidebar').fadeToggle();
+                $('#sidebar-body').slideToggle();
+            })
+
+            $(".sidebar").not('.sidebar-body').click(function() {
+                $('#sidebar').fadeToggle();
+                $('#sidebar-body').slideToggle();
+            })
+
+            $('#sidebar-close').click(function() {
+                $('#sidebar').fadeToggle();
+                $('#sidebar-body').slideToggle();
+            })
+
+
+
+            // Initialize collapsible (uncomment the lines below if you use the dropdown variation)
+            // var collapsibleElem = document.querySelector('.collapsible');
+            // var collapsibleInstance = M.Collapsible.init(collapsibleElem, options);
+
+            revalidate();
+            getGames();
+            getRequests();
+
+            /*
+            FUNCTIONS FOR GAMES
+             */
+
+            function updateBoard() {
+
+                document.getElementById('otherTakenPieces').innerHTML = '';
+                document.getElementById('currentTakenPieces').innerHTML = '';
+                document.getElementById('isCurrentsTurn').innerHTML = '';
+                document.getElementById('isOthersTurn').innerHTML = '';
+
+                if(game.isWhitesTurn && game.white == user.userName)
+                {
+                    let badge = document.createElement('span');
+                    badge.className = 'badge badge-light';
+                    badge.innerText = 'Your Turn';
+                    document.getElementById('isCurrentsTurn').appendChild(badge);
+                }
+                else if (game.isWhitesTurn && game.black == user.userName)
+                {
+                    let badge = document.createElement('span');
+                    badge.className = 'badge badge-light';
+                    badge.innerText = 'Their Turn'
+                    document.getElementById('isOthersTurn').appendChild(badge);
+                }
+                else if (!game.isWhitesTurn && game.white == user.userName)
+                {
+                    let badge = document.createElement('span');
+                    badge.className = 'badge badge-dark ';
+                    badge.innerText = 'Their Turn';
+                    document.getElementById('isOthersTurn').appendChild(badge);
+                }
+                else if (!game.isWhitesTurn && game.black == user.userName)
+                {
+                    let badge = document.createElement('span');
+                    badge.className = 'badge badge-dark ';
+                    badge.innerText = 'Your Turn';
+                    document.getElementById('isCurrentsTurn').appendChild(badge);
+                }
+
+                if(game.white == user.userName)
+                {
+                    document.getElementById("otherContainer").className = "player-info bg-dark text-light";
+                    document.getElementById("currentContainer").className = "player-info bg-light text-dark";
+                    let adv = game.getAdvantage();
+                    if(adv > 0)
+                    {
+                        document.getElementById('otherAdvantage').innerText = `+${adv}`
+                    }
+                    else if(adv < 0)
+                    {
+                        document.getElementById('currentAdvantage').innerText = `+${Math.abs(adv)}`;
+                    }
+                    else
+                    {
+                        document.getElementById('otherAdvantage').innerText = ``;
+                    }
+
+                    for(let i = 0; i < game.takenPieces.length;i++)
+                    {
+                        if(!game.takenPieces[i].isWhite)
+                        {
+                            let img = document.createElement('img');
+                            img.src = game.takenPieces[i].getImg();
+                            img.className = 'piece-icon';
+                            document.getElementById('currentTakenPieces').appendChild(img);
+                        }
+                        else
+                        {
+                            let img = document.createElement('img');
+                            img.src = game.takenPieces[i].getImg();
+                            img.className = 'piece-icon';
+                            document.getElementById('otherTakenPieces').appendChild(img);
+                        }
+                    }
+                }
+                else
+                {
+                    document.getElementById("currentContainer").className = "player-info bg-dark text-light";
+                    document.getElementById("otherContainer").className = "player-info bg-light text-dark";
+
+                    let adv = game.getAdvantage();
+                    if(adv > 0)
+                    {
+                        document.getElementById('currentAdvantage').innerText = `+${adv}`
+                    }
+                    else if (adv < 0)
+                    {
+                        document.getElementById('otherAdvantage').innerText = `+${Math.abs(adv)}`;
+                    }
+                    else
+                    {
+                        document.getElementById('otherAdvantage').innerText = ``;
+                    }
+
+                    for(let i = 0; i < game.takenPieces.length;i++)
+                    {
+                        if(game.takenPieces[i].isWhite)
+                        {
+                            let img = document.createElement('img');
+                            img.src = game.takenPieces[i].getImg();
+                            img.className = 'piece-icon';
+                            document.getElementById('otherTakenPieces').appendChild(img);
+                        }
+                        else
+                        {
+                            let img = document.createElement('img');
+                            img.src = game.takenPieces[i].getImg();
+                            img.className = 'piece-icon';
+                            document.getElementById('currentTakenPieces').appendChild(img);
+                        }
+                    }
+                }
+
+                for(let i = 0; i < game.board.length;i++)
+                {
+                    for(let j = 0; j < game.board[i].length;j++) {
+                        let cell = null;
+                        if(game.white == user.userName)
+                        {
+                            cell = document.getElementById(`${BOARD_SIZE - i},${j}`);
+                        }
+                        else
+                        {
+                            cell = document.getElementById(`${i},${BOARD_SIZE-j}`);
+                        }
+                        removePieces(cell);
+                        // cell.innerHTML = "";
+                        if (game.board[i][j] != null) {
+                            let img = document.createElement('img');
+                            img.src = game.board[i][j].getImg();
+                            img.className = "piece";
+
+                            $(img).draggable({
+                                snapMode: 'both',
+                            });
+
+                            img.onmouseup = function(ev) {
+                                img.style.top = 0;
+                                img.style.left = 0;
+                            }
+
+
+                            cell.appendChild(img);
+                        }
+
+                        $(cell).droppable();
+
+                        cell.ondrop = async function (ev, ui) {
+
+                            let from = ui.draggable[0].parentNode.id.split(',');
+                            let to = cell.id.split(',');
+                            let move = null;
+
+
+                            if (game.white == user.userName) {
+                                move = newMove(BOARD_SIZE - parseInt(from[0]), parseInt(from[1]), BOARD_SIZE - parseInt(to[0]), parseInt(to[1]));
+                            } else {
+                                move = newMove(parseInt(from[0]), BOARD_SIZE - parseInt(from[1]), parseInt(to[0]), BOARD_SIZE - parseInt(to[1]));
+                            }
+                            if (!devMode && ((game.board[move.fromR][move.fromF].isWhite && game.white != user.userName) || (!game.board[move.fromR][move.fromF].isWhite && game.black != user.userName))) {
+                                update();
+                                $('#isOthersTurn').addClass('glow');
+                                await sleep(2000);
+                                $('#isOthersTurn').removeClass('glow');
+                            }
+                            else if (game.validMove(move))
+                            {
+                                if (game.isQueening(move)) {
+                                    $('#queen').html(`<img class="piece" src="${newQueen(true).getImg()}" data-dismiss="modal" onclick="submitQueeningChoice('${move}', ${TO_QUEEN})">`);
+                                    $('#bishop').html(`<img class="piece" src="${newBishop(true).getImg()}" data-dismiss="modal" onclick="submitQueeningChoice('${move}', ${TO_BISHOP})">`);
+                                    $('#rook').html(`<img class="piece" src="${newRook(true).getImg()}" data-dismiss="modal" onclick="submitQueeningChoice('${move}', ${TO_ROOK})">`);
+                                    $('#knight').html(`<img class="piece" src="${newKnight(true).getImg()}" data-dismiss="modal" onclick="submitQueeningChoice('${move}', ${TO_KNIGHT})">`);
+                                    $('#queeningModal').modal('show');
+                                } else if (game.isCastling(move)) {
+                                    // this.board[move.fromR][(move.toF==2?3:5)] = this.board[move.fromR][(move.toF==2?0:7)];
+                                    // this.board[move.fromR][(move.toF==2?0:7)].notMoved = false;
+                                    // this.board[move.fromR][(move.toF==2?0:7)] = null;
+                                    makeCastlingMove(newMove(move.fromR, move.toF == 2 ? 0 : 7, move.fromR, move.toF == 2 ? 3 : 5));
+                                    makeMove(move);
+                                } else {
+                                    makeMove(move);
+                                }
+                            }
+                            else
+                            {
+                                update();
+                            }
+                        }
+                    }
+                }
+            }
+
+            function sleep(ms) {
+                return new Promise(resolve => setTimeout(resolve, ms));
+            }
+
+            function removePieces(cell)
+            {
+                let toRem = [];
+                for(let i = 0; i < cell.childElementCount; i++)
+                {
+                    let child = cell.childNodes[i];
+                    if(child.tagName == "IMG") {
+                        toRem.push(child);
+                    }
+                }
+
+                for(let i = 0; i < toRem.length;i++)
+                {
+                    cell.removeChild(toRem[i]);
+                }
+            }
+
+            function submitQueeningChoice(move, queeningChoice) {
+                $.ajax({
+                    method: 'POST',
+                    url: `https://coldspringfederate.com/chess/${game.id}/${queeningChoice}/makePromotionMove`,
+                    data: JSON.stringify(newMoveStr(move)),
+                    contentType: 'application/json',
+                    success: function(data) {
+                        game = newGame(data.board, data.type, data.white, data.black, data.accepted, data.whitesTurn, data.id, data.takenPieces);
+                        update();
+                    },
+                    error: function (error) {
+
+                    }
+                })
+            }
+
+            function makeCastlingMove(move) {
+                $.ajax({
+                    method: 'POST',
+                    url: `https://coldspringfederate.com/chess/${game.id}/makeCastlingMove`,
+                    data: JSON.stringify(move),
+                    contentType: 'application/json',
+                    success: function(data) {
+                        game = newGame(data.board, data.type, data.white, data.black, data.accepted, data.whitesTurn, data.id, data.takenPieces);
+                        update();
+                    },
+                    error: function (error) {
+
+                    }
+                })
+            }
+
+            function makeMove(move) {
+                $.ajax({
+                    method: 'POST',
+                    url: `https://coldspringfederate.com/chess/${game.id}/makeMove`,
+                    data: JSON.stringify(move),
+                    contentType: 'application/json',
+                    success: function(data) {
+                        game = newGame(data.board, data.type, data.white, data.black, data.accepted, data.whitesTurn, data.id, data.takenPieces);
+                        update();
+                    },
+                    error: function (error) {
+
+                    }
+                })
+            }
+
+
+            function getGame() {
+                $.ajax({
+                    method: 'POST',
+                    url: `https://coldspringfederate.com/chess/${gid}/getGame`,
+                    contentType: "application/json",
+                    data: JSON.stringify(user),
+                    success: function(data) {
+
+                        //global.newGame = function(board, type, white, black, accepted, isWhitesTurn, id) {
+                        game = newGame(data.board, data.type, data.white, data.black, data.accepted, data.whitesTurn, data.id, data.takenPieces);
+                        if(game.white == user.userName)
+                        {
+                            document.getElementById('currentProfile').innerText = `${game.white.charAt(0).toUpperCase()}`;
+                            document.getElementById('currentUserName').innerText = `${game.white}`;
+                            document.getElementById('otherProfile').innerText = `${game.black.charAt(0).toUpperCase()}`;
+                            document.getElementById('otherUserName').innerText = `${game.black}`;
+
+                            for(let i = 0; i <= BOARD_SIZE;i++)
+                            {
+                                document.getElementById(`file${BOARD_SIZE-i}`).innerText = files[BOARD_SIZE-i];
+                                document.getElementById(`rank${BOARD_SIZE-i}`).innerText = (i+1);
+                            }
+                        }
+                        else
+                        {
+                            document.getElementById('currentProfile').innerText = `${game.black.charAt(0).toUpperCase()}`;
+                            document.getElementById('currentUserName').innerText = `${game.black}`;
+                            document.getElementById('otherProfile').innerText = `${game.white.charAt(0).toUpperCase()}`;
+                            document.getElementById('otherUserName').innerText = `${game.white}`;
+
+                            for(let i = 0; i <= BOARD_SIZE;i++)
+                            {
+                                document.getElementById(`file${i}`).innerText = files[BOARD_SIZE-i];
+                                document.getElementById(`rank${i}`).innerText = (i+1);
+                            }
+                        }
+                        update();
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                });
+
+            }
+
+            function update()
+            {
+                updateBoard();
+                if(game.isCheckMate(true)) {
+                    $('#gameOverModal').modal('show');
+                }
+                if(game.isCheckMate(false)) {
+                    $('#gameOverModal').modal('show');
+                }
+
+            }
+
+            function revalidate() {
+                $.ajax({
+                    method: 'POST',
+                    data: JSON.stringify(user),
+                    contentType: 'application/json',
+                    url: `https://coldspringfederate.com/chess/validate`,
+                    success: function(data) {
+
+                        user = data;
+
+                    },
+                    error: function (error) {
+                        if(error.status == 401)
+                        {
+                            confirm("That was the wrong password. Do you need us to increase the font size for your illiterate octogenarian not knowing how to type loaf of bread looking ass?")
+                        }
+                        else if(error.status == 400)
+                        {
+                            alert('That username does not exist. You have 0 more attempts. If you reach 0, the FBI will be notified');
+                        }else
+                        {
+                            console.log(error);
+                        }
+                    }
+                });
+            }
+
+            function getGameForTable(gameID) {
+                $.ajax({
+                    method: 'POST',
+                    url: `https://coldspringfederate.com/chess/${gameID}/getGame`,
+                    contentType: "application/json",
+                    data: JSON.stringify(user),
+                    success: function (data) {
+                        let row = document.createElement("a");
+                        row.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center waves-effect game bg-light text-dark";
+                        row.setAttribute('data-toggle', 'pill');
+                        row.setAttribute('href', '#v-pills-game');
+                        row.onclick = function () {
+                            if(data.accepted) {
+                                gid = data.id;
+                                $('#v-pills-game-tab').tab('show');
+                                getGame();
+                            }
+                        }
+                        if (user.userName == data.white) {
+                            row.innerText = `white vs ${data.black}`;
+                        } else {
+                            row.innerText = `black vs ${data.white}`;
+                        }
+
+                        let badge = document.createElement('span');
+                        if(!data.accepted)
+                        {
+                            badge.className = 'badge badge-danger';
+                            badge.innerHTML = `pending`;
+                        } else if (data.isWhitesTurn && data.white == user.userName) {
+                            badge.className = 'badge badge-light';
+                            badge.innerText = 'Your Turn';
+                        } else if (data.isWhitesTurn && data.black == user.userName) {
+                            badge.className = 'badge badge-light';
+                            badge.innerText = 'Their Turn'
+                        } else if (!data.isWhitesTurn && data.white == user.userName) {
+                            badge.className = 'badge badge-dark ';
+                            badge.innerText = 'Their Turn';
+                        } else if (!data.isWhitesTurn && data.black == user.userName) {
+                            badge.className = 'badge badge-dark ';
+                            badge.innerText = 'Your Turn';
+                        }
+                        row.appendChild(badge);
+                        document.getElementById("gamesTable").appendChild(row);
+                    },
+                    error: function (error) {
+                        alert('error');
+                        console.log(error);
+                    }
+                });
+            }
+
+            function getGames() {
+                $('#gamesTable').html('');
+                for(let i = 0; i < user.games.length;i++) {
+                    getGameForTable(user.games[i]);
+                }
+            }
+
+            function getRequests() {
+                $('#requestsTable').html('');
+                for(let i = 0; i < user.requested.length;i++) {
+                    $.ajax({
+                        method: 'POST',
+                        url: `https://coldspringfederate.com/chess/${user.requested[i]}/getGame`,
+                        contentType: "application/json",
+                        data: JSON.stringify(user),
+                        success: function (data) {
+                            if (!data.accepted) {
+                                // let row = document.createElement("a");
+                                // row.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center waves-effect game";
+                                // row.onclick = function () {
+                                //     window.location.href = `play.html#${data.id}`;
+                                // }
+                                // if (user.userName == data.white) {
+                                //     row.innerText = `white vs ${data.black}`;
+                                // } else {
+                                //     row.innerText = `black vs ${data.white}`;
+                                // }
+                                //
+                                // let badge = document.createElement('span');
+                                // if (data.isWhitesTurn && data.white == user.userName) {
+                                //     badge.className = 'badge badge-light';
+                                //     badge.innerText = 'Your Turn';
+                                // } else if (data.isWhitesTurn && data.black == user.userName) {
+                                //     badge.className = 'badge badge-light';
+                                //     badge.innerText = 'Their Turn'
+                                // } else if (!data.isWhitesTurn && data.white == user.userName) {
+                                //     badge.className = 'badge badge-dark ';
+                                //     badge.innerText = 'Their Turn';
+                                // } else if (!data.isWhitesTurn && data.black == user.userName) {
+                                //     badge.className = 'badge badge-dark ';
+                                //     badge.innerText = 'Your Turn';
+                                // }
+                                // row.appendChild(badge);
+                                // document.getElementById("gamesTable").appendChild(row);
+                                let row = document.createElement("div");
+                                row.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center request";
+                                if (user.userName == data.white) {
+                                    row.innerText = `vs ${data.black}`;
+                                } else {
+                                    row.innerText = `vs ${data.white}`;
+                                }
+                                let accept = document.createElement('button');
+                                accept.className = 'btn accept';
+                                accept.onclick = function () {
+                                    acceptGame(data.id);
+                                }
+                                let cancel = document.createElement('button');
+                                cancel.className = 'btn cancel';
+                                cancel.onclick = function () {
+                                    rejectGame(data.id);
+                                }
+
+                                row.onmouseenter = function () {
+                                    row.appendChild(accept);
+                                    row.appendChild(cancel);
+                                }
+                                row.onmouseleave = function() {
+                                    row.removeChild(accept);
+                                    row.removeChild(cancel);
+                                }
+                                document.getElementById("requestsTable").appendChild(row);
+
+                            } else {
+                                console.log(`Error this game shouldn't be accepted`);
+                            }
+                        },
+                        error: function (error) {
+                            alert('error');
+                            console.log(error);
+                        }
+                    });
+                }
+            }
+
+
+            function getUsersForGameType(x) {
+                gameType = x;
+                $.ajax({
+                    method: 'GET',
+                    url: "https://coldspringfederate.com/chess/getUsers",
+                    success: function (data) {
+                        users = data;
+                    },
+                    error: function (error) {
+                        console.log(error);
+                    }
+                })
+
+                document.getElementById("gamesContent").innerHTML = '\t<div class="dropdown"><input id="searchInput" type="text" placeholder="Search..." onkeyup="updateAutocomplete()"><br><div aria-labelledby="dropdownMenuButton" id="dropdownMenuBody"></div></div>'
+                updateAutocomplete();
+            }
+
+            function acceptGame(x) {
+                $.ajax({
+                    method: 'POST',
+                    url: `https://coldspringfederate.com/chess/${x}/acceptGame`,
+                    data: JSON.stringify(user),
+                    contentType: "application/json",
+                    success: function (data) {
+                        getRequests();
+                        getGameForTable(data.id);
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                })
+            }
+
+            function rejectGame(x) {
+                $.ajax({
+                    method: 'POST',
+                    url: `https://coldspringfederate.com/chess/${x}/rejectGame`,
+                    data: JSON.stringify(user),
+                    contentType: "application/json",
+                    success: function (data) {
+                        window.location.reload();
+                    },
+                    error: function(error) {
+                        console.log(error);
+                    }
+                })
+            }
+
+            function updateAutocomplete()
+            {
+                let val = document.getElementById("searchInput").value;
+
+                let htmlStr = ""
+
+                if(val.length > 1)
+                {
+                    for(let i = 0; i < users.length; i++)
+                    {
+                        let str = users[i];
+
+                        if(str.toLowerCase().includes(val.toLowerCase()))
+                        {
+                            let index = str.toLowerCase().indexOf(val.toLowerCase());
+                            let boldStr = `${str.substring(0, index)}<strong>${str.substring(index, index+val.length)}</strong>${str.substring(index+val.length, str.length)}`;
+                            htmlStr += `<button class="btn dropdown-item btn-primary" data-dismiss="modal" style="padding-left: 2px" onclick="requestGame('${users[i]}')">${boldStr}</button>`;
+                        }
+                    }
+                }
+
+                document.getElementById("dropdownMenuBody").innerHTML = htmlStr;
+            }
+
+            function requestGame(x) {
+                $.ajax({
+                    method: 'POST',
+                    contentType: "application/json",
+                    data: `${gameType}`,
+                    url: `https://coldspringfederate.com/chess/${user.userName}/${x}/newGame`,
+                    success: function(data) {
+
+                    },
+                    error: function(error) {
+
+                    }
+                })
+            }
+
+        </script>
+
+    </body>
+</html>
+
