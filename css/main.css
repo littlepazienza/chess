@@ -275,6 +275,7 @@
 .tab {
     height: 900px;
     overflow-y: scroll;
+    /*box-shadow:         inset 0 0 2px #000000;*/
 }
 
 .game-container {
@@ -294,3 +295,65 @@
 
     margin: -370px 0 0 0;
 }
+
+.sidebar {
+    z-index: 3;
+    display: none;
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.5);
+}
+
+.sidebar-content {
+    z-index: 4;
+    position: relative;
+    width: 100%;
+    height: 100%;
+    margin: auto;
+}
+
+.sidebar-body {
+    display: none;
+    z-index: 5;
+    position: absolute;
+
+    width: 300px;
+    height: 300px;
+
+    top: 0;
+    left: 100%;
+
+    background-color: white;
+    box-shadow: 0 0 4px 0px rgba(0,0,0,0.3);
+
+    margin: 10px 0 0 -340px;
+}
+
+.sidebar-close {
+    position: absolute;
+
+    width: 20px;
+    height: 20px;
+    font-size: 18px;
+    font-weight: 300;
+
+    top: 0;
+    left: 100%;
+
+    z-index: 7;
+
+    margin: 0 0 0 -20px;
+}
+
+.slideLeft {
+    display: block !important;
+    animation: slideLeft 0.5s ease-out forwards;
+}
+
+@keyframes slideLeft {
+    from {right: -200px;}
+    to {right: 0px;}
+}
+
+

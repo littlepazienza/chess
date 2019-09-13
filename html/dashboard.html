@@ -67,7 +67,30 @@
 
                     <div class="tab-pane fade" id="v-pills-games" role="tabpanel" aria-labelledby="v-pills-games-tab">
 
+
+                        <div class="sidebar" id="sidebar">
+<!--                            <div class="sidebar-content">-->
+
+
+                        </div>
+                        <div class="sidebar-body" id="sidebar-body">
+
+                            <a href="#" class="sidebar-close" id="sidebar-close">&times;</a>
+
+                            <div class="vertical-glue"></div>
+
+                            <ul class="list-group">
+                                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center waves-effect" onclick="playAI()">Play our chess bot</a>
+                                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center waves-effect" data-toggle="modal" data-target="#gamesModal">Play a friend</a>
+                            </ul>
+
+                        </div>
+                        <!--                            </div>-->
+
+
+                        <a href="#" data-target="sidebar" id="sidebar-trigger" class="nav-link float-right flex-fill">New Game</a>
                         <div class="jumbotron">
+
 
                             <div class="display-3">Games</div>
 
@@ -248,7 +271,7 @@
             <div class="modal-dialog" role="document">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h3 class="modal-title">Games with friends</h3>
+                        <div class="title">Games with friends</div>
                         <button type="button" class="close" data-dismiss="modal" aria-label="Close">
                             <span aria-hidden="true">&times;</span>
                         </button>
@@ -259,8 +282,8 @@
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button type="button" class="btn btn-primary" onclick="newGame(1)">New Normal Game</button>
-                        <button type="button" class="btn btn-danger" onclick="newGame(0)">New Random Game</button>
+                        <button type="button" class="btn btn-primary" onclick="getUsersForGameType(1)">New Normal Game</button>
+                        <button type="button" class="btn btn-danger" onclick="getUsersForGameType(0)">New Random Game</button>
                         <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                     </div>
                 </div>
@@ -354,11 +377,6 @@
 
             const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
-            document.addEventListener('DOMContentLoaded', function() {
-                var elems = document.querySelectorAll('.sidenav');
-                var instances = M.Sidenav.init(elems);
-            });
-
             window.resizeTo(1000, 800);
 
             let gameType = 1;
@@ -368,7 +386,6 @@
             let game = undefined;
 
             let user = store.get('user');
-            console.log(user);
 
             let users = [];
 
@@ -379,6 +396,23 @@
                 var elems = document.querySelectorAll('.sidenav');
                 var instances = M.Sidenav.init(elems);
             });
+
+            $('#sidebar-trigger').click(function() {
+                $('#sidebar').fadeToggle();
+                $('#sidebar-body').slideToggle();
+            })
+
+            $(".sidebar").not('.sidebar-body').click(function() {
+                $('#sidebar').fadeToggle();
+                $('#sidebar-body').slideToggle();
+            })
+
+            $('#sidebar-close').click(function() {
+                $('#sidebar').fadeToggle();
+                $('#sidebar-body').slideToggle();
+            })
+
+
 
             // Initialize collapsible (uncomment the lines below if you use the dropdown variation)
             // var collapsibleElem = document.querySelector('.collapsible');
@@ -522,9 +556,14 @@
                             img.className = "piece";
 
                             $(img).draggable({
-                                snap: '.tile',
                                 snapMode: 'both',
                             });
+
+                            img.onmouseup = function(ev) {
+                                img.style.top = 0;
+                                img.style.left = 0;
+                            }
+
 
                             cell.appendChild(img);
                         }
@@ -545,7 +584,6 @@
                             }
                             if (!devMode && ((game.board[move.fromR][move.fromF].isWhite && game.white != user.userName) || (!game.board[move.fromR][move.fromF].isWhite && game.black != user.userName))) {
                                 update();
-                                console.log('here')
                                 $('#isOthersTurn').addClass('glow');
                                 await sleep(2000);
                                 $('#isOthersTurn').removeClass('glow');
@@ -587,7 +625,6 @@
                 for(let i = 0; i < cell.childElementCount; i++)
                 {
                     let child = cell.childNodes[i];
-                    console.log(child);
                     if(child.tagName == "IMG") {
                         toRem.push(child);
                     }
@@ -655,7 +692,6 @@
                     contentType: "application/json",
                     data: JSON.stringify(user),
                     success: function(data) {
-                        console.log(data);
 
                         //global.newGame = function(board, type, white, black, accepted, isWhitesTurn, id) {
                         game = newGame(data.board, data.type, data.white, data.black, data.accepted, data.whitesTurn, data.id, data.takenPieces);
@@ -713,7 +749,6 @@
                     contentType: 'application/json',
                     url: `https://coldspringfederate.com/chess/validate`,
                     success: function(data) {
-                        console.log(data);
 
                         user = data;
 
@@ -741,7 +776,6 @@
                     contentType: "application/json",
                     data: JSON.stringify(user),
                     success: function (data) {
-                        console.log(data);
                         let row = document.createElement("a");
                         row.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center waves-effect game bg-light text-dark";
                         row.setAttribute('data-toggle', 'pill');
@@ -803,7 +837,6 @@
                         contentType: "application/json",
                         data: JSON.stringify(user),
                         success: function (data) {
-                            console.log(data);
                             if (!data.accepted) {
                                 // let row = document.createElement("a");
                                 // row.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center waves-effect game";
@@ -873,7 +906,7 @@
             }
 
 
-            function newGame(x) {
+            function getUsersForGameType(x) {
                 gameType = x;
                 $.ajax({
                     method: 'GET',
@@ -897,7 +930,6 @@
                     data: JSON.stringify(user),
                     contentType: "application/json",
                     success: function (data) {
-                        console.log(data);
                         getRequests();
                         getGameForTable(data.id);
                     },
@@ -914,7 +946,6 @@
                     data: JSON.stringify(user),
                     contentType: "application/json",
                     success: function (data) {
-                        console.log(data);
                         window.location.reload();
                     },
                     error: function(error) {

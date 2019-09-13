@@ -2638,7 +2638,7 @@ a {
 }
 
 /* 24dp elevation */
-.z-depth-5, .modal {
+.z-depth-5, .mat-modal {
   -webkit-box-shadow: 0 24px 38px 3px rgba(0, 0, 0, 0.14), 0 9px 46px 8px rgba(0, 0, 0, 0.12), 0 11px 15px -7px rgba(0, 0, 0, 0.2);
           box-shadow: 0 24px 38px 3px rgba(0, 0, 0, 0.14), 0 9px 46px 8px rgba(0, 0, 0, 0.12), 0 11px 15px -7px rgba(0, 0, 0, 0.2);
 }
@@ -5726,7 +5726,7 @@ body.keyboard-focused .dropdown-content li:focus {
   z-index: -1;
 }
 
-.modal {
+.mat-modal {
   display: none;
   position: fixed;
   left: 0;
@@ -5741,29 +5741,29 @@ body.keyboard-focused .dropdown-content li:focus {
   will-change: top, opacity;
 }
 
-.modal:focus {
+.mat-modal:focus {
   outline: none;
 }
 
 @media only screen and (max-width: 992px) {
-  .modal {
+  .mat-modal {
     width: 80%;
   }
 }
 
-.modal h1, .modal h2, .modal h3, .modal h4 {
+.mat-modal h1, .mat-modal h2, .mat-modal h3, .mat-modal h4 {
   margin-top: 0;
 }
 
-.modal .modal-content {
+.mat-modal .mat-modal-content {
   padding: 24px;
 }
 
-.modal .modal-close {
+.mat-modal .mat-modal-close {
   cursor: pointer;
 }
 
-.modal .modal-footer {
+.mat-modal .mat-modal-footer {
   border-radius: 0 0 2px 2px;
   background-color: #fafafa;
   padding: 4px 6px;
@@ -5772,11 +5772,11 @@ body.keyboard-focused .dropdown-content li:focus {
   text-align: right;
 }
 
-.modal .modal-footer .mat-btn, .modal .modal-footer .mat-btn-large, .modal .modal-footer .mat-btn-small, .modal .modal-footer .mat-btn-flat {
+.mat-modal .mat-modal-footer .mat-btn, .mat-modal .mat-modal-footer .mat-btn-large, .mat-modal .mat-modal-footer .mat-btn-small, .mat-modal .mat-modal-footer .mat-btn-flat {
   margin: 6px 0;
 }
 
-.modal-overlay {
+.mat-modal-overlay {
   position: fixed;
   z-index: 999;
   top: -25%;
@@ -5790,12 +5790,12 @@ body.keyboard-focused .dropdown-content li:focus {
   will-change: opacity;
 }
 
-.modal.modal-fixed-footer {
+.mat-modal.mat-modal-fixed-footer {
   padding: 0;
   height: 70%;
 }
 
-.modal.modal-fixed-footer .modal-content {
+.mat-modal.mat-modal-fixed-footer .mat-modal-content {
   position: absolute;
   height: calc(100% - 56px);
   max-height: 100%;
@@ -5803,13 +5803,13 @@ body.keyboard-focused .dropdown-content li:focus {
   overflow-y: auto;
 }
 
-.modal.modal-fixed-footer .modal-footer {
+.mat-modal.mat-modal-fixed-footer .mat-modal-footer {
   border-top: 1px solid rgba(0, 0, 0, 0.1);
   position: absolute;
   bottom: 0;
 }
 
-.modal.bottom-sheet {
+.mat-modal.bottom-sheet {
   top: auto;
   bottom: -100%;
   margin: 0;
@@ -8626,13 +8626,13 @@ input[type=range]::-ms-thumb {
 }
 
 /* Modal */
-.datepicker-modal {
+.datepicker-mat-modal {
   max-width: 325px;
   min-width: 300px;
   max-height: none;
 }
 
-.datepicker-container.modal-content {
+.datepicker-container.mat-modal-content {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -8816,10 +8816,10 @@ input[type=range]::-ms-thumb {
 
 /* Media Queries */
 @media only screen and (min-width: 601px) {
-  .datepicker-modal {
+  .datepicker-mat-modal {
     max-width: 625px;
   }
-  .datepicker-container.modal-content {
+  .datepicker-container.mat-modal-content {
     -webkit-box-orient: horizontal;
     -webkit-box-direction: normal;
     -webkit-flex-direction: row;
@@ -8843,12 +8843,12 @@ input[type=range]::-ms-thumb {
 }
 
 /* Timepicker Containers */
-.timepicker-modal {
+.timepicker-mat-modal {
   max-width: 325px;
   max-height: none;
 }
 
-.timepicker-container.modal-content {
+.timepicker-container.mat-modal-content {
   display: -webkit-box;
   display: -webkit-flex;
   display: -ms-flexbox;
@@ -9040,10 +9040,10 @@ input[type=range]::-ms-thumb {
 
 /* Media Queries */
 @media only screen and (min-width: 601px) {
-  .timepicker-modal {
+  .timepicker-mat-modal {
     max-width: 600px;
   }
-  .timepicker-container.modal-content {
+  .timepicker-container.mat-modal-content {
     -webkit-box-orient: horizontal;
     -webkit-box-direction: normal;
     -webkit-flex-direction: row;
