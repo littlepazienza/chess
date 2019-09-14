@@ -9,6 +9,7 @@
         <meta name="author" content="SitePoint">
 
         <link rel="stylesheet" href="../css/bootstrap.css">
+        <link rel="stylesheet" href="../css/main.css">
 
 
     </head>
@@ -16,30 +17,43 @@
 
     <body>
 
-        <div class="jumbotron">
-
-            <div class="display-3">Chess</div>
-            <p>log in</p>
-        </div>
 
 
-        <div class="container-fluid">
+        <div class="title text-center" style="font-size: 24px; margin-top: 10px">Chess</div>
+        <hr>
+
+        <div class="container-fluid text-center login" id="login">
 
             <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" class="form-control" id="username" placeholder="jimIsCool6969...">
-                <label for="password">Password</label>
-                <input type="password" class="form-control" id="password" placeholder="i<3mommy...">
+                <label class="label" for="username">Username</label>
+                <input type="text" class="input" id="username" placeholder="jimIsCool6969...">
+                <label class="label" for="password">Password</label>
+                <input type="password" class="input" id="password" placeholder="i<3mommy...">
 
-                <label for="remember">Remember</label>
+                <label class="label" for="remember">Remember</label>
                 <input type="checkbox" id="remember">
-                <button type="button" class="btn btn-primary" onclick="logIn()">Log in</button>
-                <button class="btn btn-secondary" onclick=  "create()">create new user with these credentials</button>
+                <a href="#" class="nav-link" onclick="logIn()">Login</a>
+                Create a new account <a href="#" onclick="toggleCreate()">here</a>
 
             </div>
-
-
         </div>
+
+        <div class="container-fluid text-center login"  id="create">
+
+            <div class="form-group">
+                <label class="label" for="newName">Name</label>
+                <input type="text" class="input" id="newName" placeholder="Mike Hunt">
+                <label class="label" for="newUsername">Username</label>
+                <input type="text" class="input" id="newUsername" placeholder="jimIsCool6969...">
+                <label class="label" for="newPassword">Password</label>
+                <input type="password" class="input" id="newPassword" placeholder="i<3mommy...">
+                <a href="#" class="nav-link" onclick="create()">Create</a>
+                Sign in to existing account <a href="#" onclick="toggleLogin()">here</a>
+
+            </div>
+        </div>
+
+
 
 
         <script>
@@ -52,6 +66,18 @@
                 document.getElementById('username').value = store.get('user').userName;
                 document.getElementById('password').value = store.get('user').password;
                 $('#remember').prop('checked', true);
+            }
+
+            $('#login').fadeToggle();
+
+            function toggleLogin() {
+                $('#create').toggle();
+                $('#login').slideToggle();
+            }
+
+            function toggleCreate() {
+                $('#create').toggle();
+                $('#login').slideToggle();
             }
 
             function logIn() {
@@ -96,12 +122,14 @@
 
             function create()
             {
-                let username = document.getElementById('username').value;
-                let password = document.getElementById('password').value;
+                let username = document.getElementById('newUsername').value;
+                let password = document.getElementById('newPassword').value;
+                let name = document.getElementById('newName').value;
 
                 let user = {
                     "userName": username,
-                    "password": password
+                    "password": password,
+                    "name": name
                 };
 
                 $.ajax({
@@ -112,7 +140,7 @@
                     success: function(data) {
                         console.log(data);
 
-                        store.set('remember', $('#remember').prop('checked'));
+                        store.set('remember', true);
                         store.set('user', data);
 
                         location.href="./dashboard.html"

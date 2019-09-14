@@ -5,7 +5,7 @@
     <head>
         <meta charset="utf-8">
 
-        <title>Dashboard</title>
+        <title>Chess</title>
         <meta name="description" content="The HTML5 Herald">
         <meta name="author" content="SitePoint">
 
@@ -18,7 +18,7 @@
     <body>
 
 
-        <div class="row ">
+        <div class="row">
             <div class="col-3">
                 <div class="nav flex-column nav-pills" id="v-pills-tab" role="tablist" aria-orientation="vertical">
                     <div class="user-view section">
@@ -37,9 +37,9 @@
                     <div class="tab-pane fade show active" id="v-pills-dashboard" role="tabpanel" aria-labelledby="v-pills-dashboard-tab">
 
 
-                        <div class="jumbotron-nobg">
+                        <div class="section text-dark">
                             <div class="display-3 text-center">Chess</div>
-                            <p class="text-center">Welcome <strong id="username"></strong> to Ben's Chess App. Go fuck yourself, Matt Phillips <a href="https://twitter.com/mdot528">@mdot528</a>!</p>
+                            <p class="text-center">Welcome to CSF's Chess App. Go fuck yourself, Matt Phillips <a href="https://twitter.com/mdot528">@mdot528</a>!</p>
 
                             <div class="info text-center">
                                 Welcome to CSF Chess. Play against friends, our bot, or just sit here and look at this screen like a fucking psychopath :)
@@ -63,6 +63,14 @@
                     </div>
                     <div class="tab-pane fade" id="v-pills-profile" role="tabpanel" aria-labelledby="v-pills-profile-tab">
 
+                        <div class="section text-dark">
+                            <div class="profile-image" id="profile-image"></div>
+                            <input type="text" disabled class="profile-username" id="username">
+                            <input type="text" class="profile-name" id="name">
+                            <input type="number" disabled class="profile-rank" id="rank">
+                        </div>
+
+                        <hr>
                     </div>
 
                     <div class="tab-pane fade" id="v-pills-games" role="tabpanel" aria-labelledby="v-pills-games-tab">
@@ -77,41 +85,99 @@
 
                             <a href="#" class="sidebar-close" id="sidebar-close">&times;</a>
 
-                            <div class="vertical-glue"></div>
+<!--                            <div class="vertical-glue"></div>-->
 
-                            <ul class="list-group">
-                                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center waves-effect" onclick="playAI()">Play our chess bot</a>
-                                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center waves-effect" data-toggle="modal" data-target="#gamesModal">Play a friend</a>
+                            <ul class="nav nav-pills mb-3 nav-fill" id="pills-tab" role="tablist">
+                                <li class="nav-item">
+                                    <a class="nav-link active" id="pills-ai-tab" data-toggle="pill" href="#pills-ai" role="tab" aria-controls="pills-ai" aria-selected="true">AI</a>
+                                </li>
+                                <li class="nav-item">
+                                    <a class="nav-link" id="pills-player-tab" data-toggle="pill" href="#pills-player" role="tab" aria-controls="pills-player" aria-selected="false" onclick="getUsersForGameType(NORMAL)">Player</a>
+                                </li>
                             </ul>
+                            <div class="tab-content" id="pills-tabContent">
+                                <div class="tab-pane fade show active" id="pills-ai" role="tabpanel" aria-labelledby="pills-ai-tab">
+
+                                </div>
+                                <div class="tab-pane fade text-center tab" id="pills-player" role="tabpanel" aria-labelledby="pills-player-tab">
+
+                                    <div class="dropdown">
+                                        <input id="searchInput" class="input" type="text" placeholder="Search..." onkeyup="updateAutocomplete()">
+                                        <br>
+                                        <div aria-labelledby="dropdownMenuButton" style="max-height: 30px;overflow-y: scroll" id="dropdownMenuBody">
+
+                                        </div>
+                                    </div>
+
+                                    <br>
+
+                                    <label class="label" for="gameMode"></label>
+                                    <div class="switch text-center">
+                                        <label>
+                                            Normal
+                                            <input id="gameMode" type="checkbox">
+                                            <span class="lever"></span>
+                                            Random
+                                        </label>
+                                    </div>
+
+                                    <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center waves-effect btn btn-primary" onclick="requestGame()">Play</a>
+
+
+                                </div>
+
+                            </div>
+
+
+
+
+<!--                            <ul class="list-group">-->
+
+<!--                                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center waves-effect" onclick="playAI()">Play our chess bot</a>-->
+<!--                                <a class="list-group-item list-group-item-action d-flex justify-content-between align-items-center waves-effect" data-toggle="modal" data-target="#gamesModal">Play a friend</a>-->
+<!--                                -->
+<!--                            </ul>-->
 
                         </div>
                         <!--                            </div>-->
 
 
-                        <a href="#" data-target="sidebar" id="sidebar-trigger" class="nav-link float-right flex-fill">New Game</a>
-                        <div class="jumbotron">
+                        <a href="#" data-target="sidebar" id="sidebar-trigger" class="nav-link sidebar-trigger">New Game</a>
+
+                        <div class="row no-gutters" style="height: 820px">
+                            <div class="col-md-6 no-gutters">
+
+                                <div class="jumbotron bg-light">
+
+                                    <div class="title">Games</div>
+                                    <hr>
+
+                                    <table class="table">
+
+                                        <tbody id="gamesTable">
 
 
-                            <div class="display-3">Games</div>
+                                        </tbody>
+                                    </table>
+                                </div>
 
-                            <table class="table">
+                            </div>
+                            <div class="col-md-6 ">
 
-                                <tbody id="gamesTable">
+                                <div class="jumbotron bg-light">
 
+                                    <div class="title">Requests</div>
+                                    <hr>
+                                    <table class="table">
 
-                                </tbody>
-                            </table>
-                        </div>
-
-                        <div class="jumbotron bg-secondary">
-                            <div class="display-3">Requests</div>
-                            <table class="table">
-
-                                <tbody id="requestsTable">
+                                        <tbody id="requestsTable">
 
 
-                                </tbody>
-                            </table>
+                                        </tbody>
+                                    </table>
+                                </div>
+
+                            </div>
                         </div>
 
                     </div>
@@ -122,7 +188,7 @@
                             <div class="game-body">
                                 <div class="player-info-container">
                                     <div class="player-info" id="otherContainer">
-                                        <div class="profile-image" id="otherProfile"></div>
+                                        <div class="image" id="otherProfile"></div>
                                         <div class="username" id="otherUserName"></div>
                                         <div class="advantage" id="otherAdvantage"></div>
                                         <div class="taken-pieces-container" id="otherTakenPieces"></div>
@@ -233,7 +299,7 @@
                                 <div class="player-info-container">
                                     <div class="player-info" id="currentContainer">
 
-                                        <div class="profile-image" id="currentProfile"></div>
+                                        <div class="image" id="currentProfile"></div>
                                         <div class="username" id="currentUserName"></div>
                                         <div class="advantage" id="currentAdvantage"></div>
                                         <div class="taken-pieces-container" id="currentTakenPieces"></div>
@@ -377,7 +443,7 @@
 
             const files = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h'];
 
-            window.resizeTo(1000, 800);
+            window.resizeTo(1100, 800);
 
             let gameType = 1;
 
@@ -389,14 +455,17 @@
 
             let users = [];
 
-            $('#username').text(user.userName);
-
-
             document.addEventListener('DOMContentLoaded', function() {
                 var elems = document.querySelectorAll('.sidenav');
                 var instances = M.Sidenav.init(elems);
             });
 
+
+            /*
+            -------------------------------------------------------
+            //                  action listeners                //
+            ------------------------------------------------------
+            */
             $('#sidebar-trigger').click(function() {
                 $('#sidebar').fadeToggle();
                 $('#sidebar-body').slideToggle();
@@ -410,6 +479,40 @@
             $('#sidebar-close').click(function() {
                 $('#sidebar').fadeToggle();
                 $('#sidebar-body').slideToggle();
+            })
+
+            function toggleSidebar() {
+                $('#sidebar').fadeToggle();
+                $('#sidebar-body').slideToggle();
+            }
+
+            $('#gameMode').change(async function() {
+                if($('#gameMode').prop('checked'))
+                {
+                    gameType = RANDOM;
+                }
+                else
+                {
+                    gameType = NORMAL;
+                }
+            })
+
+            $('#name').change(async function () {
+                user.name = $('#name').val();
+                    $.ajax({
+                        method: 'POST',
+                        url: `https://coldspringfederate.com/chess/nameChange`,
+                        data: JSON.stringify(user),
+                        contentType: 'application/json',
+                        success: function(data) {
+                            console.log('Name changed');
+                            console.log(data);
+                        },
+                        error: function(error) {
+                            console.log('error');
+                            console.log(error);
+                        }
+                    })
             })
 
 
@@ -482,19 +585,19 @@
 
                     for(let i = 0; i < game.takenPieces.length;i++)
                     {
-                        if(!game.takenPieces[i].isWhite)
+                        if(game.takenPieces[i].isWhite)
                         {
                             let img = document.createElement('img');
                             img.src = game.takenPieces[i].getImg();
                             img.className = 'piece-icon';
-                            document.getElementById('currentTakenPieces').appendChild(img);
+                            document.getElementById('otherTakenPieces').appendChild(img);
                         }
                         else
                         {
                             let img = document.createElement('img');
                             img.src = game.takenPieces[i].getImg();
                             img.className = 'piece-icon';
-                            document.getElementById('otherTakenPieces').appendChild(img);
+                            document.getElementById('currentTakenPieces').appendChild(img);
                         }
                     }
                 }
@@ -524,14 +627,14 @@
                             let img = document.createElement('img');
                             img.src = game.takenPieces[i].getImg();
                             img.className = 'piece-icon';
-                            document.getElementById('otherTakenPieces').appendChild(img);
+                            document.getElementById('currentTakenPieces').appendChild(img);
                         }
                         else
                         {
                             let img = document.createElement('img');
                             img.src = game.takenPieces[i].getImg();
                             img.className = 'piece-icon';
-                            document.getElementById('currentTakenPieces').appendChild(img);
+                            document.getElementById('otherTakenPieces').appendChild(img);
                         }
                     }
                 }
@@ -752,6 +855,12 @@
 
                         user = data;
 
+
+                        $('#profile-image').text(`${user.userName.charAt(0).toUpperCase()}`);
+                        $('#username').val(`${user.userName}`);
+                        $('#rank').val(`${user.rank}`);
+                        $('#name').val(`${user.name}`);
+
                     },
                     error: function (error) {
                         if(error.status == 401)
@@ -866,12 +975,13 @@
                                 // row.appendChild(badge);
                                 // document.getElementById("gamesTable").appendChild(row);
                                 let row = document.createElement("div");
-                                row.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center request";
+                                row.className = "list-group-item list-group-item-action d-flex justify-content-between align-items-center request waves-effect";
                                 if (user.userName == data.white) {
                                     row.innerText = `vs ${data.black}`;
                                 } else {
                                     row.innerText = `vs ${data.white}`;
                                 }
+
                                 let accept = document.createElement('button');
                                 accept.className = 'btn accept';
                                 accept.onclick = function () {
@@ -882,14 +992,18 @@
                                 cancel.onclick = function () {
                                     rejectGame(data.id);
                                 }
+                                let actions = document.createElement('div');
+                                actions.className = 'request-actions';
+                                actions.appendChild(cancel);
+                                actions.appendChild(accept);
+
+                                row.appendChild(actions);
 
                                 row.onmouseenter = function () {
-                                    row.appendChild(accept);
-                                    row.appendChild(cancel);
+                                    $(actions).fadeToggle();
                                 }
                                 row.onmouseleave = function() {
-                                    row.removeChild(accept);
-                                    row.removeChild(cancel);
+                                    $(actions).fadeToggle();
                                 }
                                 document.getElementById("requestsTable").appendChild(row);
 
@@ -919,7 +1033,6 @@
                     }
                 })
 
-                document.getElementById("gamesContent").innerHTML = '\t<div class="dropdown"><input id="searchInput" type="text" placeholder="Search..." onkeyup="updateAutocomplete()"><br><div aria-labelledby="dropdownMenuButton" id="dropdownMenuBody"></div></div>'
                 updateAutocomplete();
             }
 
@@ -970,7 +1083,7 @@
                         {
                             let index = str.toLowerCase().indexOf(val.toLowerCase());
                             let boldStr = `${str.substring(0, index)}<strong>${str.substring(index, index+val.length)}</strong>${str.substring(index+val.length, str.length)}`;
-                            htmlStr += `<button class="btn dropdown-item btn-primary" data-dismiss="modal" style="padding-left: 2px" onclick="requestGame('${users[i]}')">${boldStr}</button>`;
+                            htmlStr += `<button class="btn dropdown-item btn-primary" data-dismiss="modal" style="padding-left: 2px" onclick="selectOpponent('${users[i]}')">${boldStr}</button>`;
                         }
                     }
                 }
@@ -978,7 +1091,18 @@
                 document.getElementById("dropdownMenuBody").innerHTML = htmlStr;
             }
 
-            function requestGame(x) {
+            function selectOpponent(x) {
+                $('#searchInput').val(x);
+            }
+
+            function requestGame() {
+                let x = $('#searchInput').val();
+
+
+                console.log(`requesting game vs ${x} of type ${gameType }`);
+
+                toggleSidebar();
+
                 $.ajax({
                     method: 'POST',
                     contentType: "application/json",
@@ -992,6 +1116,7 @@
                     }
                 })
             }
+
 
         </script>
 
