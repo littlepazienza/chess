@@ -32,7 +32,9 @@ pipeline {
     }
 
     post {
-        archiveArtifacts artifacts: 'chess-*.zip', fingerprint: true
+        always {
+            archiveArtifacts artifacts: 'chess-*.zip', fingerprint: true
+        }
     }
 }
 
