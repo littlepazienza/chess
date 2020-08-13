@@ -28,7 +28,7 @@ pipeline {
                     zip chess-linux-arm64.zip chess-linux-arm64/*
                     zip chess-darwin-x64.zip chess-darwin-x64/*
                     zip chess-win32-x64.zip chess-win32-x64/*
-                    zip chess-win32-x86_64.zip chess-win32-x86_64/*
+                    zip chess-win32-ia32.zip chess-win32-ia324/*
                     zip chess-win32-arm64.zip chess-win32-arm64/*
                 '''
             }
