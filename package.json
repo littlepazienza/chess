@@ -10,7 +10,7 @@
   "author": "Ben",
   "license": "ISC",
   "dependencies": {
-    "electron": "^6.0.2",
+    "electron": "^9.2.0",
     "electron-packager": "^14.0.4",
     "bootstrap": "^4.3.1",
     "electron-store": "^4.0.0",
