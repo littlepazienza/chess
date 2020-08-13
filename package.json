@@ -1,5 +1,6 @@
 {
   "name": "chess",
+  "productName": "Ben's Chess App",
   "version": "1.0.0",
   "description": "Chess!",
   "main": "js/index.js",
@@ -8,11 +9,9 @@
   },
   "author": "Ben",
   "license": "ISC",
-  "devDependencies": {
-    "electron": "^6.0.2",
-    "electron-packager": "^14.0.4"
-  },
   "dependencies": {
+    "electron": "^6.0.2",
+    "electron-packager": "^14.0.4",
     "bootstrap": "^4.3.1",
     "electron-store": "^4.0.0",
     "jquery": "^3.4.1",

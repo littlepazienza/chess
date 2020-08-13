@@ -1,6 +1,4 @@
-app/node_modules
-release/deployments
-release/downloads
-app/.idea
+node_modules
+.idea
 package-lock.json
 .DS_STORE
