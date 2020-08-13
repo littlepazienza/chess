@@ -18,7 +18,10 @@ pipeline {
         }
         stage('build') {
             steps {
-                sh 'electron-packager . chess --platform=darwin --arch=arm64'
+                sh '''
+                    electron-packager . chess --platform=darwin --arch=all
+                    electron-packager . chess --platform=linux --arch=all
+                '''
             }
         }
 //         stage('deploy') {
